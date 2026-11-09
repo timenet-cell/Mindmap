@@ -262,6 +262,17 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .bv input { width: 100%; text-align: center; font-size: 22px; font-weight: 700; border: 3px solid var(--linha); border-radius: 20px;
   padding: 7px 14px; outline: none; box-shadow: 0 4px 0 var(--linha); background: var(--surface); }
 .bv .bt { font-size: 18px; padding: 7px 22px; background: #d6f5df; color: #2a2230; }
+.bv-pw { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.bv-pw[hidden] { display: none; }
+.bv-pw p { font-size: 14px; margin-top: 4px; }
+.bv .bv-pw input, #cadeado input, #mudarpw input { font-size: 17px; font-weight: 600; padding: 6px 14px; box-shadow: 0 3px 0 var(--linha); }
+#mudarpw .j-caixa { gap: 9px; }
+.bv-aviso { font-size: 12.5px; color: var(--text2); background: var(--surface2); border-radius: 12px; padding: 7px 11px; text-align: left; }
+.bv-erro { color: var(--red); font-weight: 600; font-size: 14px; }
+.bv-erro[hidden] { display: none; }
+.abana { animation: abana .4s; }
+@keyframes abana { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+body.trancado > header, body.trancado > main { visibility: hidden; }
 
 #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 60; background: var(--surface); border: 2.5px solid var(--linha);
   border-radius: 999px; padding: 7px 10px 7px 16px; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 0 var(--linha); font-weight: 500; max-width: 90vw; }
@@ -281,11 +292,14 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
   <div class="esp"></div>
   <button id="bt-despejo" class="bt bt-despejo" title="Despejar tudo o que tens na cabeça">🌪️ Despejar</button>
   <button id="bt-arrumados" class="bt redondo" title="Assuntos arrumados">📦</button>
+  <button id="bt-trancar" class="bt redondo" title="Trancar o Mindmap">🔒</button>
   <button id="estado" class="estado"></button>
   <button id="bt-desfazer" class="bt redondo" title="Desfazer (⌘Z)">↶</button>
   <details class="menu" id="menu">
     <summary class="bt">Ficheiro</summary>
     <div class="menu-itens">
+      <button data-acao="sitio" class="so-nativo">Onde guardar as ideias…<small id="sitio-txt"></small></button>
+      <hr class="so-nativo">
       <button data-acao="ligar" class="so-fs">Gravar automaticamente num ficheiro…<small>Escolhe uma pasta no iCloud Drive e fica sempre com cópia</small></button>
       <button data-acao="abrir" class="so-fs">Abrir um ficheiro e continuar nele…<small>Para voltar a ligar um mindmap.json que já existe</small></button>
       <hr class="so-fs">
@@ -293,6 +307,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
       <button data-acao="importar">Importar cópia…<small>Substitui o mapa atual</small></button>
       <hr>
       <button data-acao="nome">Mudar o nome do Cérebro</button>
+      <button data-acao="senha">Mudar a password</button>
       <button data-acao="atualizar">Procurar versão nova<small id="versao-txt"></small></button>
     </div>
   </details>
@@ -331,9 +346,17 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 <div id="boasvindas" class="janela" hidden>
   <div class="j-caixa bv" role="dialog" aria-label="Dar nome ao Cérebro">
     <div class="fig"><div class="fig-in"></div></div>
-    <h2>Olá! Eu sou o teu Cérebro.</h2>
-    <p>Que nome me queres dar?</p>
+    <h2 id="bv-tit">Olá! Eu sou o teu Cérebro.</h2>
+    <p id="bv-sub">Que nome me queres dar?</p>
     <input id="bv-nome" maxlength="40" placeholder="Ex.: Cérebro da Ana" autocomplete="off">
+    <div class="bv-pw">
+      <p>E uma password, para seres só tu a entrar. Sem ela, o Mindmap não abre.</p>
+      <input id="bv-pw1" type="password" autocomplete="new-password" placeholder="Password">
+      <input id="bv-pw2" type="password" autocomplete="new-password" placeholder="Repete a password">
+      <input id="bv-dica" maxlength="80" autocomplete="off" placeholder="Uma dica para te lembrares (opcional)">
+      <div class="bv-aviso">⚠️ Se te esqueceres da password, as ideias não se recuperam. Ninguém as consegue abrir sem ela.</div>
+    </div>
+    <div class="bv-erro" hidden></div>
     <button class="bt" id="bv-ok">Vamos lá!</button>
   </div>
 </div>
@@ -359,6 +382,28 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 <div id="respirar" class="janela" hidden>
   <div class="resp"><div class="resp-bola"><div class="fig"><div class="fig-in"></div></div></div><div class="resp-txt">Prepara-te…</div><button class="bt" id="resp-parar">Parar</button></div>
 </div>
+<div id="cadeado" class="janela" hidden>
+  <div class="j-caixa bv" role="dialog" aria-label="Mindmap trancado">
+    <div class="fig"><div class="fig-in"></div></div>
+    <h2>🔒 O teu Mindmap está trancado</h2>
+    <p>Escreve a tua password para entrar.</p>
+    <input id="cd-pw" type="password" autocomplete="current-password" placeholder="Password">
+    <div class="bv-erro" hidden></div>
+    <button class="bt" id="cd-ok">Abrir</button>
+    <button class="link" id="cd-dica">Não me lembro… mostrar a dica</button>
+  </div>
+</div>
+<div id="mudarpw" class="janela" hidden>
+  <div class="j-caixa bv" role="dialog" aria-label="Mudar a password">
+    <h2>🔑 Mudar a password</h2>
+    <input id="mp-atual" type="password" autocomplete="current-password" placeholder="Password de agora">
+    <input id="mp-1" type="password" autocomplete="new-password" placeholder="Password nova">
+    <input id="mp-2" type="password" autocomplete="new-password" placeholder="Repete a password nova">
+    <input id="mp-dica" maxlength="80" autocomplete="off" placeholder="Dica nova (opcional)">
+    <div class="bv-erro" hidden></div>
+    <div class="acoes"><button class="bt bt-ideia" id="mp-ok">Mudar</button><button class="bt" data-fechar>Cancelar</button></div>
+  </div>
+</div>
 <input type="file" id="ficheiro-in" accept=".json,application/json" hidden>
 <input type="file" id="bnc-in" accept="image/*" hidden>
 <div id="toast" hidden></div>
@@ -367,7 +412,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.09.01';
+const APP_VERSAO = '2026.11.09.03';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -517,15 +562,12 @@ function arrumar(d) {
   if (!d.nos[d.raiz].b) d.nos[d.raiz].b = { k: 'cerebro', e: 'feliz' };
   if (!d.despejo || typeof d.despejo.texto !== 'string') d.despejo = { texto: '', frases: [] };
   if (!Array.isArray(d.despejo.frases)) d.despejo.frases = [];
+  if (!Array.isArray(d.diario)) d.diario = [];
   return d;
 }
-function carregar() {
-  try { const d = JSON.parse(lsGet(KEY)); if (valido(d)) return arrumar(d); } catch (e) {}
-  return inicial();
-}
-let dados = carregar();
-let atual = (location.hash.match(/n=([\w-]+)/) || [])[1] || dados.raiz;
-if (!dados.nos[atual]) atual = dados.raiz;
+// Os dados só entram em memória depois da password (ver «Password» e «Arranque»).
+let dados = inicial();
+let atual = dados.raiz;
 let sel = -1, ocupado = false, caixa = null, arrastado = null, arrastoFrase = null;
 let pilha = [], pendente = null;
 
@@ -533,6 +575,11 @@ function caminho(id) { const r = []; let x = dados.nos[id]; while (x) { r.unshif
 function contar(id) { const n = dados.nos[id]; return 1 + n.f.reduce((s, f) => s + contar(f), 0); }
 function dentroDe(a, b) { let x = dados.nos[a]; while (x) { if (x.id === b) return true; x = x.p ? dados.nos[x.p] : null; } return false; }
 
+// O diário: o que a pessoa faz, com a hora, para as estatísticas (fica só no ficheiro dela).
+function registar(a, extra) {
+  dados.diario.push(Object.assign({ t: Date.now(), a }, extra || {}));
+  if (dados.diario.length > 5000) dados.diario.splice(0, dados.diario.length - 5000);
+}
 function guardarUndo(snap) { pilha.push(snap || JSON.stringify(dados.nos)); if (pilha.length > 150) pilha.shift(); }
 function mudar(fn) { guardarUndo(); fn(); guardar(); }
 function campo(e, aoEscrever) {
@@ -554,14 +601,64 @@ function removerNo(id) {
 
 /* ---------- Gravar: browser + ficheiro (Chrome/Edge) ---------- */
 let fh = null, fhOk = false, tFich = null, ultimaEscrita = 0;
+// Quando a app for compilada para o Mac, o programa à volta dela dá-lhe
+// window.MindmapNativo, que lê e grava o mindmap.json num sítio fixo fora da
+// pasta da app (ver o README). No browser não existe e usa-se o resto.
+const nativo = window.MindmapNativo || null;
+let ultimaNativa = 0;
+
+/* ---------- Password: tudo o que se grava vai cifrado ---------- */
+// A chave sai da password (PBKDF2, 310 000 voltas) e cifra com AES-GCM 256.
+// Sem a password, o mindmap.json e as cópias são só letras baralhadas.
+let chave = null, salAtual = null, dicaAtual = '', pwMem = '', textoGuardado = null;
+function paraB64(buf) { const b = new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); }
+function deB64(s) { const bin = atob(s), b = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return b; }
+async function tirarChave(pw, sal) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: sal, iterations: 310000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function cifrar(obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, chave, new TextEncoder().encode(JSON.stringify(obj)));
+  return JSON.stringify({ mindmap: 3, savedAt: obj.savedAt || 0, dica: dicaAtual, sal: paraB64(salAtual), iv: paraB64(iv), ct: paraB64(ct) });
+}
+async function decifrar(env, k) {
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(env.iv) }, k, deB64(env.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function lerJSON(txt) { try { return typeof txt === 'string' ? JSON.parse(txt) : txt; } catch (e) { return null; } }
+function cifrado(o) { return !!(o && o.mindmap === 3 && o.ct); }
+// O que vem de um ficheiro: cifrado com esta password, ou simples (das versões antigas).
+// Devolve os dados, ou null se não der para abrir.
+async function abrirConteudo(txt) {
+  const o = lerJSON(txt); if (!o) return null;
+  if (!cifrado(o)) return valido(o) ? o : null;
+  try { const k = o.sal === paraB64(salAtual) ? chave : await tirarChave(pwMem, deB64(o.sal)); const d = await decifrar(o, k); return valido(d) ? d : null; }
+  catch (e) { return null; }
+}
+
+let tGrava = null;
 function guardar() {
   dados.savedAt = Date.now();
-  if (!lsSet(KEY, JSON.stringify(dados))) toast('Não consegui gravar no browser (imagens a mais?) — exporta uma cópia');
-  if (fh && fhOk) { clearTimeout(tFich); tFich = setTimeout(escreverFicheiro, 500); }
+  clearTimeout(tGrava); tGrava = setTimeout(gravarTudo, 250);
+}
+async function gravarTudo() {
+  clearTimeout(tGrava); tGrava = null;
+  if (!chave) return;                               // trancado: não se grava nada
+  textoGuardado = await cifrar(dados);
+  if (!lsSet(KEY, textoGuardado) && !nativo) toast('Não consegui gravar no browser (imagens a mais?) — exporta uma cópia');
+  if (nativo) await gravarNativo();
+  if (fh && fhOk) await escreverFicheiro();
+  estado();
+}
+async function gravarNativo() {
+  try { if (!textoGuardado) textoGuardado = await cifrar(dados); await nativo.gravar(textoGuardado); ultimaNativa = Date.now(); }
+  catch (e) { toast('Não consegui gravar o ficheiro das ideias'); }
+  estado();
 }
 async function escreverFicheiro() {
   if (!fh || !fhOk) return;
-  try { const w = await fh.createWritable(); await w.write(JSON.stringify(dados)); await w.close(); ultimaEscrita = Date.now(); }
+  try { if (!textoGuardado) textoGuardado = await cifrar(dados); const w = await fh.createWritable(); await w.write(textoGuardado); await w.close(); ultimaEscrita = Date.now(); }
   catch (e) { fhOk = false; toast('Perdi o acesso ao ficheiro — carrega no estado para religar'); }
   estado();
 }
@@ -578,16 +675,16 @@ const idbSet = (k, v) => idb('readwrite', s => s.put(v, k));
 const TIPOS = [{ description: 'Mindmap', accept: { 'application/json': ['.json'] } }];
 async function ligarFicheiro() {
   try {
-    const h = await showSaveFilePicker({ suggestedName: 'mindmap.json', types: TIPOS });
+    const h = await showSaveFilePicker({ suggestedName: 'mindmap.json', types: TIPOS, startIn: 'documents' });
     fh = h; fhOk = true; try { await idbSet('fh', h); } catch (e) {}
     await escreverFicheiro(); toast('A gravar automaticamente em ' + h.name);
   } catch (e) { if (e.name !== 'AbortError') toast('Não deu para ligar o ficheiro'); }
 }
 async function abrirFicheiro() {
   try {
-    const [h] = await showOpenFilePicker({ types: TIPOS });
-    const d = JSON.parse(await (await h.getFile()).text());
-    if (!valido(d)) { toast('Esse ficheiro não é um Mindmap'); return; }
+    const [h] = await showOpenFilePicker({ types: TIPOS, startIn: 'documents' });
+    const txt = await (await h.getFile()).text(), d = await abrirConteudo(txt);
+    if (!d) { toast(cifrado(lerJSON(txt)) ? 'Esse ficheiro tem outra password' : 'Esse ficheiro não é um Mindmap'); return; }
     substituir(d);
     fh = h; try { await idbSet('fh', h); } catch (e) {}
     fhOk = (await h.requestPermission({ mode: 'readwrite' })) === 'granted';
@@ -601,21 +698,21 @@ async function religar() {
 }
 async function sincronizar() {
   let d = null;
-  try { const txt = await (await fh.getFile()).text(); if (txt.trim()) d = JSON.parse(txt); } catch (e) {}
-  if (valido(d) && (d.savedAt || 0) > (dados.savedAt || 0)) {
-    dados = arrumar(d); lsSet(KEY, JSON.stringify(dados)); pilha = [];
+  try { const txt = await (await fh.getFile()).text(); if (txt.trim()) d = await abrirConteudo(txt); } catch (e) {}
+  if (d && (d.savedAt || 0) > (dados.savedAt || 0)) {
+    dados = arrumar(d); pilha = []; await gravarTudo();
     if (!dados.nos[atual]) atual = dados.raiz;
     render(); toast('Carreguei a versão mais recente de ' + fh.name);
   } else await escreverFicheiro();
 }
 function substituir(d) {
   pilha = [];
-  dados = arrumar({ v: 2, raiz: d.raiz, nos: d.nos, colecoes: d.colecoes, despejo: d.despejo, nomeado: true, savedAt: 0 });
+  dados = arrumar({ v: 2, raiz: d.raiz, nos: d.nos, colecoes: d.colecoes, despejo: d.despejo, diario: d.diario, nomeado: true, savedAt: 0 });
   atual = dados.raiz; sel = -1; guardar(); render();
 }
-function exportar() {
+async function exportar() {
   const a = el('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(dados)], { type: 'application/json' }));
+  a.href = URL.createObjectURL(new Blob([await cifrar(dados)], { type: 'application/json' }));   // a cópia também vai cifrada
   a.download = `mindmap-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   lsSet(KEY_EXP, String(Date.now())); estado();
@@ -623,15 +720,16 @@ function exportar() {
 $('#ficheiro-in').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   try {
-    const d = JSON.parse(await f.text());
-    if (!valido(d)) { toast('Esse ficheiro não é um Mindmap'); return; }
+    const txt = await f.text(), d = await abrirConteudo(txt);
+    if (!d) { toast(cifrado(lerJSON(txt)) ? 'Essa cópia tem outra password' : 'Esse ficheiro não é um Mindmap'); return; }
     if (!confirm('Substituir o mapa atual pelo do ficheiro?')) return;
     substituir(d); toast('Importado ' + f.name);
   } catch (err) { toast('Não consegui ler esse ficheiro'); }
 };
 function estado() {
   const s = $('#estado'); let txt, cls = '', dica;
-  if (fh && fhOk) { txt = `${fh.name} · gravado ${hora(ultimaEscrita || Date.now())}`; cls = 'ok'; dica = 'Cada alteração grava neste ficheiro'; }
+  if (nativo) { const onde = nativo.onde ? nativo.onde() : 'mindmap.json'; txt = `Guardado · ${hora(ultimaNativa || Date.now())}`; cls = 'ok'; dica = 'As ideias estão em ' + onde; }
+  else if (fh && fhOk) { txt = `${fh.name} · gravado ${hora(ultimaEscrita || Date.now())}`; cls = 'ok'; dica = 'Cada alteração grava neste ficheiro'; }
   else if (fh) { txt = `Carrega para religar ${fh.name}`; cls = 'aviso'; dica = 'O browser pede autorização de novo depois de reabrir'; }
   else {
     const ult = +lsGet(KEY_EXP) || 0, dias = ult ? Math.floor((Date.now() - ult) / 864e5) : null;
@@ -641,17 +739,31 @@ function estado() {
   }
   s.textContent = txt; s.className = 'estado ' + cls; s.title = dica;
 }
-$('#estado').onclick = () => { if (fh && !fhOk) religar(); else if (temFS && !fh) ligarFicheiro(); else if (!temFS) exportar(); };
+$('#estado').onclick = () => { if (nativo) toast('As tuas ideias estão em ' + (nativo.onde ? nativo.onde() : 'mindmap.json')); else if (fh && !fhOk) religar(); else if (temFS && !fh) ligarFicheiro(); else if (!temFS) exportar(); };
 $('#bt-desfazer').onclick = desfazer;
-document.querySelectorAll('.so-fs').forEach(e => { if (!temFS) e.remove(); });
+document.querySelectorAll('.so-fs').forEach(e => { if (!temFS || nativo) e.remove(); });
+document.querySelectorAll('.so-nativo').forEach(e => { if (!nativo || !nativo.sitios) e.remove(); });
+// Na app compilada: escolher entre o iCloud Drive e os Documentos.
+function escolherSitio() {
+  const s = nativo.sitios().filter(x => x.disponivel);
+  perguntar('📁 Onde guardo as tuas ideias?',
+    'Fica lá o ficheiro mindmap.json, sempre atualizado e fora da app. Podes mudar quando quiseres em Ficheiro.',
+    s.map(x => [(x.k === 'icloud' ? '☁️ ' : '📁 ') + x.nome, async () => {
+      try { await nativo.mudarPara(x.k); await gravarNativo(); toast('As tuas ideias ficam em ' + x.nome + ' 💗'); }
+      catch (e) { toast('Não consegui mudar o sítio das ideias'); }
+      sitioTxt();
+    }, 'bt bt-ideia']));
+}
+function sitioTxt() { const e = $('#sitio-txt'); if (e && nativo) e.textContent = nativo.onde ? nativo.onde() : ''; }
+sitioTxt();
 $('#menu').addEventListener('click', e => {
   const b = e.target.closest('[data-acao]'); if (!b) return;
   $('#menu').open = false;
-  ({ ligar: ligarFicheiro, abrir: abrirFicheiro, exportar, importar: () => $('#ficheiro-in').click(), nome: boasVindas,
-     atualizar: () => verAtualizacao(true) })[b.dataset.acao]();
+  ({ ligar: ligarFicheiro, abrir: abrirFicheiro, exportar, importar: () => $('#ficheiro-in').click(), nome: () => boasVindas('nome'), senha: abrirMudarPw,
+     atualizar: () => verAtualizacao(true), sitio: escolherSitio })[b.dataset.acao]();
 });
 document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').open = false; });
-document.addEventListener('visibilitychange', () => { if (document.hidden && tFich) { clearTimeout(tFich); tFich = null; escreverFicheiro(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden && tGrava) gravarTudo(); });
 
 /* ---------- Vista: arrastar, roda e zoom ---------- */
 let vista = { x: 0, y: 0, z: 1 };
@@ -1244,6 +1356,7 @@ function desenharEscolha() {
 }
 function definirBoneco(b) {
   const id = escId, reabrir = caixa && caixa.id === id;
+  if (b && b.e) registar('emo', { e: b.e });
   mudar(() => { dados.nos[id].b = b; });
   esc.hidden = true; render(); if (reabrir) abrirCaixa(id);
 }
@@ -1424,21 +1537,115 @@ document.querySelectorAll('[data-fechar]').forEach(b => b.onclick = () => { b.cl
 
 /* ---------- Dar nome ao Cérebro ---------- */
 const bv = $('#boasvindas');
-function boasVindas() {
+let modoBv = 'criar';
+function erro(janela, msg) {
+  const e = janela.querySelector('.bv-erro'), c = janela.querySelector('.j-caixa');
+  e.textContent = msg; e.hidden = !msg;
+  if (msg) { c.classList.remove('abana'); c.offsetWidth; c.classList.add('abana'); }
+}
+// 'criar': nome (se faltar) + password nova. 'nome': só mudar o nome.
+function boasVindas(modo = 'nome') {
+  modoBv = modo;
   const raiz = dados.nos[dados.raiz];
   bv.querySelector('.fig-in').innerHTML = desenharBoneco({ k: 'cerebro', e: 'feliz' });
+  $('#bv-tit').textContent = modo === 'criar' && dados.nomeado ? 'Vamos proteger o teu Cérebro 🔒' : 'Olá! Eu sou o teu Cérebro.';
+  $('#bv-sub').textContent = modo === 'criar' && dados.nomeado ? 'Confirma o nome dele e escolhe uma password.' : 'Que nome me queres dar?';
+  bv.querySelector('.bv-pw').hidden = modo !== 'criar';
+  ['#bv-pw1', '#bv-pw2', '#bv-dica'].forEach(s => { $(s).value = ''; });
+  erro(bv, '');
   const inp = $('#bv-nome'); inp.value = raiz.t || '';
-  bv.hidden = false; setTimeout(() => inp.focus(), 60);
+  bv.hidden = false; setTimeout(() => (inp.value ? $('#bv-pw1') : inp).focus(), 60);
+  if (modo === 'nome') setTimeout(() => inp.focus(), 60);
 }
-function boasVindasOk() {
+async function boasVindasOk() {
   const inp = $('#bv-nome'), v = inp.value.trim(); if (!v) { inp.focus(); return; }
+  if (modoBv === 'criar') {
+    const p1 = $('#bv-pw1').value, p2 = $('#bv-pw2').value;
+    if (p1.length < 4) { erro(bv, 'A password tem de ter pelo menos 4 letras ou números.'); $('#bv-pw1').focus(); return; }
+    if (p1 !== p2) { erro(bv, 'As duas passwords não são iguais.'); $('#bv-pw2').focus(); return; }
+    const b = $('#bv-ok'); b.disabled = true;
+    salAtual = crypto.getRandomValues(new Uint8Array(16)); chave = await tirarChave(p1, salAtual);
+    pwMem = p1; dicaAtual = $('#bv-dica').value.trim(); b.disabled = false;
+  }
   const raiz = dados.nos[dados.raiz], primeira = !dados.nomeado;
-  mudar(() => { raiz.t = v; }); dados.nomeado = true; guardar();
-  bv.hidden = true; render();
+  if (modoBv === 'criar') { raiz.t = v; dados.nomeado = true; bv.hidden = true; guardar(); await gravarTudo(); entrar(); }
+  else { mudar(() => { raiz.t = v; }); dados.nomeado = true; bv.hidden = true; render(); }
   if (primeira) toast(`Olá, ${v}! Carrega em ＋ Ideia (ou Tab) para pôr cá fora o que tens na cabeça.`);
+  // No browser, as ideias passam a ficar também num ficheiro, fora da pasta da app.
+  if (primeira && nativo && nativo.sitios) setTimeout(escolherSitio, 700);
+  else if (primeira && !nativo && temFS && !fh) setTimeout(() => perguntar('📁 Onde guardo as tuas ideias?',
+    'Escolhe uma pasta fora da app, por exemplo Documentos ou iCloud Drive. Fica lá o ficheiro mindmap.json, sempre atualizado.',
+    [['📁 Escolher a pasta', ligarFicheiro, 'bt bt-ideia'], ['Mais tarde', () => {}, 'bt']]), 700);
 }
 $('#bv-ok').onclick = boasVindasOk;
-$('#bv-nome').addEventListener('keydown', e => { if (e.key === 'Enter') boasVindasOk(); if (e.key === 'Escape' && dados.nomeado) bv.hidden = true; });
+bv.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && modoBv === 'nome') { bv.hidden = true; return; }
+  if (e.key !== 'Enter') return;
+  const is = [...bv.querySelectorAll('input')].filter(i => !i.closest('[hidden]')), i = is.indexOf(e.target);
+  if (i >= 0 && i < is.length - 1) is[i + 1].focus(); else boasVindasOk();
+});
+
+/* ---------- Trancado: o ecrã da password ---------- */
+const cd = $('#cadeado');
+let envGuardado = null;
+function mostrarCadeado() {
+  document.body.classList.add('trancado');
+  cd.querySelector('.fig-in').innerHTML = desenharBoneco({ k: 'cerebro', e: 'cansado' });
+  $('#cd-pw').value = ''; erro(cd, '');
+  $('#cd-dica').hidden = !envGuardado.dica;
+  cd.hidden = false; setTimeout(() => $('#cd-pw').focus(), 60);
+}
+async function abrirCadeado() {
+  const pw = $('#cd-pw').value; if (!pw) { $('#cd-pw').focus(); return; }
+  const b = $('#cd-ok'); b.disabled = true; b.textContent = 'A abrir…';
+  try {
+    const sal = deB64(envGuardado.sal), k = await tirarChave(pw, sal), d = await decifrar(envGuardado, k);
+    if (!valido(d)) throw new Error('inválido');
+    chave = k; salAtual = sal; pwMem = pw; dicaAtual = envGuardado.dica || ''; textoGuardado = null;
+    dados = arrumar(d); cd.hidden = true; entrar();
+  } catch (e) { erro(cd, 'Não é esta. Tenta outra vez, com calma 💗'); $('#cd-pw').select(); }
+  b.disabled = false; b.textContent = 'Abrir';
+}
+$('#cd-ok').onclick = abrirCadeado;
+$('#cd-pw').addEventListener('keydown', e => { if (e.key === 'Enter') abrirCadeado(); });
+$('#cd-dica').onclick = () => erro(cd, '💡 ' + envGuardado.dica);
+
+// Depois da password: mostra-se o mapa e liga-se o resto.
+async function entrar() {
+  document.body.classList.remove('trancado');
+  atual = (location.hash.match(/n=([\w-]+)/) || [])[1] || dados.raiz;
+  if (!dados.nos[atual]) atual = dados.raiz;
+  render(); estado(); armarTrancar();
+  setTimeout(() => verAtualizacao(false), 3000);
+  if (!nativo && temFS) {
+    try {
+      const h = await idbGet('fh');
+      if (h) { fh = h; if ((await h.queryPermission({ mode: 'readwrite' })) === 'granted') { fhOk = true; await sincronizar(); } }
+    } catch (e) {}
+    estado();
+  }
+}
+// Trancar: grava o que falta e esquece tudo da memória.
+async function trancar() { if (chave) await gravarTudo(); location.hash = ''; location.reload(); }
+$('#bt-trancar').onclick = trancar;
+let tTrancar = null;
+function armarTrancar() { clearTimeout(tTrancar); tTrancar = setTimeout(trancar, 15 * 60e3); }   // 15 minutos parado
+['mousemove', 'keydown', 'wheel', 'mousedown'].forEach(ev => addEventListener(ev, () => { if (chave) armarTrancar(); }, { passive: true }));
+
+/* ---------- Mudar a password ---------- */
+const mp = $('#mudarpw');
+function abrirMudarPw() { ['#mp-atual', '#mp-1', '#mp-2'].forEach(s => { $(s).value = ''; }); $('#mp-dica').value = dicaAtual; erro(mp, ''); mp.hidden = false; setTimeout(() => $('#mp-atual').focus(), 60); }
+async function mudarPw() {
+  if ($('#mp-atual').value !== pwMem) { erro(mp, 'A password de agora não está certa.'); return; }
+  const p1 = $('#mp-1').value, p2 = $('#mp-2').value;
+  if (p1.length < 4) { erro(mp, 'A password nova tem de ter pelo menos 4 letras ou números.'); return; }
+  if (p1 !== p2) { erro(mp, 'As duas passwords novas não são iguais.'); return; }
+  salAtual = crypto.getRandomValues(new Uint8Array(16)); chave = await tirarChave(p1, salAtual);
+  pwMem = p1; dicaAtual = $('#mp-dica').value.trim();
+  await gravarTudo(); mp.hidden = true; toast('Password mudada 🔑 A partir de agora entra-se com a nova.');
+}
+$('#mp-ok').onclick = mudarPw;
+mp.addEventListener('keydown', e => { if (e.key === 'Enter') mudarPw(); });
 
 /* ---------- Procurar ---------- */
 const busca = $('#busca'), res = $('#resultados');
@@ -1470,7 +1677,7 @@ busca.addEventListener('blur', () => setTimeout(() => { res.hidden = true; }, 10
 /* ---------- Teclado ---------- */
 function emTexto(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
 document.addEventListener('keydown', e => {
-  if (!bv.hidden) return;
+  if (!bv.hidden || !cd.hidden || !chave) return;
   const jan = [...document.querySelectorAll('.janela')].find(j => !j.hidden);
   if (jan) { if (e.key === 'Escape') { if (jan.id === 'respirar') pararRespirar(); else jan.hidden = true; } return; }
   const mod = e.metaKey || e.ctrlKey;
@@ -1538,18 +1745,20 @@ $('#versao-txt').textContent = 'Versão ' + APP_VERSAO;
 $('#logo').innerHTML = desenharBoneco({ k: 'cerebro', e: 'feliz' });
 let tResize;
 addEventListener('resize', () => { clearTimeout(tResize); tResize = setTimeout(() => { if (!ocupado) render(); }, 120); });
-render(); estado();
-if (!dados.nomeado) boasVindas();
-else setTimeout(() => verAtualizacao(false), 3000);
-setInterval(() => verAtualizacao(false), 6 * 3600e3);
-(async () => {
-  if (!temFS) return;
-  try {
-    const h = await idbGet('fh'); if (!h) return;
-    fh = h;
-    if ((await h.queryPermission({ mode: 'readwrite' })) === 'granted') { fhOk = true; await sincronizar(); }
-  } catch (e) {}
-  estado();
+setInterval(() => { if (chave) verAtualizacao(false); }, 6 * 3600e3);
+// Ao abrir: vai buscar o mais recente (o ficheiro fora da app, na app compilada,
+// ou a reserva do browser). Se estiver cifrado, pede a password; se ainda não
+// houver password (primeira vez, ou dados das versões antigas), pede para a criar.
+(async function arrancar() {
+  document.body.classList.add('trancado');
+  let o = lerJSON(lsGet(KEY));
+  if (nativo) {
+    try { const o2 = lerJSON(await nativo.ler()); if (o2 && (o2.savedAt || 0) >= ((o && o.savedAt) || 0)) o = o2; }
+    catch (e) { toast('Não consegui ler o ficheiro das ideias'); }
+  }
+  if (cifrado(o)) { envGuardado = o; mostrarCadeado(); return; }
+  dados = o && valido(o) ? arrumar(o) : inicial();
+  render(); boasVindas('criar');
 })();
 </script>
 </body>

@@ -28,6 +28,32 @@ Para mudar uma ideia de sítio, arrasta-a para cima de outra, ou para o caminho 
 
 ## Onde ficam os dados
 
-- **Sempre no browser** do próprio computador.
-- **No Chrome ou no Edge**, em *Ficheiro → Gravar automaticamente num ficheiro…*, escolhe um `mindmap.json`, por exemplo no iCloud Drive. A partir daí grava lá sozinho.
-- **No Safari**, usa *Ficheiro → Exportar cópia* de vez em quando.
+Os dados ficam sempre **fora da pasta da app** e nunca vêm para este repositório.
+
+- **App compilada para o Mac (o caminho principal):** num `mindmap.json` no **iCloud Drive** (`iCloud Drive/Mindmap/`) ou nos **Documentos** (`Documentos/Mindmap/`). Na primeira vez a app pergunta qual dos dois prefere, e dá para mudar depois em *Ficheiro → Onde guardar as ideias…*. O WebView guarda também uma cópia de reserva.
+- **No Chrome ou no Edge, sem compilar:** em *Ficheiro → Gravar automaticamente num ficheiro…* escolhe-se onde fica o `mindmap.json`.
+- **No Safari, sem compilar:** o Safari não deixa uma página gravar em ficheiros. Os dados ficam só no Safari, por isso é preciso usar *Ficheiro → Exportar cópia*. A app compilada resolve isto.
+
+## Compilar para o Mac (instruções para o agente)
+
+Faz-se uma app de Mac que mostra o `index.html` num **WKWebView** (Swift, ou Tauri 2, que no Mac também usa o WKWebView). A página não muda; o programa à volta dela só tem de lhe dar o objecto abaixo, **antes** de os scripts da página correrem (por exemplo com um `WKUserScript` em `atDocumentStart`, ou o `initialization_script` do Tauri):
+
+```js
+window.MindmapNativo = {
+  ler(): Promise<string | null>,      // o texto do mindmap.json, ou null se ainda não existir
+  gravar(texto: string): Promise<void>, // escrever de forma atómica (ficheiro temporário + mudar o nome)
+  onde(): string,                     // o caminho, para mostrar à pessoa
+  sitios(): Array<{ k: 'icloud' | 'documentos', nome: string, caminho: string, disponivel: boolean }>,
+  mudarPara(k: 'icloud' | 'documentos'): Promise<void> // mover o ficheiro para lá e usar esse sítio daí em diante
+};
+```
+
+- **Caminhos:**
+  - iCloud Drive: `~/Library/Mobile Documents/com~apple~CloudDocs/Mindmap/mindmap.json` (está disponível se a pasta `com~apple~CloudDocs` existir).
+  - Documentos: `~/Documents/Mindmap/mindmap.json`.
+  - Nunca dentro do `.app`.
+- **Sítio por omissão:** o iCloud Drive se estiver disponível; se não, os Documentos. A escolha guarda-se nas preferências da app (`UserDefaults`), não no `mindmap.json`.
+- **App sem sandbox**, assinada ad-hoc para uso pessoal: assim lê e escreve nesses caminhos sem pedir mais permissões.
+- **Rede:** a página vai buscar `versao.json` e `index.html` a `raw.githubusercontent.com` para avisar de versões novas. O WebView tem de poder fazer esses pedidos.
+- **WebView:** usar um `WKWebsiteDataStore` persistente (o normal), para a cópia de reserva no `localStorage` não se perder.
+- **Para testar sem compilar:** no Chrome, define-se um `window.MindmapNativo` falso antes de carregar a página. A app passa a usá-lo em vez do browser.

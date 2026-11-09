@@ -1,4 +1,4 @@
 {
-  "versao": "2026.11.09.01",
-  "notas": "A app passa a avisar quando há uma versão nova."
+  "versao": "2026.11.09.03",
+  "notas": "Novo: o Mindmap passa a ter password, e as ideias ficam cifradas num ficheiro fora da app."
 }
