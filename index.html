@@ -80,7 +80,8 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 #linhas path { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-opacity: .7; }
 .centro, .no { animation: aparece .28s cubic-bezier(.3,1.5,.6,1); }
 @keyframes aparece { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
-#palco.a-sair > .no, #palco.a-sair > .centro, #palco.a-sair > #linhas { opacity: 0; transition: opacity .2s; }
+#palco.a-focar > :not(.foco), #palco.a-focar .foco > :not(.fig) { opacity: 0; transition: opacity .35s ease-out; }
+#palco.a-focar .foco .fig-in { animation: none; }
 #mapa.com-caixa #palco { opacity: .3; transition: opacity .2s; }
 
 /* Bonecos e animação */
@@ -127,6 +128,8 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .no.sel .no-nome { outline: 3px solid var(--accent); outline-offset: 3px; }
 .no.alvo .no-nome { outline: 3px dashed var(--accent); outline-offset: 3px; }
 .no.a-arrastar { opacity: .4; }
+.no.p2 { width: 124px; } .no.p2 .fig { width: 62px; height: 62px; } .no.p2 .no-nome { font-size: 12.5px; max-width: 124px; padding: 2px 9px; }
+.no.p3 { width: 108px; } .no.p3 .fig { width: 48px; height: 48px; } .no.p3 .no-nome { font-size: 12px; max-width: 108px; padding: 2px 8px; }
 .no-extra { font-size: 12px; color: var(--text2); font-weight: 600; }
 .no-inp { width: 140px; text-align: center; font-weight: 600; font-size: 14px; border: 2.5px solid var(--linha); border-radius: 16px;
   padding: 3px 9px; outline: none; background: var(--surface); box-shadow: 0 0 0 4px var(--sel-bg); }
@@ -511,12 +514,12 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && tFi
 
 /* ---------- Vista: arrastar, roda e zoom ---------- */
 let vista = { x: 0, y: 0, z: 1 };
-function aplicarVista(suave) {
-  palco.style.transition = suave && !reduz ? 'transform .35s ease-out' : 'none';
+function aplicarVista(suave, ms) {
+  palco.style.transition = suave && !reduz ? `transform ${ms || 350}ms cubic-bezier(.45,.05,.25,1)` : 'none';
   palco.style.transform = `translate(${vista.x}px,${vista.y}px) scale(${vista.z})`;
   $('#zoom-val').textContent = Math.round(vista.z * 100) + '%';
 }
-function ajustar(suave) {
+function ajustar(suave, ms) {
   const W = mapa.clientWidth, H = mapa.clientHeight;
   let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
   palco.querySelectorAll('.centro, .no:not(.fantasma)').forEach(e => {
@@ -528,7 +531,7 @@ function ajustar(suave) {
     const z = Math.max(.35, Math.min(1, (W - 40) / (x2 - x1), (H - 60) / (y2 - y1)));
     vista = { z, x: W / 2 - (x1 + x2) / 2 * z, y: H / 2 - (y1 + y2) / 2 * z };
   }
-  aplicarVista(suave);
+  aplicarVista(suave, ms);
 }
 function zoomPara(z2, px, py) {
   z2 = Math.min(2.5, Math.max(.3, z2));
@@ -645,15 +648,15 @@ function construirCentro(no) {
   return c;
 }
 
-function construirCartao(no) {
-  const d = el('div', 'no'); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
+function construirCartao(no, prof = 1) {
+  const d = el('div', 'no' + (prof > 1 ? ' p' + Math.min(prof, 3) : '')); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
   const bts = el('div', 'no-bts');
   bts.append(btn('✎', 'Mudar o nome (F2)', () => renomear(no.id)),
              btn('↗', 'Abrir aqui', () => abrirCaixa(no.id)),
              btn('×', 'Apagar (⌫)', () => apagar(no.id), 'x'));
   const nome = el('div', 'no-nome' + (no.t ? '' : ' sem'), titulo(no));
   d.append(bts, fig(figura(no), no.c), nome);
-  if (no.f.length) d.append(el('div', 'no-extra', `💭 ${no.f.length} ideia${no.f.length === 1 ? '' : 's'}`));
+  if (no.f.length && prof >= MAXP) d.append(el('div', 'no-extra', `💭 ${no.f.length} ideia${no.f.length === 1 ? '' : 's'}`));
   d.onclick = e => { if (e.target.closest('button,input')) return; irPara(no.id, d); };
   d.ondragstart = e => { arrastado = no.id; e.dataTransfer.setData('text/plain', no.id); e.dataTransfer.effectAllowed = 'move'; d.classList.add('a-arrastar'); };
   d.ondragend = () => { arrastado = null; d.classList.remove('a-arrastar'); document.querySelectorAll('.alvo').forEach(x => x.classList.remove('alvo')); };
@@ -661,36 +664,56 @@ function construirCartao(no) {
   return d;
 }
 
-// As ideias à volta do centro, numa elipse "quadrada" para não tocarem no centro.
-function posicoes(n, W, H, cw, ch) {
-  const cardW = 150, cardH = 150, out = [];
-  const rx = Math.max(cw / 2 + cardW / 2 + 60, 250 + n * 18), ry = Math.max(ch / 2 + cardH / 2 + 10, 190 + n * 10);
-  const pot = (v, p) => Math.sign(v) * Math.pow(Math.abs(v), p);
-  for (let i = 0; i < n; i++) {
-    const a = n === 1 ? 0 : -Math.PI / 2 + 2 * Math.PI * (i + 0.5) / n;
-    const k = n > 10 && i % 2 ? 1.3 : 1;
-    out.push({ x: W / 2 + pot(Math.cos(a), .6) * rx * k, y: H / 2 + pot(Math.sin(a), .6) * ry * k });
+// A árvore toda em anéis (como a VNI): as ideias no 1.º anel, as que estão
+// dentro delas no 2.º, e assim até MAXP. Cada ideia fica com uma fatia do
+// círculo à medida das ideias que tem dentro, e os filhos dentro da fatia dela.
+const MAXP = Infinity; // sem limite de níveis
+function folhas(id, d) { const n = dados.nos[id]; return d >= MAXP || !n.f.length ? 1 : n.f.reduce((s, f) => s + folhas(f, d + 1), 0); }
+function arvore(no, W, H, cw, ch) {
+  const itens = [], porNivel = [0];
+  (function distribuir(id, a0, a1, d) {
+    const n = dados.nos[id]; if (d > MAXP || !n.f.length) return;
+    if (d > 1 && a1 - a0 > Math.PI * .9) { const m = (a0 + a1) / 2; a0 = m - Math.PI * .45; a1 = m + Math.PI * .45; }
+    const tot = n.f.reduce((s, f) => s + folhas(f, d), 0);
+    let a = a0;
+    n.f.forEach(f => {
+      const w = folhas(f, d) / tot * (a1 - a0);
+      itens.push({ id: f, pai: id, d, a: a + w / 2 }); porNivel[d] = (porNivel[d] || 0) + 1;
+      distribuir(f, a, a + w, d + 1); a += w;
+    });
+  })(no.id, no.f.length === 1 ? -Math.PI : -Math.PI / 2, no.f.length === 1 ? Math.PI : Math.PI * 1.5, 1);
+  // O tamanho de cada anel: longe do centro e com espaço para as ideias desse anel.
+  const raios = [null], larg = d => d === 1 ? 150 : d === 2 ? 124 : 108;
+  let rx = Math.max(cw / 2 + 135, 250 + (porNivel[1] || 0) * 14), ry = Math.max(ch / 2 + 85, 190 + (porNivel[1] || 0) * 8);
+  for (let d = 1; d < porNivel.length; d++) {
+    if (d > 1) { rx += 165; ry += 135; }
+    const precisa = porNivel[d] * larg(d) * 1.05 / (2 * Math.PI), media = (rx + ry) / 2;
+    if (precisa > media) { const k = precisa / media; rx *= k; ry *= k; }
+    raios.push([rx, ry]);
   }
-  return out;
+  const pot = (v, p) => Math.sign(v) * Math.pow(Math.abs(v), p);
+  itens.forEach(it => {
+    const [rx, ry] = raios[it.d];
+    it.x = W / 2 + pot(Math.cos(it.a), .65) * rx; it.y = H / 2 + pot(Math.sin(it.a), .65) * ry;
+  });
+  return itens;
 }
 
 function render(opts = {}) {
   fecharCaixa(true);
   palco.querySelectorAll('.no, .centro, .fantasma').forEach(e => e.remove());
-  palco.classList.remove('a-sair');
+  palco.classList.remove('a-focar');
   const no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
   const c = construirCentro(no); palco.append(c);
   const cw = c.offsetWidth, ch = c.offsetHeight;
   c.style.left = Math.round((W - cw) / 2) + 'px'; c.style.top = Math.round((H - ch) / 2) + 'px';
-  const pos = posicoes(no.f.length, W, H, cw, ch);
-  no.f.forEach((id, i) => {
-    const card = construirCartao(dados.nos[id]); palco.append(card);
-    card.style.left = Math.round(pos[i].x - card.offsetWidth / 2) + 'px';
-    card.style.top = Math.round(pos[i].y - card.offsetHeight / 2) + 'px';
-    if (opts.esconder === id) card.style.visibility = 'hidden';
+  arvore(no, W, H, cw, ch).forEach(it => {
+    const card = construirCartao(dados.nos[it.id], it.d); card.dataset.pai = it.pai; palco.append(card);
+    card.style.left = Math.round(it.x - card.offsetWidth / 2) + 'px';
+    card.style.top = Math.round(it.y - card.offsetHeight / 2) + 'px';
   });
   if (sel >= no.f.length) sel = no.f.length - 1;
-  marcarSel(); linhas(); ajustar(opts.suave);
+  marcarSel(); linhas(); if (!opts.semAjuste) ajustar(opts.suave);
   history.replaceState(null, '', '#n=' + atual);
   document.title = titulo(no) + ' · Mindmap';
 }
@@ -701,9 +724,9 @@ function meioFig(caixaEl) {
 function linhas() {
   const svg = $('#linhas'); svg.innerHTML = '';
   const c = palco.querySelector('.centro'); if (!c) return;
-  const a = meioFig(c);
   palco.querySelectorAll('.no:not(.fantasma)').forEach(n => {
-    const b = meioFig(n), dx = b.x - a.x, dy = b.y - a.y;
+    const paiEl = n.dataset.pai === atual ? c : cartaoDe(n.dataset.pai); if (!paiEl) return;
+    const a = meioFig(paiEl), b = meioFig(n), dx = b.x - a.x, dy = b.y - a.y;
     const mx = (a.x + b.x) / 2 - dy * .15, my = (a.y + b.y) / 2 + dx * .15;
     const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     p.setAttribute('d', `M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`);
@@ -717,33 +740,43 @@ function marcarSel() {
 }
 function cartaoDe(id) { return palco.querySelector(`.no[data-id="${id}"]:not(.fantasma)`); }
 
-/* ---------- O movimento entre níveis (como a VNI) ---------- */
+/* ---------- O movimento entre níveis: a câmara desliza (como a VNI) ---------- */
+const FOCO_MS = 620;
 function rectFig(caixaEl) {
   const f = caixaEl.querySelector('.fig');
   return { l: caixaEl.offsetLeft + f.offsetLeft, t: caixaEl.offsetTop + f.offsetTop, w: f.offsetWidth, h: f.offsetHeight };
 }
 function porEm(g, r) { g.style.left = r.l + 'px'; g.style.top = r.t + 'px'; g.style.width = r.w + 'px'; g.style.height = r.h + 'px'; }
-function fantasma(caixaEl) {
-  const g = caixaEl.querySelector('.fig').cloneNode(true); g.classList.add('fantasma'); g.classList.remove('c-fig');
-  porEm(g, rectFig(caixaEl)); palco.append(g); g.offsetWidth; return g;
+// No ecrã: onde está o meio do boneco e que tamanho tem.
+function noEcra(r) { return { x: vista.x + (r.l + r.w / 2) * vista.z, y: vista.y + (r.t + r.h / 2) * vista.z, s: r.w * vista.z }; }
+// Põe a câmara de modo a que o boneco r fique no sítio e no tamanho e (sem animar).
+function encaixar(r, e) {
+  const z = e.s / r.w;
+  vista = { z, x: e.x - (r.l + r.w / 2) * z, y: e.y - (r.t + r.h / 2) * z };
+  aplicarVista(false); palco.offsetWidth;
 }
-function animar(g, r, fim) {
-  requestAnimationFrame(() => porEm(g, r));
-  let feito = false;
-  const acabar = () => { if (feito) return; feito = true; fim(); };
-  g.addEventListener('transitionend', acabar, { once: true });
-  setTimeout(acabar, 450);
-}
+// Carregar numa ideia: a câmara vai até ela e aproxima, o resto desvanece,
+// e ela passa a ser o centro sem salto; depois a câmara recua para ver tudo.
 function irPara(id, deEl) {
   if (ocupado || id === atual || !dados.nos[id]) return;
   const centro = palco.querySelector('.centro');
   sel = -1;
   if (reduz || !deEl || !centro) { atual = id; render(); return; }
   ocupado = true;
-  const g = fantasma(deEl);
-  palco.classList.add('a-sair');
-  animar(g, rectFig(centro), () => { atual = id; render({ suave: true }); ocupado = false; });
+  const rf = rectFig(deEl), alvo = noEcra(rectFig(centro));
+  const z2 = vista.z * alvo.s / (rf.w * vista.z);
+  vista = { z: z2, x: alvo.x - (rf.l + rf.w / 2) * z2, y: alvo.y - (rf.t + rf.h / 2) * z2 };
+  deEl.classList.add('foco'); palco.classList.add('a-focar');
+  aplicarVista(true, FOCO_MS);
+  setTimeout(() => {
+    const e = noEcra(rf);
+    atual = id; render({ semAjuste: true });
+    encaixar(rectFig(palco.querySelector('.centro')), e);
+    ajustar(true, FOCO_MS);
+    setTimeout(() => { ocupado = false; }, FOCO_MS);
+  }, FOCO_MS);
 }
+// Voltar: o centro passa a ser a ideia de onde se veio e a câmara afasta-se.
 function subir(aid) {
   if (ocupado || aid === atual) return;
   const cam = caminho(atual), i = cam.indexOf(aid); if (i < 0) return;
@@ -751,13 +784,12 @@ function subir(aid) {
   atual = aid; sel = dados.nos[aid].f.indexOf(k);
   if (reduz || !centro) { render(); return; }
   ocupado = true;
-  const r = rectFig(centro), g = centro.querySelector('.fig').cloneNode(true);
-  g.classList.add('fantasma'); g.classList.remove('c-fig');
-  render({ esconder: k });
-  porEm(g, r); palco.append(g); g.offsetWidth;
+  const e = noEcra(rectFig(centro));
+  render({ semAjuste: true });
   const card = cartaoDe(k);
-  if (!card) { g.remove(); ocupado = false; return; }
-  animar(g, rectFig(card), () => { g.remove(); card.style.visibility = ''; ocupado = false; });
+  if (card) encaixar(rectFig(card), e);
+  ajustar(true, FOCO_MS);
+  setTimeout(() => { ocupado = false; }, FOCO_MS);
 }
 
 /* ---------- Criar, renomear, apagar ---------- */
