@@ -78,7 +78,9 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 #palco { position: absolute; inset: 0; transform-origin: 0 0; }
 #linhas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #linhas path { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-opacity: .7; }
-.novo { animation: aparece .32s cubic-bezier(.3,1.5,.6,1); }
+.novo { animation: aparece .45s ease-out both; }
+.centro.aberto.novo { animation: abre .55s ease-out .35s both; }
+@keyframes abre { from { opacity: 0; transform: scale(.75); } to { opacity: 1; transform: none; } }
 .raiz { position: absolute; z-index: 2; width: 230px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
 .raiz .fig { width: 150px; height: 150px; }
 .raiz-nome { background: var(--surface); border: 3px solid var(--linha); border-top-color: var(--cor); border-radius: 20px; box-shadow: 0 4px 0 var(--linha);
@@ -86,13 +88,22 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .raiz.alvo .raiz-nome { outline: 3px dashed var(--accent); outline-offset: 3px; }
 .centro.aberto { z-index: 4; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 3px solid var(--linha); border-top: 7px solid var(--cor);
   border-radius: 28px; box-shadow: 0 6px 0 var(--linha); padding: 12px 14px 14px; }
-.centro.aberto .c-fig { width: 130px; height: 130px; }
+.centro.aberto { width: 250px; gap: 7px; padding: 10px 12px 12px; }
+.centro.aberto .c-fig { width: 104px; height: 104px; }
+.centro.aberto .c-nome { font-size: 17px; padding: 3px 10px; border-radius: 16px; border-width: 2.5px; box-shadow: 0 3px 0 var(--linha); }
+.ab-bts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.ab-bts .bt.redondo { width: 36px; height: 36px; font-size: 16px; }
+.ab-nota { width: 100%; font-size: 13px; color: var(--text2); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.ab-nota.vazia { color: var(--text3); font-style: italic; }
+.ab-nota:hover { color: var(--accent); }
+.ab-arq { font-size: 12.5px; color: var(--text2); font-weight: 600; }
+.gav-vazias[hidden] { display: none; }
 .criar-tit { width: 100%; text-align: center; font-size: 13px; font-weight: 600; color: var(--text2); }
 .bt-tipo { border-bottom: 4px solid var(--cor); font-size: 13px; padding: 3px 11px; }
 .gav-vazias { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; align-items: center; font-size: 12.5px; color: var(--text2); font-weight: 600; }
 .gav-bt { width: 32px; height: 32px; border-radius: 50%; border: 2px dashed var(--text3); background: var(--surface2); cursor: pointer; font-size: 15px; padding: 0; }
 .gav-bt:hover, .gav-bt.alvo { border-style: solid; border-color: var(--linha); background: var(--sel-bg); }
-@keyframes aparece { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+@keyframes aparece { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
 #palco.a-focar > :not(.foco), #palco.a-focar .foco > :not(.fig) { opacity: 0; transition: opacity .35s ease-out; }
 #palco.a-focar .foco .fig-in { animation: none; }
 #mapa.com-caixa #palco { opacity: .3; transition: opacity .2s; }
@@ -646,14 +657,37 @@ function ajustar(suave, ms, lista, zMin = .35) {
     x1 = Math.min(x1, e.offsetLeft); y1 = Math.min(y1, e.offsetTop);
     x2 = Math.max(x2, e.offsetLeft + e.offsetWidth); y2 = Math.max(y2, e.offsetTop + e.offsetHeight);
   });
-  if (x1 === Infinity) vista = { x: 0, y: 0, z: 1 };
-  else {
+  let alvo = { x: 0, y: 0, z: 1 };
+  if (x1 !== Infinity) {
     const z = Math.max(zMin, Math.min(1, (W - 40) / (x2 - x1), (H - 60) / (y2 - y1)));
-    vista = { z, x: W / 2 - (x1 + x2) / 2 * z, y: H / 2 - (y1 + y2) / 2 * z };
+    alvo = { z, x: W / 2 - (x1 + x2) / 2 * z, y: H / 2 - (y1 + y2) / 2 * z };
   }
-  aplicarVista(suave, ms);
+  if (suave && !reduz) voarPara(alvo); else { pararVoo(); vista = alvo; aplicarVista(false); }
+}
+// Voar de um ponto ao outro: a câmara sobe um pouco a meio, viaja e desce,
+// com aceleração e travagem suaves. Mexer no rato a meio pára o voo.
+let voo = 0;
+function pararVoo() { cancelAnimationFrame(voo); voo = 0; }
+function voarPara(alvo) {
+  pararVoo();
+  const W = mapa.clientWidth, H = mapa.clientHeight, ini = { ...vista };
+  const c0 = { x: (W / 2 - ini.x) / ini.z, y: (H / 2 - ini.y) / ini.z }, c1 = { x: (W / 2 - alvo.x) / alvo.z, y: (H / 2 - alvo.y) / alvo.z };
+  const dist = Math.hypot(c1.x - c0.x, c1.y - c0.y) * Math.min(ini.z, alvo.z);
+  if (dist < 2 && Math.abs(alvo.z - ini.z) < .01) { vista = alvo; aplicarVista(false); return; }
+  const sobe = Math.min(.4, dist / (Math.max(W, H) * 1.8)), dur = Math.min(1500, 750 + dist * .55);
+  const suave = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const t0 = performance.now();
+  const passo = agora => {
+    const t = Math.min(1, (agora - t0) / dur), e = suave(t);
+    const cx = c0.x + (c1.x - c0.x) * e, cy = c0.y + (c1.y - c0.y) * e;
+    const z = ini.z * Math.pow(alvo.z / ini.z, e) * (1 - sobe * Math.sin(Math.PI * t));
+    vista = { z, x: W / 2 - cx * z, y: H / 2 - cy * z }; aplicarVista(false);
+    if (t < 1) voo = requestAnimationFrame(passo); else { voo = 0; vista = alvo; aplicarVista(false); }
+  };
+  voo = requestAnimationFrame(passo);
 }
 function zoomPara(z2, px, py) {
+  pararVoo();
   z2 = Math.min(2.5, Math.max(.3, z2));
   if (px == null) { px = mapa.clientWidth / 2; py = mapa.clientHeight / 2; }
   vista.x = px - (px - vista.x) * z2 / vista.z; vista.y = py - (py - vista.y) * z2 / vista.z; vista.z = z2;
@@ -674,6 +708,7 @@ mapa.addEventListener('mousedown', e => {
   if (caixa && !e.target.closest('.caixa')) { e.preventDefault(); fecharCaixa(); return; }
   if (e.target.closest('.no, .centro, .caixa, .zoom, #despejo, button, input, textarea')) return;
   e.preventDefault();                               // o fundo: arrastar mexe o mapa
+  pararVoo();
   arr = { x: e.clientX, y: e.clientY, vx: vista.x, vy: vista.y, mexeu: false };
   mapa.classList.add('a-arrastar');
 });
@@ -740,7 +775,38 @@ function contador(f, no) {
   f._cont.textContent = s || d ? `Já libertaste: 🤜 ${s} · 🤚 ${d}` : 'Põe cá para fora: bate ou dá carinho.';
 }
 
+// Uma nuvem aberta: pequena e simples. O resto está no ✏️ (a caixa grande).
+function construirAberto(no) {
+  const c = el('div', 'centro aberto'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
+  const f = fig(figura(no), no.c, 'c-fig'); f.title = 'Mudar o boneco ou a emoção';
+  f.onclick = () => escolherBoneco(no.id); alvo(f, no.id);
+  const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
+  if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; });
+  t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
+  const bts = el('div', 'ab-bts');
+  const b = (ic, tit, fn, cls) => bts.append(btn(ic, tit, fn, 'bt redondo ' + (cls || '')));
+  b('🤜', 'Bater (B)', () => bater(no, f), 'bt-soco');
+  b('🤚', 'Festinhas (F)', () => festinhas(no, f), 'bt-festa');
+  b('✏️', 'Escrever e ver tudo', () => abrirCaixa(no.id), 'bt-emo');
+  b('＋', 'Nova ideia aqui dentro (Tab)', () => novoRamo(no.id), 'bt-ideia');
+  const gavs = no.f.map(x => dados.nos[x]).filter(x => x && x.g && !x.arq && !temConteudo(x));
+  let gv = null;
+  if (gavs.length) {
+    gv = el('div', 'gav-vazias'); gv.hidden = true;
+    gavs.forEach(g => { const x = btn(GAV[g.g].ic, GAV[g.g].nome + ' · ' + GAV[g.g].perg, () => abrirCaixa(g.id), 'gav-bt'); alvo(x, g.id); gv.append(x); });
+    b('🗂️', 'Gavetas por abrir', () => { gv.hidden = !gv.hidden; });
+  } else if (!no.g && !no.f.some(x => dados.nos[x] && dados.nos[x].g)) b('🗂️', 'Abrir as 13 gavetas', () => porGavetas(no.id));
+  if (!no.g && !no.arq) b('📦', 'Arrumar por hoje', () => abrirArrumar(no.id), 'bt-arrumar');
+  c.append(f, t, bts);
+  if (gv) c.append(gv);
+  const l1 = (no.n || '').split('\n').find(s => s.trim());
+  const nt = el('div', 'ab-nota' + (l1 ? '' : ' vazia'), l1 ? '💭 ' + l1 : (no.g ? GAV[no.g].perg : 'Carrega aqui para escrever…'));
+  nt.title = 'Escrever'; nt.onclick = () => abrirCaixa(no.id); c.append(nt);
+  if (no.arq) { const a = el('div', 'ab-arq', '📦 Arrumado · '); a.append(btn('Reabrir', '', () => reabrir(no.id), 'link')); c.append(a); }
+  return c;
+}
 function construirCentro(no) {
+  if (no.p) return construirAberto(no);
   const c = el('div', 'centro' + (no.p ? ' aberto' : '')); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
   const cam = caminho(no.id);
   if (cam.length > 1) {
@@ -861,7 +927,9 @@ function render(opts = {}) {
   const raiz = dados.nos[dados.raiz], no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
   const novo = (e, id) => { if (!antes.has(id) || id === atual) e.classList.add('novo'); };
   const r = atual === raiz.id ? construirCentro(raiz) : construirRaiz(raiz);
-  palco.append(r); poe(r, W / 2, H / 2); novo(r, raiz.id);
+  palco.append(r); poe(r, W / 2, H / 2);
+  if (r.className !== render.raizCls) r.classList.add('novo');   // o Cérebro só se anima quando muda de forma
+  render.raizCls = r.className.replace(' novo', '');
   arvore(raiz, W, H, 340, 600).forEach(it => {
     const n = dados.nos[it.id], e = it.id === atual ? construirCentro(n) : construirCartao(n, it.d);
     e.dataset.pai = it.pai; palco.append(e); poe(e, it.x, it.y); novo(e, it.id);
@@ -973,7 +1041,7 @@ function apagar(id) {
 /* ---------- A caixa aberta no mapa (↗) ---------- */
 function abrirCaixa(id) {
   fecharCaixa(true);
-  const no = dados.nos[id], card = cartaoDe(id); if (!no) return;
+  const no = dados.nos[id], card = elDe(id); if (!no) return;
   const W = mapa.clientWidth, H = mapa.clientHeight;
   const cx = el('div', 'caixa'); cx.style.setProperty('--cor', no.c);
   const topo = el('div', 'cx-topo');
