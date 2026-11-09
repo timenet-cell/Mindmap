@@ -1,27 +1,33 @@
 # Mindmap
 
-Um mapa de ideias simples, num único ficheiro HTML. Inspirado na VNI da Armaro Gatecontrol: a ideia em que estás fica num bloco ao centro e os ramos ficam à volta. Carregar num ramo faz com que ele deslize até ao centro.
+Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve para pôr cá fora o que anda na cabeça, arrumar as ideias e travar os pensamentos que andam às voltas.
+
+- **O Cérebro** fica ao centro. Na primeira vez, a app pergunta que nome lhe queres dar.
+- **As ideias** são nuvens animadas à volta dele. Carregar numa faz com que ela deslize até ao centro (inspirado na VNI da Armaro Gatecontrol), e `Esc` volta para trás.
+- **Bonecos e emoções:** cada ideia pode ter um boneco com 10 emoções (feliz, calmo, com carinho, triste, zangado, furioso, ansioso, assustado, cansado, confuso).
+- **🤜 Bater:** um punho bate no boneco e o ecrã abana. **🤚 Festinhas:** uma mão faz-lhe festas e saem corações. A app conta quantas vezes já libertaste.
+- **Os meus bonecos:** podes criar bonecos com as tuas próprias imagens, uma por emoção. As imagens ficam só no teu computador e não vêm para este repositório.
 
 ## Como usar
 
-Faz duplo clique em `index.html`. Abre no browser e não precisa de instalação nem de internet.
+Faz duplo clique em `index.html`, de preferência no Chrome.
 
-| Tecla | O que faz |
+| Rato / tecla | O que faz |
 |---|---|
-| `Tab` | Novo ramo (e `Tab` outra vez para o seguinte) |
-| `← →` | Escolher um ramo |
-| `Enter` | Entrar no ramo escolhido |
-| `Espaço` | Abrir o ramo numa caixa grande, para escrever notas |
-| `Esc` | Voltar ao nível de cima |
-| `F2` | Renomear |
-| `⌫` | Apagar (há sempre *Desfazer*) |
+| Clicar numa ideia | Vem para o centro |
+| Arrastar o fundo / roda | Mexe o mapa |
+| `⌘` ou `Ctrl` + roda (ou beliscar no trackpad) | Zoom |
+| Duplo clique no fundo / `0` | Ver tudo |
+| `Tab` | Nova ideia (e `Tab` outra vez para a seguinte) |
+| `Esc` | Voltar |
+| `B` / `F` / `E` | Bater / Festinhas / Mudar emoção |
 | `⌘K` | Procurar |
 | `⌘Z` | Desfazer |
 
-Para mudar uma ideia de sítio, arrasta o bloco para cima de outro bloco ou para o caminho (rasto) que aparece no centro.
+Para mudar uma ideia de sítio, arrasta-a para cima de outra, ou para o caminho que aparece por cima do centro.
 
 ## Onde ficam os dados
 
-- **Sempre no browser** do próprio computador (`localStorage`).
-- **No Chrome ou no Edge**: em *Ficheiro → Gravar automaticamente num ficheiro…* escolhes um `ideias.json`, por exemplo no iCloud Drive. Daí em diante cada alteração grava lá sozinha.
-- **No Safari**: usa *Ficheiro → Exportar cópia* de vez em quando. A app avisa quando a última cópia tiver mais de 7 dias.
+- **Sempre no browser** do próprio computador.
+- **No Chrome ou no Edge**, em *Ficheiro → Gravar automaticamente num ficheiro…*, escolhe um `mindmap.json`, por exemplo no iCloud Drive. A partir daí grava lá sozinho.
+- **No Safari**, usa *Ficheiro → Exportar cópia* de vez em quando.

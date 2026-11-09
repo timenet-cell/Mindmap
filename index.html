@@ -3,217 +3,381 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ideias</title>
+<title>Mindmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f5f5f7; --surface: #fff; --surface2: #f0f0f3; --border: #d9d9de;
-  --text: #1d1d1f; --text2: #55555c; --text3: #8a8a90; --dot: #d6d6dc;
-  --accent: #0a84ff; --sel-bg: rgba(10,132,255,.18); --red: #ff3b30; --green: #28a745; --orange: #d97706;
-  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.07);
+  --ceu1: #d9efff; --ceu2: #fff4e0; --surface: #fff; --surface2: #f4f0fa;
+  --linha: #2a2230; --text: #2a2230; --text2: #5b5366; --text3: #948ba0;
+  --accent: #4aa8ff; --sel-bg: rgba(74,168,255,.2); --red: #ff4d4d; --green: #2fbf62; --orange: #e88a00;
+  --pinta: rgba(255,255,255,.55);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #161618; --surface: #232326; --surface2: #2e2e33; --border: #3a3a40;
-    --text: #f2f2f5; --text2: #b4b4bc; --text3: #7c7c84; --dot: #2c2c31;
-    --green: #30d158; --orange: #ff9f0a;
-    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+    --ceu1: #1f1b36; --ceu2: #33244a; --surface: #2f2a45; --surface2: #3a3452;
+    --linha: #0d0a18; --text: #f6f2ff; --text2: #cfc6e2; --text3: #9a90b2;
+    --sel-bg: rgba(74,168,255,.28); --green: #48d97a; --orange: #ffaa33; --pinta: rgba(255,255,255,.06);
   }
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
-  font: 14px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif; }
-body { display: flex; flex-direction: column; overflow: hidden; }
-button { font: inherit; color: inherit; }
-input, textarea { font: inherit; color: inherit; }
+html, body { margin: 0; height: 100%; color: var(--text);
+  font: 15px "Fredoka", "Chalkboard SE", "Comic Sans MS", "Marker Felt", system-ui, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; background: linear-gradient(170deg, var(--ceu1), var(--ceu2)); }
+button, input, textarea { font: inherit; color: inherit; }
+
+/* Botões de desenho animado */
+.bt { border: 2.5px solid var(--linha); background: var(--surface); border-radius: 999px; padding: 4px 13px; cursor: pointer;
+  font-weight: 600; box-shadow: 0 3px 0 var(--linha); transition: transform .08s, box-shadow .08s; white-space: nowrap; }
+.bt:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--linha); }
+.bt:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--linha); }
+.bt-soco { background: #ffd9d2; color: #2a2230; }
+.bt-festa { background: #ffdff0; color: #2a2230; }
+.bt-ideia { background: #d6f5df; color: #2a2230; }
+.bt-emo { background: #fff1c2; color: #2a2230; }
+.redondo { width: 34px; height: 34px; padding: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
 
 /* Barra de cima */
-header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; background: var(--surface);
-  border-bottom: 1px solid var(--border); position: relative; z-index: 20; }
-.marca { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
-.marca svg { color: var(--accent); }
-.busca-wrap { position: relative; display: flex; align-items: center; gap: 7px; width: 320px; max-width: 40vw;
-  border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; background: var(--bg); color: var(--text2); }
-.busca-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--sel-bg); }
+header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; position: relative; z-index: 20;
+  background: var(--surface); border-bottom: 3px solid var(--linha); }
+.marca { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 22px; letter-spacing: .3px; }
+.marca .logo { width: 38px; height: 38px; }
+.busca-wrap { position: relative; display: flex; align-items: center; gap: 7px; width: 300px; max-width: 36vw;
+  border: 2.5px solid var(--linha); border-radius: 999px; padding: 4px 12px; background: var(--surface2); }
+.busca-wrap:focus-within { box-shadow: 0 0 0 4px var(--sel-bg); }
 .busca-wrap input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; }
-#resultados { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: 4px; max-height: 60vh; overflow: auto; }
-#resultados button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 6px 8px;
-  border-radius: 6px; cursor: pointer; }
+#resultados { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--surface); border: 2.5px solid var(--linha);
+  border-radius: 16px; box-shadow: 0 4px 0 var(--linha); padding: 5px; max-height: 60vh; overflow: auto; }
+#resultados button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 6px 9px; border-radius: 10px; cursor: pointer; }
 #resultados button:hover, #resultados button.on { background: var(--sel-bg); }
-#resultados b { display: block; font-size: 13px; }
-#resultados small { color: var(--text3); font-size: 11px; }
-#resultados .nada { padding: 8px; color: var(--text3); font-size: 12px; }
+#resultados b { display: block; font-size: 14px; }
+#resultados small { color: var(--text3); font-size: 12px; }
+#resultados .nada { padding: 8px; color: var(--text3); font-size: 13px; }
 .esp { flex: 1; }
-.estado { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 11px 4px 9px;
-  font-size: 12px; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
-  max-width: 42vw; overflow: hidden; text-overflow: ellipsis; }
-.estado::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex: 0 0 auto; }
+.estado { border: 2px solid var(--linha); background: var(--surface); border-radius: 999px; padding: 3px 11px 3px 9px; font-size: 12.5px;
+  color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; max-width: 34vw; overflow: hidden; text-overflow: ellipsis; }
+.estado::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--text3); flex: 0 0 auto; border: 1.5px solid var(--linha); }
 .estado.ok::before { background: var(--green); }
-.estado.aviso { color: var(--orange); border-color: color-mix(in srgb, var(--orange) 45%, var(--border)); }
+.estado.aviso { color: var(--orange); }
 .estado.aviso::before { background: var(--orange); }
-.bt { border: 1px solid var(--border); background: var(--surface); border-radius: 7px; padding: 4px 10px; cursor: pointer; }
-.bt:hover { border-color: var(--accent); color: var(--accent); }
 .menu { position: relative; }
 .menu summary { list-style: none; }
 .menu summary::-webkit-details-marker { display: none; }
-.menu-itens { position: absolute; right: 0; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; box-shadow: var(--shadow); padding: 4px; width: 300px; }
-.menu-itens button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 7px 9px;
-  border-radius: 6px; cursor: pointer; }
+.menu-itens { position: absolute; right: 0; top: calc(100% + 8px); background: var(--surface); border: 2.5px solid var(--linha);
+  border-radius: 16px; box-shadow: 0 4px 0 var(--linha); padding: 5px; width: 310px; }
+.menu-itens button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 7px 10px; border-radius: 10px; cursor: pointer; font-weight: 500; }
 .menu-itens button:hover { background: var(--sel-bg); }
-.menu-itens small { display: block; color: var(--text3); font-size: 11px; }
-.menu-itens hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+.menu-itens small { display: block; color: var(--text3); font-size: 12px; font-weight: 400; }
+.menu-itens hr { border: none; border-top: 2px dashed var(--text3); margin: 4px 6px; }
 
 /* O mapa */
-#mapa { position: relative; flex: 1; overflow: hidden;
-  background-image: radial-gradient(var(--dot) 1px, transparent 1px); background-size: 22px 22px; }
-#linhas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-#linhas line { stroke-width: 2; stroke-linecap: round; stroke-opacity: .5; }
-.centro, .no { animation: aparece .2s ease-out; }
-@keyframes aparece { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
-#mapa.a-sair > .no:not(.fantasma), #mapa.a-sair > .centro:not(.fantasma), #mapa.a-sair > #linhas { opacity: 0; transition: opacity .2s; }
-#mapa.com-caixa > .no, #mapa.com-caixa > .centro, #mapa.com-caixa > #linhas { opacity: .3; transition: opacity .2s; }
+#mapa { position: relative; flex: 1; overflow: hidden; cursor: grab;
+  background-image: radial-gradient(var(--pinta) 2px, transparent 2.5px); background-size: 28px 28px; }
+#mapa.a-arrastar { cursor: grabbing; }
+#palco { position: absolute; inset: 0; transform-origin: 0 0; }
+#linhas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+#linhas path { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-opacity: .7; }
+.centro, .no { animation: aparece .28s cubic-bezier(.3,1.5,.6,1); }
+@keyframes aparece { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+#palco.a-sair > .no, #palco.a-sair > .centro, #palco.a-sair > #linhas { opacity: 0; transition: opacity .2s; }
+#mapa.com-caixa #palco { opacity: .3; transition: opacity .2s; }
 
-.centro { position: absolute; z-index: 2; width: 340px; background: var(--surface); border: 1px solid var(--border);
-  border-top: 4px solid var(--cor); border-radius: 12px; box-shadow: var(--shadow); padding: 11px 14px 12px;
-  display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
-.c-topo { display: flex; align-items: center; gap: 8px; }
-.voltar { flex: 0 0 auto; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 7px;
-  background: var(--surface); cursor: pointer; color: var(--text2); }
-.voltar:hover { border-color: var(--accent); color: var(--accent); }
-.c-tit { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; border: none; outline: none; background: transparent;
-  padding: 2px 0; border-bottom: 1px dashed transparent; }
-.c-tit:focus { border-bottom-color: var(--border); }
-.rasto { display: flex; flex-wrap: wrap; gap: 2px 4px; font-size: 11px; color: var(--text3); }
-.rasto button { border: none; background: none; padding: 0 2px; font: inherit; color: var(--accent); cursor: pointer; border-radius: 3px; }
-.rasto button:hover { text-decoration: underline; }
-.rasto button.alvo { outline: 2px dashed var(--accent); }
-.notas { width: 100%; resize: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px;
-  background: var(--bg); outline: none; line-height: 1.45; font-size: 13px; }
-.notas:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--sel-bg); }
-.c-pe { display: flex; align-items: center; gap: 8px; }
-.c-pe .bt { font-size: 12.5px; }
-.vazio { font-size: 12px; color: var(--text3); }
-.cores { display: flex; gap: 5px; margin-left: auto; }
-.cor { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; padding: 0; }
-.cor.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--text2); }
+/* Bonecos e animação */
+.bnc { display: block; width: 100%; height: 100%; overflow: visible; }
+.fig { position: relative; cursor: pointer; }
+.fig-in { width: 100%; height: 100%; animation: bob 3.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.fig-in img { width: 100%; height: 100%; object-fit: contain; display: block; filter: drop-shadow(0 3px 0 rgba(0,0,0,.18)); }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(-1.5deg); } }
+.bnc .olhos.pisca { transform-box: fill-box; transform-origin: center; animation: pisca 4.6s infinite; animation-delay: var(--d, 0s); }
+@keyframes pisca { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
 
-.no { position: absolute; z-index: 2; background: var(--surface); border: 1px solid var(--border);
-  border-left: 4px solid var(--cor); border-radius: 10px; box-shadow: var(--shadow); padding: 8px 8px 8px 10px;
-  cursor: pointer; display: flex; flex-direction: column; gap: 3px; overflow: hidden;
-  transition: border-color .12s, box-shadow .12s; }
-.no:hover { border-color: var(--cor); }
-.no.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
-.no.alvo { outline: 2px dashed var(--accent); outline-offset: 2px; }
+/* O centro */
+.centro { position: absolute; z-index: 3; width: 330px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: default; }
+.c-rasto { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; font-size: 13px; }
+.c-rasto .migalha { border: 2px solid var(--linha); background: var(--surface); border-radius: 999px; padding: 1px 9px; cursor: pointer; font-weight: 500; }
+.c-rasto .migalha:hover { background: var(--sel-bg); }
+.c-rasto .migalha.alvo { outline: 3px dashed var(--accent); }
+.c-rasto span { color: var(--text3); font-weight: 700; }
+.c-fig { width: 170px; height: 170px; }
+.c-nome { width: 100%; text-align: center; font-size: 22px; font-weight: 700; background: var(--surface); border: 3px solid var(--linha);
+  border-top-color: var(--cor); border-radius: 20px; box-shadow: 0 4px 0 var(--linha); padding: 5px 14px; outline: none; }
+.c-nome:focus { box-shadow: 0 4px 0 var(--linha), 0 0 0 5px var(--sel-bg); }
+.acoes { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.contador { font-size: 12.5px; color: var(--text2); font-weight: 500; text-align: center; }
+.bolha { position: relative; width: 100%; margin-top: 8px; }
+.bolha::before, .bolha::after { content: ""; position: absolute; background: var(--surface); border: 2.5px solid var(--linha); border-radius: 50%; }
+.bolha::before { width: 16px; height: 16px; top: -12px; left: 34px; }
+.bolha::after { width: 9px; height: 9px; top: -22px; left: 26px; }
+.bolha textarea { display: block; width: 100%; resize: none; border: 3px solid var(--linha); border-radius: 24px; background: var(--surface);
+  box-shadow: 0 4px 0 var(--linha); padding: 10px 15px; outline: none; line-height: 1.45; font-size: 14.5px; }
+.bolha textarea:focus { box-shadow: 0 4px 0 var(--linha), 0 0 0 5px var(--sel-bg); }
+.cores { display: flex; gap: 6px; justify-content: center; }
+.cor { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--linha); cursor: pointer; padding: 0; }
+.cor.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--linha); }
+
+/* As ideias à volta */
+.no { position: absolute; z-index: 2; width: 150px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.no .fig { width: 88px; height: 88px; }
+.no-nome { max-width: 150px; background: var(--surface); border: 2.5px solid var(--linha); border-bottom: 4px solid var(--cor);
+  border-radius: 16px; padding: 3px 11px; font-weight: 600; font-size: 14px; text-align: center; box-shadow: 0 3px 0 var(--linha);
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; transition: transform .12s; }
+.no-nome.sem { color: var(--text3); font-style: italic; font-weight: 500; }
+.no:hover .no-nome { transform: translateY(-2px) rotate(-1deg); }
+.no.sel .no-nome { outline: 3px solid var(--accent); outline-offset: 3px; }
+.no.alvo .no-nome { outline: 3px dashed var(--accent); outline-offset: 3px; }
 .no.a-arrastar { opacity: .4; }
-.no-tit { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; min-height: 22px; }
-.no-tit b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.no-tit b.sem { color: var(--text3); font-weight: 500; font-style: italic; }
-.no-inp { flex: 1; min-width: 0; font-weight: 700; font-size: 13px; border: none; outline: none; background: var(--sel-bg);
-  border-radius: 4px; padding: 1px 4px; }
-.no-bts { display: flex; gap: 1px; opacity: 0; transition: opacity .12s; }
+.no-extra { font-size: 12px; color: var(--text2); font-weight: 600; }
+.no-inp { width: 140px; text-align: center; font-weight: 600; font-size: 14px; border: 2.5px solid var(--linha); border-radius: 16px;
+  padding: 3px 9px; outline: none; background: var(--surface); box-shadow: 0 0 0 4px var(--sel-bg); }
+.no-bts { position: absolute; top: -4px; right: 2px; display: flex; gap: 3px; opacity: 0; transition: opacity .12s; z-index: 2; }
 .no:hover .no-bts, .no.sel .no-bts { opacity: 1; }
-.no-bts button { border: none; background: transparent; color: var(--text2); width: 22px; height: 22px; border-radius: 5px;
-  cursor: pointer; font-size: 12px; padding: 0; }
-.no-bts button:hover { background: var(--surface2); color: var(--accent); }
-.no-bts button.x:hover { color: var(--red); }
-.no-linha { font-size: 11.5px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.no-pe { font-size: 10.5px; color: var(--text3); }
-.fantasma { z-index: 8 !important; pointer-events: none; animation: none !important;
-  transition: left .3s ease-out, top .3s ease-out, width .3s ease-out, height .3s ease-out; }
+.no-bts button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--linha); background: var(--surface);
+  box-shadow: 0 2px 0 var(--linha); cursor: pointer; font-size: 12px; padding: 0; }
+.no-bts button:hover { background: var(--sel-bg); }
+.no-bts button.x:hover { background: #ffd9d2; }
+.fantasma { position: absolute; z-index: 8; pointer-events: none; transition: left .32s ease-out, top .32s ease-out, width .32s ease-out, height .32s ease-out; }
 
-/* A caixa aberta no mapa (o ↗) */
-.caixa { position: absolute; z-index: 6; background: var(--surface); border: 1px solid var(--border);
-  border-top: 4px solid var(--cor); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.25);
-  display: flex; flex-direction: column; gap: 10px; padding: 12px 16px 14px; overflow: hidden;
-  transition: left .22s ease, top .22s ease, width .22s ease, height .22s ease; }
-.caixa .c-topo .bt { font-size: 12px; white-space: nowrap; }
-.caixa .notas { flex: 1; min-height: 60px; font-size: 14px; }
-.cx-ramos { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
-.cx-ramos > span { color: var(--text3); }
-.chip { border: 1px solid var(--border); border-left: 3px solid var(--cor); background: var(--bg); border-radius: 6px;
-  padding: 3px 8px; cursor: pointer; font-size: 12px; }
-.chip:hover { border-color: var(--accent); }
-.chip-inp { border: 1px dashed var(--border); border-radius: 6px; padding: 3px 8px; background: transparent; outline: none;
-  font-size: 12px; width: 150px; }
+/* A caixa aberta (↗) */
+.caixa { position: absolute; z-index: 6; background: var(--surface); border: 3px solid var(--linha); border-top: 7px solid var(--cor);
+  border-radius: 26px; box-shadow: 0 7px 0 var(--linha); display: flex; flex-direction: column; gap: 12px; padding: 14px 18px 16px; overflow: hidden;
+  transition: left .24s cubic-bezier(.3,1.3,.6,1), top .24s cubic-bezier(.3,1.3,.6,1), width .24s cubic-bezier(.3,1.3,.6,1), height .24s cubic-bezier(.3,1.3,.6,1); }
+.cx-topo { display: flex; gap: 14px; align-items: center; }
+.cx-topo .fig { width: 110px; height: 110px; flex: 0 0 auto; }
+.cx-meio { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.cx-meio .c-nome { font-size: 19px; text-align: left; }
+.cx-bts { display: flex; flex-direction: column; gap: 6px; align-self: flex-start; }
+.caixa .bolha { flex: 1; min-height: 70px; display: flex; }
+.caixa .bolha textarea { flex: 1; }
+.cx-ramos { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; font-size: 13px; }
+.cx-ramos > span { color: var(--text2); font-weight: 600; }
+.chip { border: 2px solid var(--linha); border-bottom: 3.5px solid var(--cor); background: var(--surface); border-radius: 999px; padding: 2px 10px; cursor: pointer; font-weight: 500; }
+.chip:hover { background: var(--sel-bg); }
+.chip-inp { border: 2px dashed var(--text3); border-radius: 999px; padding: 2px 10px; background: transparent; outline: none; width: 170px; }
 .chip-inp:focus { border-color: var(--accent); }
 
-.dica { position: absolute; left: 14px; bottom: 10px; font-size: 11px; color: var(--text3); z-index: 1; pointer-events: none; }
-.dica kbd { font: inherit; border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; background: var(--surface); }
-#toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 30; background: var(--text);
-  color: var(--bg); border-radius: 9px; padding: 8px 10px 8px 14px; display: flex; gap: 12px; align-items: center;
-  box-shadow: var(--shadow); font-size: 13px; max-width: 90vw; }
+/* Zoom e dica */
+.zoom { position: absolute; right: 14px; bottom: 12px; z-index: 5; display: flex; gap: 6px; align-items: center; }
+.zoom .bt { padding: 3px 11px; }
+#zoom-val { min-width: 62px; }
+.dica { position: absolute; left: 14px; bottom: 14px; z-index: 1; font-size: 12px; color: var(--text2); pointer-events: none; max-width: calc(100% - 300px); }
+.dica kbd { font: inherit; font-weight: 600; border: 1.5px solid var(--text3); border-radius: 5px; padding: 0 4px; background: var(--surface); }
+
+/* Mãos, estrelas e corações */
+.mao { position: fixed; z-index: 50; left: 0; top: 0; pointer-events: none; font-size: 66px; line-height: 1; will-change: transform; }
+.voa { position: fixed; z-index: 49; left: 0; top: 0; pointer-events: none; font-size: 24px; line-height: 1; }
+
+/* Janelas por cima */
+.janela { position: fixed; inset: 0; z-index: 40; background: rgba(20,14,30,.42); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.janela[hidden] { display: none; }
+.j-caixa { background: var(--surface); border: 3px solid var(--linha); border-radius: 26px; box-shadow: 0 7px 0 var(--linha);
+  width: min(700px, 100%); max-height: 90vh; overflow: auto; padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+.j-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.j-topo b { font-size: 19px; }
+.j-sub { font-size: 14px; color: var(--text2); font-weight: 600; }
+.esc-bonecos { display: flex; flex-wrap: wrap; gap: 8px; }
+.esc-b, .esc-e { position: relative; border: 2.5px solid transparent; background: var(--surface2); border-radius: 16px; padding: 6px 4px 5px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12.5px; font-weight: 500; color: var(--text2); }
+.esc-b { width: 78px; }
+.esc-b .fig-in, .esc-b .esc-mais { width: 56px; height: 56px; }
+.esc-e .fig-in, .esc-e .esc-mais { width: 72px; height: 72px; }
+.esc-b:hover, .esc-e:hover { border-color: var(--text3); }
+.esc-b.on, .esc-e.on { border-color: var(--linha); background: var(--sel-bg); }
+.esc-b.meu { background: #fff1c2; color: #2a2230; }
+.esc-mais { display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--text3); border: 2.5px dashed var(--text3); border-radius: 50%; }
+.esc-e.vazio { border: 2.5px dashed var(--text3); background: transparent; }
+.esc-emocoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 9px; }
+.esc-lapis { position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--linha);
+  background: var(--surface); font-size: 11px; padding: 0; cursor: pointer; }
+.meu-nome { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.meu-nome input { flex: 1; min-width: 160px; border: 2.5px solid var(--linha); border-radius: 999px; padding: 4px 12px; outline: none; background: var(--surface2); font-weight: 600; }
+.meu-aviso { font-size: 12.5px; color: var(--text2); background: var(--surface2); border-radius: 12px; padding: 7px 11px; }
+.link { border: none; background: none; color: var(--accent); cursor: pointer; padding: 0; font-weight: 600; font-size: 13px; }
+.link.perigo { color: var(--red); }
+.bv { align-items: center; text-align: center; width: min(460px, 100%); }
+.bv .fig { width: 190px; height: 190px; }
+.bv h2 { margin: 0; font-size: 26px; }
+.bv p { margin: 0; color: var(--text2); font-size: 16px; }
+.bv input { width: 100%; text-align: center; font-size: 22px; font-weight: 700; border: 3px solid var(--linha); border-radius: 20px;
+  padding: 7px 14px; outline: none; box-shadow: 0 4px 0 var(--linha); background: var(--surface); }
+.bv .bt { font-size: 18px; padding: 7px 22px; background: #d6f5df; color: #2a2230; }
+
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 60; background: var(--surface); border: 2.5px solid var(--linha);
+  border-radius: 999px; padding: 7px 10px 7px 16px; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 0 var(--linha); font-weight: 500; max-width: 90vw; }
 #toast[hidden], #resultados[hidden] { display: none; }
 #toast button { border: none; background: transparent; color: var(--accent); font-weight: 700; cursor: pointer; }
-@media (prefers-color-scheme: dark) { #toast button { color: #0a6cdc; } }
-@media (max-width: 760px) { .marca span, .dica { display: none; } .busca-wrap { width: auto; flex: 1; max-width: none; } }
-@media (prefers-reduced-motion: reduce) { .centro, .no { animation: none; } .caixa { transition: none; } }
+@media (max-width: 820px) { .dica, .estado { display: none; } .busca-wrap { flex: 1; width: auto; max-width: none; } .marca span { display: none; } }
+@media (prefers-reduced-motion: reduce) { .fig-in, .bnc .olhos.pisca, .centro, .no { animation: none; } .caixa, .fantasma { transition: none; } }
 </style>
 </head>
 <body>
 <header>
-  <div class="marca">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
-      <circle cx="10" cy="10" r="3.2"/><circle cx="3" cy="4" r="1.8"/><circle cx="17" cy="4" r="1.8"/><circle cx="3.5" cy="16" r="1.8"/><circle cx="16.5" cy="16" r="1.8"/>
-      <path d="M7.6 8 4.4 5.2M12.4 8l3.2-2.8M7.7 12.2l-2.8 2.6M12.3 12.2l2.8 2.6"/>
-    </svg>
-    <span>Ideias</span>
-  </div>
+  <div class="marca"><div class="logo" id="logo"></div><span>Mindmap</span></div>
   <div class="busca-wrap">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg>
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg>
     <input id="busca" placeholder="Procurar ideia…  (⌘K)" autocomplete="off" spellcheck="false">
     <div id="resultados" hidden></div>
   </div>
   <div class="esp"></div>
-  <button id="estado" class="estado" title=""></button>
-  <button id="bt-desfazer" class="bt" title="Desfazer (⌘Z)">↶</button>
+  <button id="estado" class="estado"></button>
+  <button id="bt-desfazer" class="bt redondo" title="Desfazer (⌘Z)">↶</button>
   <details class="menu" id="menu">
     <summary class="bt">Ficheiro</summary>
     <div class="menu-itens">
       <button data-acao="ligar" class="so-fs">Gravar automaticamente num ficheiro…<small>Escolhe uma pasta no iCloud Drive e fica sempre com cópia</small></button>
-      <button data-acao="abrir" class="so-fs">Abrir um ficheiro e continuar nele…<small>Para voltar a ligar um ideias.json que já existe</small></button>
+      <button data-acao="abrir" class="so-fs">Abrir um ficheiro e continuar nele…<small>Para voltar a ligar um mindmap.json que já existe</small></button>
       <hr class="so-fs">
       <button data-acao="exportar">Exportar cópia (.json)</button>
-      <button data-acao="importar">Importar cópia…<small>Substitui o mapa atual (dá para desfazer)</small></button>
+      <button data-acao="importar">Importar cópia…<small>Substitui o mapa atual</small></button>
+      <hr>
+      <button data-acao="nome">Mudar o nome do Cérebro</button>
     </div>
   </details>
-  <input type="file" id="ficheiro-in" accept=".json,application/json" hidden>
 </header>
 <main id="mapa">
-  <svg id="linhas"></svg>
-  <div class="dica"><kbd>Tab</kbd> novo ramo · <kbd>←→</kbd> escolher · <kbd>Enter</kbd> entrar · <kbd>Esc</kbd> voltar · <kbd>F2</kbd> renomear · <kbd>⌫</kbd> apagar · <kbd>⌘Z</kbd> desfazer · arrasta um bloco para cima de outro para o mudar de sítio</div>
+  <div id="palco"><svg id="linhas"></svg></div>
+  <div class="zoom">
+    <button class="bt" data-z="-" title="Afastar (⌘ + roda)">−</button>
+    <button class="bt" data-z="1" id="zoom-val" title="Tamanho normal">100%</button>
+    <button class="bt" data-z="+" title="Aproximar (⌘ + roda)">+</button>
+    <button class="bt" data-z="ajustar" title="Ver tudo (duplo clique no fundo)">⌖</button>
+  </div>
+  <div class="dica">Carrega numa ideia para ela vir ao centro · <kbd>Esc</kbd> volta · <kbd>Tab</kbd> nova ideia · arrasta o fundo para mexer · <kbd>⌘</kbd>+roda zoom · duplo clique no fundo para ver tudo</div>
 </main>
+
+<div id="escolher" class="janela" hidden>
+  <div class="j-caixa" role="dialog" aria-label="Escolher boneco">
+    <div class="j-topo"><b>Escolher boneco</b><button class="bt redondo" id="esc-fechar" title="Fechar (Esc)">×</button></div>
+    <div class="esc-bonecos"></div>
+    <div class="esc-meu"></div>
+    <div class="j-sub">Como te sentes com isto?</div>
+    <div class="esc-emocoes"></div>
+  </div>
+</div>
+<div id="boasvindas" class="janela" hidden>
+  <div class="j-caixa bv" role="dialog" aria-label="Dar nome ao Cérebro">
+    <div class="fig"><div class="fig-in"></div></div>
+    <h2>Olá! Eu sou o teu Cérebro.</h2>
+    <p>Que nome me queres dar?</p>
+    <input id="bv-nome" maxlength="40" placeholder="Ex.: Cérebro da Ana" autocomplete="off">
+    <button class="bt" id="bv-ok">Vamos lá!</button>
+  </div>
+</div>
+<input type="file" id="ficheiro-in" accept=".json,application/json" hidden>
+<input type="file" id="bnc-in" accept="image/*" hidden>
 <div id="toast" hidden></div>
 
 <script>
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export';
-const CORES = ['#0a84ff', '#30d158', '#ff9f0a', '#ff375f', '#bf5af2', '#40c8e0', '#8e8e93'];
+const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
 const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const temFS = 'showSaveFilePicker' in window;
 const $ = s => document.querySelector(s);
-const mapa = $('#mapa');
+const mapa = $('#mapa'), palco = $('#palco');
 
 function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
-function btn(txt, title, fn, cls) { const b = el('button', cls, txt); b.title = title; b.onclick = e => { e.stopPropagation(); fn(); }; return b; }
+function btn(txt, title, fn, cls) { const b = el('button', cls, txt); if (title) b.title = title; b.onclick = e => { e.stopPropagation(); fn(); }; return b; }
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
 function novoId() { return Math.random().toString(36).slice(2, 10); }
 function norm(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
 function hora(t) { return new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }); }
-function titulo(n) { return n.t || 'Sem título'; }
+function titulo(n) { return n.t || (n.p ? 'Ideia sem nome' : 'Cérebro'); }
+function rgb(hex) { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function clarear(hex, f) { return 'rgb(' + rgb(hex).map(v => Math.round(v + (255 - v) * f)).join(',') + ')'; }
+function escurecer(hex, f) { return 'rgb(' + rgb(hex).map(v => Math.round(v * (1 - f))).join(',') + ')'; }
+
+/* ---------- Bonecos originais ---------- */
+const EMOCOES = [['feliz', 'Feliz'], ['calmo', 'Calmo'], ['carinho', 'Com carinho'], ['triste', 'Triste'], ['zangado', 'Zangado'],
+  ['furioso', 'Furioso'], ['ansioso', 'Ansioso'], ['assustado', 'Assustado'], ['cansado', 'Cansado'], ['confuso', 'Confuso']];
+const BONECOS = {
+  cerebro: { nome: 'Cérebro', fy: 50, s: .92, corpo: () => `<path d="M50 16 C40 7 25 10 22 22 C10 24 5 38 12 46 C4 55 8 70 20 72 C22 85 37 91 46 84 C49 88 51 88 54 84 C63 91 78 85 80 72 C92 70 96 55 88 46 C95 38 90 24 78 22 C75 10 60 7 50 16Z" fill="#ffa9c8" stroke="#a83d67" stroke-width="3.2" stroke-linejoin="round"/><path d="M50 18 C47 30 53 38 50 48" fill="none" stroke="#a83d67" stroke-width="2.4" stroke-linecap="round"/><path d="M50 74 C48 78 52 81 50 84" fill="none" stroke="#a83d67" stroke-width="2.4" stroke-linecap="round"/><path d="M24 30 q8 1 10 9 M14 50 q6 -3 10 1 M26 76 q1 -7 8 -9 M76 30 q-8 1 -10 9 M86 50 q-6 -3 -10 1 M74 76 q-1 -7 -8 -9 M36 18 q3 5 -1 10 M64 18 q-3 5 1 10" fill="none" stroke="#e07aa3" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="34" cy="26" rx="6" ry="3" fill="#fff" opacity=".45" transform="rotate(-25 34 26)"/>` },
+  nuvem: { nome: 'Nuvem', fy: 54, s: 1, corpo: c => `<path d="M24 78 C9 78 5 60 17 54 C13 38 31 27 42 35 C46 18 71 18 75 35 C89 32 97 49 89 59 C97 70 88 82 76 78 Z" fill="${clarear(c, .62)}" stroke="${escurecer(c, .42)}" stroke-width="3" stroke-linejoin="round"/><ellipse cx="40" cy="38" rx="7" ry="3.5" fill="#fff" opacity=".7" transform="rotate(-20 40 38)"/>` },
+  batata: { nome: 'Batata', fy: 48, s: 1, corpo: () => `<path d="M50 12 C76 10 88 34 86 56 C84 80 66 92 47 90 C24 88 12 70 14 48 C16 27 29 13 50 12Z" fill="#d9ab6c" stroke="#7a5124" stroke-width="3"/><g fill="#b98a4c"><circle cx="28" cy="36" r="2.2"/><circle cx="74" cy="74" r="2.6"/><circle cx="72" cy="28" r="1.8"/><circle cx="30" cy="76" r="2"/></g>` },
+  gato: { nome: 'Gato', fy: 54, s: 1, corpo: () => `<path d="M22 40 L26 10 L46 26 Z M78 40 L74 10 L54 26 Z" fill="#f6a54a" stroke="#94500f" stroke-width="3" stroke-linejoin="round"/><path d="M28 30 L29 18 L39 26 Z M72 30 L71 18 L61 26 Z" fill="#ffc9a3"/><circle cx="50" cy="56" r="35" fill="#f6a54a" stroke="#94500f" stroke-width="3"/><path d="M8 62 L24 64 M8 70 L24 68 M92 62 L76 64 M92 70 L76 68" stroke="#94500f" stroke-width="1.8" stroke-linecap="round"/>` },
+  monstro: { nome: 'Monstrinho', fy: 48, s: 1, corpo: () => `<path d="M30 24 L24 6 L40 18 Z M70 24 L76 6 L60 18 Z" fill="#fff3c4" stroke="#962f5d" stroke-width="2.6" stroke-linejoin="round"/><rect x="16" y="16" width="68" height="78" rx="32" fill="#ff8cbd" stroke="#962f5d" stroke-width="3"/><g fill="#ff6aa8"><circle cx="26" cy="76" r="4"/><circle cx="76" cy="38" r="3"/><circle cx="72" cy="82" r="2.5"/></g>` },
+  tosta: { nome: 'Tosta', fy: 54, s: 1, corpo: () => `<path d="M24 42 C10 26 28 8 50 10 C72 8 90 26 76 42 L76 86 Q76 92 70 92 L30 92 Q24 92 24 86 Z" fill="#f6d79a" stroke="#a5621f" stroke-width="5.5" stroke-linejoin="round"/>` },
+  cacto: { nome: 'Cacto', fy: 40, s: .78, corpo: () => `<path d="M30 80 H70 L65 97 H35 Z" fill="#d9774a" stroke="#7d3b1c" stroke-width="2.6" stroke-linejoin="round"/><g fill="#6cc070" stroke="#25683a" stroke-width="2.6"><rect x="12" y="30" width="13" height="30" rx="6.5"/><rect x="75" y="22" width="13" height="30" rx="6.5"/><rect x="18" y="50" width="18" height="10" rx="5"/><rect x="64" y="42" width="18" height="10" rx="5"/><rect x="30" y="12" width="40" height="70" rx="20"/></g><path d="M36 24 l-3 -2 M64 26 l3 -2 M35 72 l-3 1 M65 68 l3 1" stroke="#25683a" stroke-width="1.5" stroke-linecap="round"/>` },
+  ovo: { nome: 'Ovo', fy: 56, s: 1, corpo: () => `<path d="M50 8 C72 8 84 40 84 60 C84 80 70 94 50 94 C30 94 16 80 16 60 C16 40 28 8 50 8Z" fill="#fff6e3" stroke="#a88a52" stroke-width="3"/>` },
+  robo: { nome: 'Robô', fy: 52, s: 1, corpo: () => `<path d="M50 20 V9" stroke="#43566a" stroke-width="3"/><circle cx="50" cy="7" r="4.5" fill="#ff5f57" stroke="#43566a" stroke-width="2.4"/><rect x="8" y="44" width="8" height="16" rx="3" fill="#7f95ab" stroke="#43566a" stroke-width="2.4"/><rect x="84" y="44" width="8" height="16" rx="3" fill="#7f95ab" stroke="#43566a" stroke-width="2.4"/><rect x="15" y="20" width="70" height="70" rx="14" fill="#b4c7da" stroke="#43566a" stroke-width="3"/><rect x="25" y="32" width="50" height="48" rx="9" fill="#e6eef5" stroke="#43566a" stroke-width="1.8"/>` },
+};
+const K = '#2a2230';
+function rosto(e, y) {
+  const L = 38, R = 62, m = y + 15;
+  const olho = (x, r = 3.2) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${K}"/><circle cx="${x + 1}" cy="${y - 1.2}" r="${r / 3}" fill="#fff"/>`;
+  const olhoB = (x, r, p) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${K}" stroke-width="1.8"/><circle cx="${x}" cy="${y}" r="${p}" fill="${K}"/>`;
+  const tr = (d, w = 2.6) => `<path d="${d}" fill="none" stroke="${K}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const rubor = `<ellipse cx="${L - 9}" cy="${m - 5}" rx="5" ry="3" fill="#ff7a93" opacity=".6"/><ellipse cx="${R + 9}" cy="${m - 5}" rx="5" ry="3" fill="#ff7a93" opacity=".6"/>`;
+  const cor = x => `<path d="M${x} ${y + 5} l-5.5 -5.5 a3.2 3.2 0 0 1 5.5 -4 a3.2 3.2 0 0 1 5.5 4 z" fill="#ff3b6b" stroke="${K}" stroke-width="1"/>`;
+  const boca = `fill="#6b2335" stroke="${K}" stroke-width="2.2" stroke-linejoin="round"`;
+  const txt = (x, yy, s, t) => `<text x="${x}" y="${yy}" font-size="${s}" font-weight="800" fill="${K}" font-family="sans-serif">${t}</text>`;
+  let o = '', r = '', pisca = true;
+  switch (e) {
+    case 'feliz': pisca = false; o = tr(`M${L - 5} ${y + 1} q5 -7 10 0`) + tr(`M${R - 5} ${y + 1} q5 -7 10 0`);
+      r = `<path d="M${L - 1} ${m - 3} Q50 ${m + 12} ${R + 1} ${m - 3} Z" ${boca}/>` + rubor; break;
+    case 'calmo': pisca = false; o = tr(`M${L - 5} ${y} q5 4 10 0`) + tr(`M${R - 5} ${y} q5 4 10 0`); r = tr(`M${L + 4} ${m} q8 5 16 0`) + rubor; break;
+    case 'carinho': pisca = false; o = cor(L) + cor(R); r = tr(`M${L + 2} ${m - 1} q10 8 20 0`) + rubor; break;
+    case 'triste': o = olho(L) + olho(R); r = tr(`M${L - 6} ${y - 6} L${L + 4} ${y - 10}`) + tr(`M${R - 4} ${y - 10} L${R + 6} ${y - 6}`)
+      + tr(`M${L + 2} ${m + 3} q10 -8 20 0`) + `<path d="M${R + 3} ${y + 5} q3.5 5 0 8 q-3.5 -3 0 -8z" fill="#5ab0ff" stroke="#2c78c0" stroke-width=".8"/>`; break;
+    case 'zangado': o = olho(L) + olho(R); r = tr(`M${L - 6} ${y - 10} L${L + 5} ${y - 5}`, 3.2) + tr(`M${R - 5} ${y - 5} L${R + 6} ${y - 10}`, 3.2) + tr(`M${L + 3} ${m + 2} q9 -5 18 0`); break;
+    case 'furioso': o = olho(L, 2.8) + olho(R, 2.8); r = `<ellipse cx="50" cy="${y + 6}" rx="26" ry="17" fill="#ff3b30" opacity=".22"/>`
+      + tr(`M${L - 7} ${y - 11} L${L + 6} ${y - 4}`, 4.2) + tr(`M${R - 6} ${y - 4} L${R + 7} ${y - 11}`, 4.2)
+      + `<rect x="${L}" y="${m - 4}" width="24" height="9" rx="2" fill="#fff" stroke="${K}" stroke-width="2.2"/>` + tr(`M${L + 6} ${m - 4} v9 M50 ${m - 4} v9 M${R - 6} ${m - 4} v9`, 1.4)
+      + `<g fill="#ececf0" stroke="#7a7a84" stroke-width="1.4"><circle cx="10" cy="16" r="5.5"/><circle cx="17" cy="9" r="4.5"/><circle cx="90" cy="16" r="5.5"/><circle cx="83" cy="9" r="4.5"/></g>`; break;
+    case 'ansioso': o = olhoB(L, 5.2, 2) + olhoB(R, 5.2, 2); r = tr(`M${L - 6} ${y - 9} L${L + 4} ${y - 12}`) + tr(`M${R - 4} ${y - 12} L${R + 6} ${y - 9}`)
+      + tr(`M${L} ${m} l4 -3 l4 3 l4 -3 l4 3 l4 -3 l4 3`, 2.2) + `<path d="M${R + 12} ${y - 14} q4 6 0 9 q-4 -3 0 -9z" fill="#8fd3ff" stroke="#2c78c0" stroke-width="1.1"/>`; break;
+    case 'assustado': o = olhoB(L, 6.8, 1.8) + olhoB(R, 6.8, 1.8); r = tr(`M${L - 6} ${y - 13} q6 -4 12 0`) + tr(`M${R - 6} ${y - 13} q6 -4 12 0`) + `<ellipse cx="50" cy="${m + 2}" rx="5" ry="7" ${boca}/>`; break;
+    case 'cansado': pisca = false; o = tr(`M${L - 5} ${y} h10`) + tr(`M${L - 3} ${y} q3 3.5 6 0`, 2.2) + tr(`M${R - 5} ${y} h10`) + tr(`M${R - 3} ${y} q3 3.5 6 0`, 2.2);
+      r = `<circle cx="50" cy="${m + 1}" r="3.4" fill="none" stroke="${K}" stroke-width="2.2"/>` + txt(R + 8, y - 12, 9, 'z') + txt(R + 14, y - 19, 12, 'Z'); break;
+    case 'confuso': o = olho(L) + olhoB(R, 4.8, 2); r = tr(`M${L - 5} ${y - 7} h10`) + tr(`M${R - 6} ${y - 11} q6 -6 12 0`) + tr(`M${L + 1} ${m} q5 -4 9 0 q5 4 9 0`) + txt(R + 11, y - 8, 16, '?'); break;
+    case 'tonto': pisca = false; o = tr(`M${L - 4} ${y - 4} l8 8 M${L + 4} ${y - 4} l-8 8`) + tr(`M${R - 4} ${y - 4} l8 8 M${R + 4} ${y - 4} l-8 8`);
+      r = tr(`M${L} ${m + 1} q4 -4 8 0 q4 4 8 0 q4 -4 8 0`) + `<g fill="#ffcc00" stroke="#9a7000" stroke-width="1.1">`
+        + [[26, 10], [50, 3], [74, 10]].map(([x, yy]) => `<path d="M${x} ${yy - 5} l1.6 3.4 3.6 .4 -2.7 2.4 .8 3.6 -3.3 -1.9 -3.3 1.9 .8 -3.6 -2.7 -2.4 3.6 -.4z"/>`).join('') + `</g>`; break;
+  }
+  return `<g class="olhos${pisca ? ' pisca' : ''}">${o}</g>${r}`;
+}
+const IMG_OK = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+// Se faltar a imagem de uma emoção num boneco teu, usa a mais parecida.
+const PARECIDA = { tonto: ['assustado', 'triste', 'zangado'], carinho: ['feliz', 'calmo'], furioso: ['zangado'], zangado: ['furioso'],
+  ansioso: ['assustado', 'confuso'], assustado: ['ansioso'], calmo: ['feliz'], feliz: ['calmo', 'carinho'], triste: ['cansado'], cansado: ['triste', 'calmo'] };
+function figura(no) { return no.b || (no.p ? { k: 'nuvem', e: 'calmo' } : { k: 'cerebro', e: 'feliz' }); }
+function desenharBoneco(b, cor) {
+  if (b.k && b.k.startsWith('u:')) {
+    const col = dados.colecoes[b.k.slice(2)];
+    const imgs = col ? col.imgs : {};
+    const e = [b.e, ...(PARECIDA[b.e] || [])].find(x => imgs[x]);
+    const src = e ? imgs[e] : Object.values(imgs)[0];
+    if (src && IMG_OK.test(src)) return `<img src="${src}" alt="" draggable="false">`;
+    return desenharBoneco({ k: 'nuvem', e: b.e }, cor);
+  }
+  const B = BONECOS[b.k] || BONECOS.nuvem, f = rosto(b.e || 'calmo', B.fy);
+  const g = B.s === 1 ? f : `<g transform="translate(50 ${B.fy}) scale(${B.s}) translate(-50 -${B.fy})">${f}</g>`;
+  return `<svg class="bnc" viewBox="-4 -4 108 108" aria-hidden="true">${B.corpo(cor || CORES[0])}${g}</svg>`;
+}
+function fig(b, cor, cls) {
+  const f = el('div', 'fig' + (cls ? ' ' + cls : '')), i = el('div', 'fig-in');
+  f.style.setProperty('--d', (-Math.random() * 4).toFixed(2) + 's');
+  i.innerHTML = desenharBoneco(b, cor); f.append(i);
+  return f;
+}
 
 /* ---------- Dados ---------- */
 function inicial() {
-  return { v: 1, raiz: 'r', savedAt: 0,
-    nos: { r: { id: 'r', t: 'As minhas ideias', n: '', c: CORES[0], f: [], p: null } } };
+  return { v: 2, raiz: 'r', savedAt: 0, nomeado: false, colecoes: {},
+    nos: { r: { id: 'r', t: '', n: '', c: CORES[4], f: [], p: null, b: { k: 'cerebro', e: 'feliz' } } } };
 }
 function valido(d) {
   if (!d || typeof d !== 'object' || !d.nos || !d.raiz || !d.nos[d.raiz]) return false;
   return Object.values(d.nos).every(n => n && n.id && Array.isArray(n.f));
 }
+function arrumar(d) {
+  d.colecoes = d.colecoes && typeof d.colecoes === 'object' ? d.colecoes : {};
+  if (!d.nos[d.raiz].b) d.nos[d.raiz].b = { k: 'cerebro', e: 'feliz' };
+  return d;
+}
 function carregar() {
-  try { const d = JSON.parse(lsGet(KEY)); if (valido(d)) return d; } catch (e) {}
+  try { const d = JSON.parse(lsGet(KEY)); if (valido(d)) return arrumar(d); } catch (e) {}
   return inicial();
 }
 let dados = carregar();
@@ -228,7 +392,6 @@ function dentroDe(a, b) { let x = dados.nos[a]; while (x) { if (x.id === b) retu
 
 function guardarUndo(snap) { pilha.push(snap || JSON.stringify(dados.nos)); if (pilha.length > 150) pilha.shift(); }
 function mudar(fn) { guardarUndo(); fn(); guardar(); }
-// Escrever num campo: um só passo de desfazer por cada vez que se entra nele.
 function campo(e, aoEscrever) {
   e.addEventListener('focus', () => { pendente = JSON.stringify(dados.nos); });
   e.addEventListener('input', () => { if (pendente) { guardarUndo(pendente); pendente = null; } aoEscrever(e.value); guardar(); });
@@ -250,16 +413,13 @@ function removerNo(id) {
 let fh = null, fhOk = false, tFich = null, ultimaEscrita = 0;
 function guardar() {
   dados.savedAt = Date.now();
-  if (!lsSet(KEY, JSON.stringify(dados))) toast('Não consegui gravar no browser — exporta uma cópia');
+  if (!lsSet(KEY, JSON.stringify(dados))) toast('Não consegui gravar no browser (imagens a mais?) — exporta uma cópia');
   if (fh && fhOk) { clearTimeout(tFich); tFich = setTimeout(escreverFicheiro, 500); }
 }
 async function escreverFicheiro() {
   if (!fh || !fhOk) return;
-  try {
-    const w = await fh.createWritable();
-    await w.write(JSON.stringify(dados, null, 2)); await w.close();
-    ultimaEscrita = Date.now();
-  } catch (e) { fhOk = false; toast('Perdi o acesso ao ficheiro — carrega no estado para religar'); }
+  try { const w = await fh.createWritable(); await w.write(JSON.stringify(dados)); await w.close(); ultimaEscrita = Date.now(); }
+  catch (e) { fhOk = false; toast('Perdi o acesso ao ficheiro — carrega no estado para religar'); }
   estado();
 }
 function idb(modo, fn) {
@@ -272,19 +432,19 @@ function idb(modo, fn) {
 }
 const idbGet = k => idb('readonly', s => s.get(k));
 const idbSet = (k, v) => idb('readwrite', s => s.put(v, k));
-
+const TIPOS = [{ description: 'Mindmap', accept: { 'application/json': ['.json'] } }];
 async function ligarFicheiro() {
   try {
-    const h = await showSaveFilePicker({ suggestedName: 'ideias.json', types: [{ description: 'Mapa de ideias', accept: { 'application/json': ['.json'] } }] });
+    const h = await showSaveFilePicker({ suggestedName: 'mindmap.json', types: TIPOS });
     fh = h; fhOk = true; try { await idbSet('fh', h); } catch (e) {}
     await escreverFicheiro(); toast('A gravar automaticamente em ' + h.name);
   } catch (e) { if (e.name !== 'AbortError') toast('Não deu para ligar o ficheiro'); }
 }
 async function abrirFicheiro() {
   try {
-    const [h] = await showOpenFilePicker({ types: [{ description: 'Mapa de ideias', accept: { 'application/json': ['.json'] } }] });
+    const [h] = await showOpenFilePicker({ types: TIPOS });
     const d = JSON.parse(await (await h.getFile()).text());
-    if (!valido(d)) { toast('Esse ficheiro não é um mapa de ideias'); return; }
+    if (!valido(d)) { toast('Esse ficheiro não é um Mindmap'); return; }
     substituir(d);
     fh = h; try { await idbSet('fh', h); } catch (e) {}
     fhOk = (await h.requestPermission({ mode: 'readwrite' })) === 'granted';
@@ -292,32 +452,28 @@ async function abrirFicheiro() {
   } catch (e) { if (e.name !== 'AbortError') toast('Não deu para abrir o ficheiro'); }
 }
 async function religar() {
-  try {
-    if ((await fh.requestPermission({ mode: 'readwrite' })) !== 'granted') return;
-    fhOk = true; await sincronizar();
-  } catch (e) { toast('Não deu para religar o ficheiro'); }
+  try { if ((await fh.requestPermission({ mode: 'readwrite' })) !== 'granted') return; fhOk = true; await sincronizar(); }
+  catch (e) { toast('Não deu para religar o ficheiro'); }
   estado();
 }
-// Ao religar: fica o mais recente dos dois (o browser ou o ficheiro).
 async function sincronizar() {
   let d = null;
   try { const txt = await (await fh.getFile()).text(); if (txt.trim()) d = JSON.parse(txt); } catch (e) {}
   if (valido(d) && (d.savedAt || 0) > (dados.savedAt || 0)) {
-    dados = d; lsSet(KEY, JSON.stringify(dados)); pilha = [];
+    dados = arrumar(d); lsSet(KEY, JSON.stringify(dados)); pilha = [];
     if (!dados.nos[atual]) atual = dados.raiz;
     render(); toast('Carreguei a versão mais recente de ' + fh.name);
   } else await escreverFicheiro();
 }
 function substituir(d) {
-  guardarUndo(); // dá para desfazer se a raiz for a mesma; senão limpa
-  if (d.raiz !== dados.raiz) pilha = [];
-  dados = { v: 1, raiz: d.raiz, nos: d.nos, savedAt: 0 };
+  pilha = [];
+  dados = arrumar({ v: 2, raiz: d.raiz, nos: d.nos, colecoes: d.colecoes, nomeado: true, savedAt: 0 });
   atual = dados.raiz; sel = -1; guardar(); render();
 }
 function exportar() {
-  const a = el('a'); const d = new Date();
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' }));
-  a.download = `ideias-${d.toISOString().slice(0, 10)}.json`;
+  const a = el('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(dados)], { type: 'application/json' }));
+  a.download = `mindmap-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   lsSet(KEY_EXP, String(Date.now())); estado();
 }
@@ -325,7 +481,8 @@ $('#ficheiro-in').onchange = async e => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   try {
     const d = JSON.parse(await f.text());
-    if (!valido(d)) { toast('Esse ficheiro não é um mapa de ideias'); return; }
+    if (!valido(d)) { toast('Esse ficheiro não é um Mindmap'); return; }
+    if (!confirm('Substituir o mapa atual pelo do ficheiro?')) return;
     substituir(d); toast('Importado ' + f.name);
   } catch (err) { toast('Não consegui ler esse ficheiro'); }
 };
@@ -335,8 +492,8 @@ function estado() {
   else if (fh) { txt = `Carrega para religar ${fh.name}`; cls = 'aviso'; dica = 'O browser pede autorização de novo depois de reabrir'; }
   else {
     const ult = +lsGet(KEY_EXP) || 0, dias = ult ? Math.floor((Date.now() - ult) / 864e5) : null;
-    if (temFS) { txt = 'Só no browser · ligar ficheiro para backup'; cls = 'aviso'; dica = 'Carrega para escolher onde gravar (ex.: iCloud Drive)'; }
-    else { txt = ult ? `Só no browser · última cópia há ${dias} dia${dias === 1 ? '' : 's'}` : 'Só no browser · sem cópia'; cls = (!ult || dias >= 7) ? 'aviso' : '';
+    if (temFS) { txt = 'Só no browser · ligar ficheiro'; cls = 'aviso'; dica = 'Carrega para escolher onde gravar (ex.: iCloud Drive)'; }
+    else { txt = ult ? `Só no browser · cópia há ${dias} dia${dias === 1 ? '' : 's'}` : 'Só no browser · sem cópia'; cls = (!ult || dias >= 7) ? 'aviso' : '';
       dica = 'Carrega para exportar uma cópia. Para gravar sozinho num ficheiro, abre no Chrome.'; }
   }
   s.textContent = txt; s.className = 'estado ' + cls; s.title = dica;
@@ -347,10 +504,75 @@ document.querySelectorAll('.so-fs').forEach(e => { if (!temFS) e.remove(); });
 $('#menu').addEventListener('click', e => {
   const b = e.target.closest('[data-acao]'); if (!b) return;
   $('#menu').open = false;
-  ({ ligar: ligarFicheiro, abrir: abrirFicheiro, exportar, importar: () => $('#ficheiro-in').click() })[b.dataset.acao]();
+  ({ ligar: ligarFicheiro, abrir: abrirFicheiro, exportar, importar: () => $('#ficheiro-in').click(), nome: boasVindas })[b.dataset.acao]();
 });
 document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').open = false; });
 document.addEventListener('visibilitychange', () => { if (document.hidden && tFich) { clearTimeout(tFich); tFich = null; escreverFicheiro(); } });
+
+/* ---------- Vista: arrastar, roda e zoom ---------- */
+let vista = { x: 0, y: 0, z: 1 };
+function aplicarVista(suave) {
+  palco.style.transition = suave && !reduz ? 'transform .35s ease-out' : 'none';
+  palco.style.transform = `translate(${vista.x}px,${vista.y}px) scale(${vista.z})`;
+  $('#zoom-val').textContent = Math.round(vista.z * 100) + '%';
+}
+function ajustar(suave) {
+  const W = mapa.clientWidth, H = mapa.clientHeight;
+  let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+  palco.querySelectorAll('.centro, .no:not(.fantasma)').forEach(e => {
+    x1 = Math.min(x1, e.offsetLeft); y1 = Math.min(y1, e.offsetTop);
+    x2 = Math.max(x2, e.offsetLeft + e.offsetWidth); y2 = Math.max(y2, e.offsetTop + e.offsetHeight);
+  });
+  if (x1 === Infinity) vista = { x: 0, y: 0, z: 1 };
+  else {
+    const z = Math.max(.35, Math.min(1, (W - 40) / (x2 - x1), (H - 60) / (y2 - y1)));
+    vista = { z, x: W / 2 - (x1 + x2) / 2 * z, y: H / 2 - (y1 + y2) / 2 * z };
+  }
+  aplicarVista(suave);
+}
+function zoomPara(z2, px, py) {
+  z2 = Math.min(2.5, Math.max(.3, z2));
+  if (px == null) { px = mapa.clientWidth / 2; py = mapa.clientHeight / 2; }
+  vista.x = px - (px - vista.x) * z2 / vista.z; vista.y = py - (py - vista.y) * z2 / vista.z; vista.z = z2;
+  aplicarVista(false);
+}
+mapa.addEventListener('wheel', e => {
+  if (e.target.closest('.caixa')) return;
+  const ta = e.target.closest('textarea');
+  if (ta && ta.scrollHeight > ta.clientHeight && !(e.ctrlKey || e.metaKey)) return;
+  e.preventDefault();
+  if (e.ctrlKey || e.metaKey) {                    // ⌘/Ctrl + roda (ou beliscar no trackpad): zoom no sítio do rato
+    const r = mapa.getBoundingClientRect();
+    zoomPara(vista.z * Math.exp(-e.deltaY * .0028), e.clientX - r.left, e.clientY - r.top);
+  } else {                                          // a roda desloca o mapa
+    vista.x -= e.shiftKey ? e.deltaY : e.deltaX; vista.y -= e.shiftKey ? 0 : e.deltaY; aplicarVista(false);
+  }
+}, { passive: false });
+let arr = null;
+mapa.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  if (caixa && !e.target.closest('.caixa')) { e.preventDefault(); fecharCaixa(); return; }
+  if (e.target.closest('.no, .centro, .caixa, .zoom, button, input, textarea')) return;
+  e.preventDefault();                               // o fundo: arrastar mexe o mapa
+  arr = { x: e.clientX, y: e.clientY, vx: vista.x, vy: vista.y, mexeu: false };
+  mapa.classList.add('a-arrastar');
+});
+document.addEventListener('mousemove', e => {
+  if (!arr) return;
+  const dx = e.clientX - arr.x, dy = e.clientY - arr.y;
+  if (Math.abs(dx) + Math.abs(dy) > 4) arr.mexeu = true;
+  vista.x = arr.vx + dx; vista.y = arr.vy + dy; aplicarVista(false);
+});
+document.addEventListener('mouseup', () => {
+  if (!arr) return;
+  if (!arr.mexeu && sel >= 0) { sel = -1; marcarSel(); }   // um clique simples no fundo limpa a escolha
+  arr = null; mapa.classList.remove('a-arrastar');
+});
+mapa.addEventListener('dblclick', e => { if (!e.target.closest('.no, .centro, .caixa, .zoom')) ajustar(true); });
+document.querySelectorAll('.zoom [data-z]').forEach(b => b.onclick = () => {
+  const z = b.dataset.z;
+  if (z === 'ajustar') ajustar(true); else if (z === '1') zoomPara(1); else zoomPara(vista.z * (z === '+' ? 1.2 : 1 / 1.2));
+});
 
 /* ---------- Desenhar o mapa ---------- */
 function linhaCores(no, depois) {
@@ -377,49 +599,61 @@ function mover(id, paraId) {
   sel = -1; render(); toast(`«${titulo(n)}» passou para «${titulo(dados.nos[paraId])}»`, true);
 }
 
-function construirCentro(no, H) {
-  const c = el('div', 'centro'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
-  const topo = el('div', 'c-topo');
-  if (no.p) topo.append(btn('←', 'Voltar (Esc)', () => subir(no.p), 'voltar'));
-  const t = el('input', 'c-tit'); t.value = no.t; t.placeholder = 'Sem título'; t.spellcheck = false;
-  campo(t, v => { no.t = v; });
-  t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
-  t.addEventListener('blur', () => { document.title = titulo(no) + ' · Ideias'; });
-  topo.append(t); c.append(topo);
+// Os botões de sentir (bater, festinhas, emoção) — no centro e na caixa.
+function acoesSentir(no, f) {
+  const a = el('div', 'acoes');
+  a.append(btn('🤜 Bater', 'Bater (B)', () => bater(no, f), 'bt bt-soco'),
+           btn('🤚 Festinhas', 'Dar festinhas (F)', () => festinhas(no, f), 'bt bt-festa'),
+           btn('😶 Emoção', 'Mudar o boneco ou a emoção (E)', () => escolherBoneco(no.id), 'bt bt-emo'));
+  return a;
+}
+function contador(f, no) {
+  if (!f._cont) return;
+  const s = no.socos || 0, d = no.festas || 0;
+  f._cont.textContent = s || d ? `Já libertaste: 🤜 ${s} · 🤚 ${d}` : 'Põe cá para fora: bate ou dá carinho.';
+}
 
+function construirCentro(no) {
+  const c = el('div', 'centro'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
   const cam = caminho(no.id);
   if (cam.length > 1) {
-    const r = el('div', 'rasto');
+    const r = el('div', 'c-rasto');
+    r.append(btn('←', 'Voltar (Esc)', () => subir(no.p), 'bt redondo'));
     cam.slice(0, -1).forEach((id, i) => {
-      const b = btn(titulo(dados.nos[id]), 'Ir para aqui (larga aqui um bloco para o mudar para cá)', () => subir(id));
-      alvo(b, id); r.append(b, el('span', null, '›'));
+      if (i) r.append(el('span', null, '›'));
+      const b = btn(titulo(dados.nos[id]), 'Ir para aqui (larga aqui uma ideia para a mudar para cá)', () => subir(id), 'migalha');
+      alvo(b, id); r.append(b);
     });
-    r.append(el('span', null, titulo(no))); c.append(r);
+    c.append(r);
   }
-  const n = el('textarea', 'notas'); n.value = no.n || ''; n.placeholder = 'Notas…'; n.rows = H < 620 ? 3 : 6;
+  const f = fig(figura(no), no.c, 'c-fig'); f.title = 'Mudar o boneco ou a emoção';
+  f.onclick = () => escolherBoneco(no.id);
+  const t = el('input', 'c-nome'); t.value = no.t; t.placeholder = no.p ? 'Dá um nome a esta ideia' : 'Nome do Cérebro'; t.spellcheck = false;
+  campo(t, v => { no.t = v; });
+  t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
+  t.addEventListener('blur', () => { document.title = titulo(no) + ' · Mindmap'; });
+  const ac = acoesSentir(no, f);
+  ac.append(btn('＋ Ideia', 'Nova ideia (Tab)', () => novoRamo(no.id), 'bt bt-ideia'));
+  f._cont = el('div', 'contador'); contador(f, no);
+  const bolha = el('div', 'bolha'), n = el('textarea');
+  n.value = no.n || ''; n.rows = mapa.clientHeight < 700 ? 2 : 3;
+  n.placeholder = no.p ? 'O que estás a pensar sobre isto?' : 'O que te anda na cabeça?';
   campo(n, v => { no.n = v; });
   n.addEventListener('keydown', e => { if (e.key === 'Escape') n.blur(); });
-  c.append(n);
-  const pe = el('div', 'c-pe');
-  pe.append(btn('+ Novo ramo', 'Novo ramo (Tab)', () => novoRamo(no.id), 'bt'));
-  if (!no.f.length) pe.append(el('span', 'vazio', 'ou carrega Tab'));
-  pe.append(linhaCores(no, () => render()));
-  c.append(pe);
+  bolha.append(n);
+  c.append(f, t, ac, f._cont, bolha, linhaCores(no, () => render()));
   return c;
 }
 
 function construirCartao(no) {
   const d = el('div', 'no'); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
-  const tt = el('div', 'no-tit');
-  const b = el('b', no.t ? null : 'sem', titulo(no));
   const bts = el('div', 'no-bts');
-  bts.append(btn('✎', 'Renomear (F2)', () => renomear(no.id)),
-             btn('↗', 'Abrir aqui no mapa', () => abrirCaixa(no.id)),
+  bts.append(btn('✎', 'Mudar o nome (F2)', () => renomear(no.id)),
+             btn('↗', 'Abrir aqui', () => abrirCaixa(no.id)),
              btn('×', 'Apagar (⌫)', () => apagar(no.id), 'x'));
-  tt.append(b, bts); d.append(tt);
-  const l1 = (no.n || '').split('\n').find(s => s.trim());
-  if (l1) d.append(el('div', 'no-linha', l1));
-  if (no.f.length) d.append(el('div', 'no-pe', `${no.f.length} ramo${no.f.length === 1 ? '' : 's'} ›`));
+  const nome = el('div', 'no-nome' + (no.t ? '' : ' sem'), titulo(no));
+  d.append(bts, fig(figura(no), no.c), nome);
+  if (no.f.length) d.append(el('div', 'no-extra', `💭 ${no.f.length} ideia${no.f.length === 1 ? '' : 's'}`));
   d.onclick = e => { if (e.target.closest('button,input')) return; irPara(no.id, d); };
   d.ondragstart = e => { arrastado = no.id; e.dataTransfer.setData('text/plain', no.id); e.dataTransfer.effectAllowed = 'move'; d.classList.add('a-arrastar'); };
   d.ondragend = () => { arrastado = null; d.classList.remove('a-arrastar'); document.querySelectorAll('.alvo').forEach(x => x.classList.remove('alvo')); };
@@ -427,119 +661,118 @@ function construirCartao(no) {
   return d;
 }
 
-// Os ramos à volta do centro, numa elipse; com muitos, alternam dentro/fora.
-function posicoes(n, W, H, cw, ch, cardW) {
-  const cardH = 76, pad = 14, out = [];
-  const rx = Math.max(cw / 2 + cardW / 2 + 40, Math.min(W / 2 - cardW / 2 - pad, 380 + n * 14));
-  const ry = Math.max(ch / 2 + cardH / 2 + 24, Math.min(H / 2 - cardH / 2 - pad, 230 + n * 8));
+// As ideias à volta do centro, numa elipse "quadrada" para não tocarem no centro.
+function posicoes(n, W, H, cw, ch) {
+  const cardW = 150, cardH = 150, out = [];
+  const rx = Math.max(cw / 2 + cardW / 2 + 60, 250 + n * 18), ry = Math.max(ch / 2 + cardH / 2 + 10, 190 + n * 10);
+  const pot = (v, p) => Math.sign(v) * Math.pow(Math.abs(v), p);
   for (let i = 0; i < n; i++) {
     const a = n === 1 ? 0 : -Math.PI / 2 + 2 * Math.PI * (i + 0.5) / n;
-    const k = n > 10 && i % 2 ? 0.8 : 1;
-    let x = W / 2 + Math.cos(a) * rx * k, y = H / 2 + Math.sin(a) * ry * k;
-    x = Math.min(W - cardW / 2 - pad, Math.max(cardW / 2 + pad, x));
-    y = Math.min(H - cardH / 2 - pad, Math.max(cardH / 2 + pad, y));
-    out.push({ x, y });
+    const k = n > 10 && i % 2 ? 1.3 : 1;
+    out.push({ x: W / 2 + pot(Math.cos(a), .6) * rx * k, y: H / 2 + pot(Math.sin(a), .6) * ry * k });
   }
   return out;
 }
 
 function render(opts = {}) {
   fecharCaixa(true);
-  mapa.querySelectorAll('.no, .centro, .fantasma').forEach(e => e.remove());
-  mapa.classList.remove('a-sair');
+  palco.querySelectorAll('.no, .centro, .fantasma').forEach(e => e.remove());
+  palco.classList.remove('a-sair');
   const no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
-  const c = construirCentro(no, H);
-  if (W < 900) c.style.width = '300px';
-  mapa.append(c);
+  const c = construirCentro(no); palco.append(c);
   const cw = c.offsetWidth, ch = c.offsetHeight;
-  c.style.left = Math.round((W - cw) / 2) + 'px';
-  c.style.top = Math.round(Math.max(8, (H - ch) / 2)) + 'px';
-  const cardW = W < 900 ? 150 : 180;
-  const pos = posicoes(no.f.length, W, H, cw, ch, cardW);
+  c.style.left = Math.round((W - cw) / 2) + 'px'; c.style.top = Math.round((H - ch) / 2) + 'px';
+  const pos = posicoes(no.f.length, W, H, cw, ch);
   no.f.forEach((id, i) => {
-    const card = construirCartao(dados.nos[id]);
-    card.style.width = cardW + 'px'; mapa.append(card);
-    card.style.left = Math.round(pos[i].x - cardW / 2) + 'px';
+    const card = construirCartao(dados.nos[id]); palco.append(card);
+    card.style.left = Math.round(pos[i].x - card.offsetWidth / 2) + 'px';
     card.style.top = Math.round(pos[i].y - card.offsetHeight / 2) + 'px';
     if (opts.esconder === id) card.style.visibility = 'hidden';
   });
   if (sel >= no.f.length) sel = no.f.length - 1;
-  marcarSel(); linhas();
+  marcarSel(); linhas(); ajustar(opts.suave);
   history.replaceState(null, '', '#n=' + atual);
-  document.title = titulo(no) + ' · Ideias';
+  document.title = titulo(no) + ' · Mindmap';
+}
+function meioFig(caixaEl) {
+  const f = caixaEl.querySelector('.fig');
+  return { x: caixaEl.offsetLeft + f.offsetLeft + f.offsetWidth / 2, y: caixaEl.offsetTop + f.offsetTop + f.offsetHeight / 2 };
 }
 function linhas() {
   const svg = $('#linhas'); svg.innerHTML = '';
-  const c = mapa.querySelector('.centro:not(.fantasma)'); if (!c) return;
-  const cx = c.offsetLeft + c.offsetWidth / 2, cy = c.offsetTop + c.offsetHeight / 2;
-  mapa.querySelectorAll('.no:not(.fantasma)').forEach(n => {
-    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    l.setAttribute('x1', cx); l.setAttribute('y1', cy);
-    l.setAttribute('x2', n.offsetLeft + n.offsetWidth / 2); l.setAttribute('y2', n.offsetTop + n.offsetHeight / 2);
-    l.setAttribute('stroke', n.style.getPropertyValue('--cor'));
-    svg.append(l);
+  const c = palco.querySelector('.centro'); if (!c) return;
+  const a = meioFig(c);
+  palco.querySelectorAll('.no:not(.fantasma)').forEach(n => {
+    const b = meioFig(n), dx = b.x - a.x, dy = b.y - a.y;
+    const mx = (a.x + b.x) / 2 - dy * .15, my = (a.y + b.y) / 2 + dx * .15;
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', `M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`);
+    p.setAttribute('stroke', n.style.getPropertyValue('--cor'));
+    svg.append(p);
   });
 }
 function marcarSel() {
   const f = dados.nos[atual].f;
-  mapa.querySelectorAll('.no').forEach(n => n.classList.toggle('sel', sel >= 0 && n.dataset.id === f[sel]));
+  palco.querySelectorAll('.no').forEach(n => n.classList.toggle('sel', sel >= 0 && n.dataset.id === f[sel]));
 }
-function cartaoDe(id) { return mapa.querySelector(`.no[data-id="${id}"]:not(.fantasma)`); }
+function cartaoDe(id) { return palco.querySelector(`.no[data-id="${id}"]:not(.fantasma)`); }
 
-/* ---------- O movimento entre níveis ---------- */
-function retangulo(e) { return { l: e.offsetLeft, t: e.offsetTop, w: e.offsetWidth, h: e.offsetHeight }; }
+/* ---------- O movimento entre níveis (como a VNI) ---------- */
+function rectFig(caixaEl) {
+  const f = caixaEl.querySelector('.fig');
+  return { l: caixaEl.offsetLeft + f.offsetLeft, t: caixaEl.offsetTop + f.offsetTop, w: f.offsetWidth, h: f.offsetHeight };
+}
 function porEm(g, r) { g.style.left = r.l + 'px'; g.style.top = r.t + 'px'; g.style.width = r.w + 'px'; g.style.height = r.h + 'px'; }
+function fantasma(caixaEl) {
+  const g = caixaEl.querySelector('.fig').cloneNode(true); g.classList.add('fantasma'); g.classList.remove('c-fig');
+  porEm(g, rectFig(caixaEl)); palco.append(g); g.offsetWidth; return g;
+}
 function animar(g, r, fim) {
-  g.offsetWidth; // fixa o ponto de partida antes de mudar
   requestAnimationFrame(() => porEm(g, r));
   let feito = false;
   const acabar = () => { if (feito) return; feito = true; fim(); };
   g.addEventListener('transitionend', acabar, { once: true });
-  setTimeout(acabar, 420); // num separador escondido as animações param
+  setTimeout(acabar, 450);
 }
-// Um bloco à volta desliza até ao centro e passa a ser o centro.
 function irPara(id, deEl) {
   if (ocupado || id === atual || !dados.nos[id]) return;
-  const centro = mapa.querySelector('.centro');
+  const centro = palco.querySelector('.centro');
   sel = -1;
   if (reduz || !deEl || !centro) { atual = id; render(); return; }
   ocupado = true;
-  const g = deEl.cloneNode(true); g.classList.add('fantasma'); g.classList.remove('sel'); g.removeAttribute('draggable');
-  porEm(g, retangulo(deEl)); mapa.append(g);
-  mapa.classList.add('a-sair');
-  animar(g, retangulo(centro), () => { atual = id; render(); ocupado = false; });
+  const g = fantasma(deEl);
+  palco.classList.add('a-sair');
+  animar(g, rectFig(centro), () => { atual = id; render({ suave: true }); ocupado = false; });
 }
-// O contrário: o centro volta para o bloco de onde se saiu.
 function subir(aid) {
   if (ocupado || aid === atual) return;
   const cam = caminho(atual), i = cam.indexOf(aid); if (i < 0) return;
-  const k = cam[i + 1], centro = mapa.querySelector('.centro');
+  const k = cam[i + 1], centro = palco.querySelector('.centro');
   atual = aid; sel = dados.nos[aid].f.indexOf(k);
   if (reduz || !centro) { render(); return; }
   ocupado = true;
-  const r = retangulo(centro), g = centro.cloneNode(true);
-  g.querySelector('.c-tit').value = centro.querySelector('.c-tit').value;
-  g.querySelector('.notas').value = centro.querySelector('.notas').value;
+  const r = rectFig(centro), g = centro.querySelector('.fig').cloneNode(true);
+  g.classList.add('fantasma'); g.classList.remove('c-fig');
   render({ esconder: k });
-  g.classList.add('fantasma'); porEm(g, r); mapa.append(g);
+  porEm(g, r); palco.append(g); g.offsetWidth;
   const card = cartaoDe(k);
   if (!card) { g.remove(); ocupado = false; return; }
-  animar(g, retangulo(card), () => { g.remove(); card.style.visibility = ''; ocupado = false; });
+  animar(g, rectFig(card), () => { g.remove(); card.style.visibility = ''; ocupado = false; });
 }
 
 /* ---------- Criar, renomear, apagar ---------- */
 function novoRamo(pid) {
   const pai = dados.nos[pid], id = novoId();
-  const cor = pai.p === null ? CORES[pai.f.length % (CORES.length - 1)] : pai.c;
+  const cor = pai.p === null ? CORES[pai.f.length % CORES.length] : pai.c;
   mudar(() => { dados.nos[id] = { id, t: '', n: '', c: cor, f: [], p: pid }; pai.f.push(id); });
   if (pid === atual) { sel = pai.f.length - 1; render(); renomear(id, true); }
   return id;
 }
 function renomear(id, novo) {
   const card = cartaoDe(id); if (!card) return;
-  const n = dados.nos[id], b = card.querySelector('.no-tit b');
-  const inp = el('input', 'no-inp'); inp.value = n.t; inp.placeholder = 'Nova ideia'; inp.spellcheck = false;
-  b.replaceWith(inp); card.draggable = false; inp.focus(); inp.select();
+  const n = dados.nos[id], nome = card.querySelector('.no-nome');
+  const inp = el('input', 'no-inp'); inp.value = n.t; inp.placeholder = 'Nova ideia…'; inp.spellcheck = false;
+  nome.replaceWith(inp); card.draggable = false; inp.focus(); inp.select();
   let feito = false;
   const fim = prox => {
     if (feito) return; feito = true;
@@ -556,13 +789,14 @@ function renomear(id, novo) {
   });
   inp.addEventListener('blur', () => fim());
   inp.addEventListener('click', e => e.stopPropagation());
+  inp.addEventListener('mousedown', e => e.stopPropagation());
 }
 function apagar(id) {
   const n = dados.nos[id]; if (!n || !n.p) return;
   const dentro = contar(id) - 1, t = titulo(n);
   mudar(() => removerNo(id));
   sel = Math.min(sel, dados.nos[atual].f.length - 1);
-  render(); toast(`Apagado «${t}»${dentro ? ` e ${dentro} ramo${dentro === 1 ? '' : 's'} dentro` : ''}`, true);
+  render(); toast(`Apagado «${t}»${dentro ? ` e ${dentro} ideia${dentro === 1 ? '' : 's'} dentro` : ''}`, true);
 }
 
 /* ---------- A caixa aberta no mapa (↗) ---------- */
@@ -571,25 +805,31 @@ function abrirCaixa(id) {
   const no = dados.nos[id], card = cartaoDe(id); if (!no) return;
   const W = mapa.clientWidth, H = mapa.clientHeight;
   const cx = el('div', 'caixa'); cx.style.setProperty('--cor', no.c);
-  const topo = el('div', 'c-topo');
-  const t = el('input', 'c-tit'); t.value = no.t; t.placeholder = 'Sem título'; t.spellcheck = false;
+  const topo = el('div', 'cx-topo');
+  const f = fig(figura(no), no.c); f.title = 'Mudar o boneco ou a emoção'; f.onclick = () => escolherBoneco(id);
+  const meio = el('div', 'cx-meio');
+  const t = el('input', 'c-nome'); t.value = no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
   campo(t, v => { no.t = v; });
   t.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); notas.focus(); } });
-  topo.append(t, btn('Pôr no centro', 'Fazer desta ideia o centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt'),
-              btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'voltar'));
+  f._cont = el('div', 'contador'); contador(f, no);
+  meio.append(t, acoesSentir(no, f), f._cont);
+  const bts = el('div', 'cx-bts');
+  bts.append(btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'bt redondo'), btn('⤢', 'Pôr no centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt redondo'));
+  topo.append(f, meio, bts);
+  const bolha = el('div', 'bolha'), notas = el('textarea');
+  notas.value = no.n || ''; notas.placeholder = 'Escreve aqui tudo o que te vem à cabeça…';
+  campo(notas, v => { no.n = v; }); bolha.append(notas);
   const cores = linhaCores(no, () => { cx.style.setProperty('--cor', no.c); cores.querySelectorAll('.cor').forEach((b, i) => b.classList.toggle('on', CORES[i] === no.c)); });
-  cores.style.marginLeft = '0';
-  const notas = el('textarea', 'notas'); notas.value = no.n || ''; notas.placeholder = 'Escreve aqui à vontade…';
-  campo(notas, v => { no.n = v; });
+  cores.style.justifyContent = 'flex-start';
   const ramos = el('div', 'cx-ramos');
   const desenharRamos = () => {
-    ramos.innerHTML = ''; ramos.append(el('span', null, no.f.length ? 'Ramos:' : 'Sem ramos.'));
+    ramos.innerHTML = ''; ramos.append(el('span', null, no.f.length ? 'Ideias aqui dentro:' : 'Ainda sem ideias aqui dentro.'));
     no.f.forEach(fid => {
-      const f = dados.nos[fid], ch = el('button', 'chip', titulo(f)); ch.style.setProperty('--cor', f.c);
+      const x = dados.nos[fid], ch = el('button', 'chip', titulo(x)); ch.style.setProperty('--cor', x.c);
       ch.title = 'Ir para aqui'; ch.onclick = () => { atual = fid; sel = -1; render(); };
       ramos.append(ch);
     });
-    const inp = el('input', 'chip-inp'); inp.placeholder = '+ novo ramo, Enter';
+    const inp = el('input', 'chip-inp'); inp.placeholder = '＋ nova ideia, Enter';
     inp.addEventListener('keydown', e => {
       if (e.key !== 'Enter' || !inp.value.trim()) return;
       const nid = novoId(), v = inp.value.trim();
@@ -599,27 +839,193 @@ function abrirCaixa(id) {
     ramos.append(inp);
   };
   desenharRamos();
-  cx.append(topo, cores, notas, ramos);
-  porEm(cx, card ? retangulo(card) : { l: W / 2 - 90, t: H / 2 - 40, w: 180, h: 80 });
+  cx.append(topo, bolha, cores, ramos);
+  const m = mapa.getBoundingClientRect(), r0 = card ? card.getBoundingClientRect() : null;
+  porEm(cx, r0 ? { l: r0.left - m.left, t: r0.top - m.top, w: r0.width, h: r0.height } : { l: W / 2 - 90, t: H / 2 - 60, w: 180, h: 120 });
   mapa.append(cx); mapa.classList.add('com-caixa');
   caixa = { el: cx, id };
-  const w = Math.min(760, Math.max(320, W * 0.6)), h = Math.min(580, Math.max(300, H * 0.72));
+  const w = Math.min(720, Math.max(330, W * .62)), h = Math.min(580, Math.max(380, H * .8));
+  const alvoR = { l: (W - w) / 2, t: Math.max(10, (H - h) / 2), w, h };
   cx.offsetWidth;
-  if (reduz) porEm(cx, { l: (W - w) / 2, t: (H - h) / 2, w, h });
-  else requestAnimationFrame(() => porEm(cx, { l: (W - w) / 2, t: (H - h) / 2, w, h }));
-  setTimeout(() => notas.focus(), 230);
+  if (reduz) porEm(cx, alvoR); else requestAnimationFrame(() => porEm(cx, alvoR));
+  setTimeout(() => notas.focus(), 260);
 }
 function fecharCaixa(semRedesenhar) {
   if (!caixa) return;
   caixa.el.remove(); caixa = null; mapa.classList.remove('com-caixa');
   if (!semRedesenhar) render();
 }
-mapa.addEventListener('mousedown', e => { if (caixa && !e.target.closest('.caixa')) { e.preventDefault(); fecharCaixa(); } });
+
+/* ---------- Bater e dar festinhas ---------- */
+function caraPorUmBocado(f, no, e, ms) {
+  const i = f.querySelector('.fig-in'); if (!i) return;
+  clearTimeout(f._t);
+  const b = figura(no);
+  i.innerHTML = desenharBoneco({ k: b.k, e }, no.c);
+  f._t = setTimeout(() => { i.innerHTML = desenharBoneco(figura(no), no.c); }, ms);
+}
+let audio = null;
+function som(tipo) {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const t = audio.currentTime, o = audio.createOscillator(), g = audio.createGain();
+    o.connect(g); g.connect(audio.destination);
+    if (tipo === 'soco') {
+      o.type = 'sine'; o.frequency.setValueAtTime(170, t); o.frequency.exponentialRampToValueAtTime(38, t + .18);
+      g.gain.setValueAtTime(.7, t); g.gain.exponentialRampToValueAtTime(.001, t + .26);
+    } else {
+      o.type = 'triangle'; o.frequency.setValueAtTime(620, t); o.frequency.exponentialRampToValueAtTime(900, t + .18);
+      g.gain.setValueAtTime(.07, t); g.gain.exponentialRampToValueAtTime(.001, t + .35);
+    }
+    o.start(t); o.stop(t + .4);
+  } catch (e) {}
+}
+function voar(txt, kf, dur, tam) {
+  const v = el('div', 'voa', txt); if (tam) v.style.fontSize = tam + 'px';
+  document.body.append(v);
+  v.animate(kf, { duration: dur, easing: 'ease-out', fill: 'forwards' }).onfinish = () => v.remove();
+}
+function bater(no, f) {
+  const r = f.getBoundingClientRect(), cy = r.top + r.height / 2, dur = reduz ? 300 : 480;
+  const m = el('div', 'mao', '🤜'); document.body.append(m);
+  const x0 = r.left - 320, y0 = cy + 40, xt = r.left - 46, yt = cy - 34;
+  m.animate([
+    { transform: `translate(${x0}px,${y0}px) rotate(-25deg) scale(.7)`, opacity: 0 },
+    { transform: `translate(${x0 + 90}px,${y0 - 12}px) rotate(-12deg) scale(.95)`, opacity: 1, offset: .35 },
+    { transform: `translate(${xt}px,${yt}px) rotate(0) scale(1.15)`, opacity: 1, offset: .7 },
+    { transform: `translate(${xt - 40}px,${yt + 14}px) scale(1)`, opacity: 0 }
+  ], { duration: dur, easing: 'ease-in', fill: 'forwards' }).onfinish = () => m.remove();
+  setTimeout(() => {
+    som('soco');
+    const x = r.left, y = cy;
+    voar('💥', [{ transform: `translate(${x - 28}px,${y - 28}px) scale(.3)`, opacity: 1 }, { transform: `translate(${x - 28}px,${y - 28}px) scale(1.5)`, opacity: 0 }], 400, 56);
+    f.animate([{ transform: 'none' }, { transform: 'translateX(18px) rotate(10deg) scale(.85,1.1)' }, { transform: 'translateX(-7px) rotate(-5deg)' }, { transform: 'none' }], { duration: 420, easing: 'ease-out' });
+    if (!reduz) document.body.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-15px,8px)' }, { transform: 'translate(13px,-10px)' },
+      { transform: 'translate(-10px,-5px)' }, { transform: 'translate(8px,7px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(0,0)' }], { duration: 460 });
+    caraPorUmBocado(f, no, 'tonto', 1100);
+    no.socos = (no.socos || 0) + 1; guardar(); contador(f, no);
+  }, dur * .7);
+}
+function festinhas(no, f) {
+  const r = f.getBoundingClientRect(), cx = r.left + r.width / 2;
+  const m = el('div', 'mao', '🤚'); m.style.fontSize = '56px'; document.body.append(m);
+  const x = cx - 28, y = r.top - 34, kf = [];
+  for (let i = 0; i <= 6; i++) kf.push({ transform: `translate(${x + (i % 2 ? 22 : -22)}px,${y + (i % 2 ? 6 : 0)}px) rotate(${i % 2 ? 190 : 170}deg)`, opacity: i === 0 || i === 6 ? 0 : 1 });
+  m.animate(kf, { duration: 1700, easing: 'ease-in-out', fill: 'forwards' }).onfinish = () => m.remove();
+  f.animate([{ transform: 'none' }, { transform: 'scale(1.07,.93)' }, { transform: 'none' }, { transform: 'scale(1.07,.93)' }, { transform: 'none' }, { transform: 'scale(1.07,.93)' }, { transform: 'none' }], { duration: 1700 });
+  caraPorUmBocado(f, no, 'carinho', 2300);
+  for (let i = 0; i < 7; i++) setTimeout(() => {
+    const hx = cx - 12 + (Math.random() * 70 - 35), hy = r.top + 10, dx = Math.random() * 34 - 17;
+    voar(['💗', '💖', '💕'][i % 3], [{ transform: `translate(${hx}px,${hy}px) scale(.5)`, opacity: 0 },
+      { transform: `translate(${hx}px,${hy - 30}px) scale(1)`, opacity: 1, offset: .3 }, { transform: `translate(${hx + dx}px,${hy - 100}px) scale(.9)`, opacity: 0 }], 1300);
+  }, 120 + i * 220);
+  som('festa'); no.festas = (no.festas || 0) + 1; guardar(); contador(f, no);
+}
+
+/* ---------- Escolher o boneco e a emoção, e os teus bonecos ---------- */
+const esc = $('#escolher');
+let escId = null, escK = null, carregarPara = null;
+function escolherBoneco(id) {
+  escId = id; escK = figura(dados.nos[id]).k;
+  if (escK.startsWith('u:') && !dados.colecoes[escK.slice(2)]) escK = 'nuvem';
+  desenharEscolha(); esc.hidden = false;
+}
+function miniatura(b, cor) { const i = el('div', 'fig-in'); i.style.animation = 'none'; i.innerHTML = desenharBoneco(b, cor); return i; }
+function desenharEscolha() {
+  const no = dados.nos[escId], atualB = figura(no);
+  const bs = esc.querySelector('.esc-bonecos'), meu = esc.querySelector('.esc-meu'), es = esc.querySelector('.esc-emocoes');
+  bs.innerHTML = ''; meu.innerHTML = ''; es.innerHTML = '';
+  const opcao = (k, nome, b, cls) => {
+    const x = el('button', 'esc-b' + (cls ? ' ' + cls : '') + (k === escK ? ' on' : ''));
+    x.append(b ? miniatura(b, no.c) : el('div', 'esc-mais', '＋'), el('span', null, nome));
+    x.onclick = () => { escK = k; desenharEscolha(); };
+    bs.append(x); return x;
+  };
+  Object.entries(BONECOS).forEach(([k, B]) => opcao(k, B.nome, { k, e: 'feliz' }));
+  Object.entries(dados.colecoes).forEach(([id, col]) => opcao('u:' + id, col.nome || 'O meu boneco', Object.keys(col.imgs).length ? { k: 'u:' + id, e: 'feliz' } : null, 'meu'));
+  const novo = el('button', 'esc-b meu'); novo.append(el('div', 'esc-mais', '＋'), el('span', null, 'Os meus'));
+  novo.title = 'Criar um boneco com as tuas imagens';
+  novo.onclick = () => {
+    const id = novoId(); dados.colecoes[id] = { nome: '', imgs: {} }; guardar();
+    escK = 'u:' + id; desenharEscolha(); const i = meu.querySelector('input'); if (i) i.focus();
+  };
+  bs.append(novo);
+
+  if (escK.startsWith('u:')) {
+    const cid = escK.slice(2), col = dados.colecoes[cid];
+    const linha = el('div', 'meu-nome'), inp = el('input'); inp.value = col.nome; inp.placeholder = 'Nome deste boneco';
+    inp.oninput = () => { col.nome = inp.value; guardar(); };
+    inp.onblur = () => desenharEscolha();
+    linha.append(inp, btn('Apagar este boneco', '', () => {
+      if (!confirm(`Apagar «${col.nome || 'este boneco'}» e as imagens dele?`)) return;
+      delete dados.colecoes[cid]; guardar(); escK = 'nuvem'; desenharEscolha(); render();
+    }, 'link perigo'));
+    meu.append(linha, el('div', 'meu-aviso', 'Carrega uma imagem tua em cada emoção (não precisas de as pôr todas). As imagens ficam só neste computador.'));
+  }
+  EMOCOES.forEach(([e, nome]) => {
+    const b = { k: escK, e };
+    if (escK.startsWith('u:')) {
+      const col = dados.colecoes[escK.slice(2)], tem = !!col.imgs[e];
+      const x = el('button', 'esc-e' + (tem ? '' : ' vazio') + (atualB.k === escK && atualB.e === e ? ' on' : ''));
+      x.append(tem ? miniatura({ k: escK, e }) : el('div', 'esc-mais', '＋'), el('span', null, nome));
+      if (tem) {
+        x.onclick = () => definirBoneco(b);
+        const l = btn('✎', 'Trocar a imagem', () => { carregarPara = { cid: escK.slice(2), e }; $('#bnc-in').click(); }, 'esc-lapis');
+        x.append(l);
+      } else { x.title = 'Carregar uma imagem para «' + nome + '»'; x.onclick = () => { carregarPara = { cid: escK.slice(2), e }; $('#bnc-in').click(); }; }
+      es.append(x);
+    } else {
+      const x = el('button', 'esc-e' + (atualB.k === escK && atualB.e === e ? ' on' : ''));
+      x.append(miniatura(b, no.c), el('span', null, nome)); x.onclick = () => definirBoneco(b);
+      es.append(x);
+    }
+  });
+}
+function definirBoneco(b) {
+  const id = escId, reabrir = caixa && caixa.id === id;
+  mudar(() => { dados.nos[id].b = b; });
+  esc.hidden = true; render(); if (reabrir) abrirCaixa(id);
+}
+$('#esc-fechar').onclick = () => { esc.hidden = true; };
+esc.addEventListener('mousedown', e => { if (e.target === esc) esc.hidden = true; });
+$('#bnc-in').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f || !carregarPara) return;
+  try {
+    const url = URL.createObjectURL(f), img = new Image();
+    await new Promise((ok, erro) => { img.onload = ok; img.onerror = erro; img.src = url; });
+    const L = 240, c = document.createElement('canvas'); c.width = c.height = L;
+    const s = Math.min(L / img.width, L / img.height), w = img.width * s, h = img.height * s;
+    c.getContext('2d').drawImage(img, (L - w) / 2, (L - h) / 2, w, h);   // a imagem inteira, com fundo transparente
+    URL.revokeObjectURL(url);
+    let dataUrl = c.toDataURL('image/webp', .85);
+    if (!dataUrl.startsWith('data:image/webp')) dataUrl = c.toDataURL('image/png');
+    const { cid, e: emo } = carregarPara, col = dados.colecoes[cid]; if (!col) return;
+    col.imgs[emo] = dataUrl; guardar(); desenharEscolha(); render();
+  } catch (err) { toast('Não consegui ler essa imagem'); }
+};
+
+/* ---------- Dar nome ao Cérebro ---------- */
+const bv = $('#boasvindas');
+function boasVindas() {
+  const raiz = dados.nos[dados.raiz];
+  bv.querySelector('.fig-in').innerHTML = desenharBoneco({ k: 'cerebro', e: 'feliz' });
+  const inp = $('#bv-nome'); inp.value = raiz.t || '';
+  bv.hidden = false; setTimeout(() => inp.focus(), 60);
+}
+function boasVindasOk() {
+  const inp = $('#bv-nome'), v = inp.value.trim(); if (!v) { inp.focus(); return; }
+  const raiz = dados.nos[dados.raiz], primeira = !dados.nomeado;
+  mudar(() => { raiz.t = v; }); dados.nomeado = true; guardar();
+  bv.hidden = true; render();
+  if (primeira) toast(`Olá, ${v}! Carrega em ＋ Ideia (ou Tab) para pôr cá fora o que tens na cabeça.`);
+}
+$('#bv-ok').onclick = boasVindasOk;
+$('#bv-nome').addEventListener('keydown', e => { if (e.key === 'Enter') boasVindasOk(); if (e.key === 'Escape' && dados.nomeado) bv.hidden = true; });
 
 /* ---------- Procurar ---------- */
 const busca = $('#busca'), res = $('#resultados');
 let resIdx = 0;
-function irDireto(id) { atual = id; sel = -1; busca.value = ''; res.hidden = true; busca.blur(); render(); }
+function irDireto(id) { atual = id; sel = -1; busca.value = ''; res.hidden = true; busca.blur(); render({ suave: true }); }
 busca.addEventListener('input', () => {
   const q = norm(busca.value.trim()); res.innerHTML = ''; resIdx = 0;
   if (!q) { res.hidden = true; return; }
@@ -627,7 +1033,7 @@ busca.addEventListener('input', () => {
   if (!lista.length) res.append(el('div', 'nada', 'Nada encontrado'));
   lista.forEach((n, i) => {
     const b = el('button', i === 0 ? 'on' : null); b.dataset.id = n.id;
-    b.append(el('b', null, titulo(n)), el('small', null, caminho(n.id).slice(0, -1).map(x => titulo(dados.nos[x])).join(' › ') || 'topo'));
+    b.append(el('b', null, titulo(n)), el('small', null, caminho(n.id).slice(0, -1).map(x => titulo(dados.nos[x])).join(' › ') || 'o Cérebro'));
     b.addEventListener('mousedown', e => { e.preventDefault(); irDireto(n.id); });
     res.append(b);
   });
@@ -646,21 +1052,27 @@ busca.addEventListener('blur', () => setTimeout(() => { res.hidden = true; }, 10
 /* ---------- Teclado ---------- */
 function emTexto(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
 document.addEventListener('keydown', e => {
+  if (!bv.hidden) return;
+  if (!esc.hidden) { if (e.key === 'Escape') esc.hidden = true; return; }
   const mod = e.metaKey || e.ctrlKey;
   if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey && !emTexto(e.target)) { e.preventDefault(); desfazer(); return; }
   if (mod && (e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'f')) { e.preventDefault(); busca.focus(); busca.select(); return; }
   if (emTexto(e.target) || mod || ocupado) return;
   if (caixa) { if (e.key === 'Escape') fecharCaixa(); return; }
-  const f = dados.nos[atual].f;
-  switch (e.key) {
+  const no = dados.nos[atual], f = no.f, figC = palco.querySelector('.centro .fig');
+  switch (e.key.length === 1 ? e.key.toLowerCase() : e.key) {
     case 'Tab': e.preventDefault(); novoRamo(atual); break;
-    case 'Escape': if (sel >= 0) { sel = -1; marcarSel(); } else if (dados.nos[atual].p) subir(dados.nos[atual].p); break;
+    case 'Escape': if (sel >= 0) { sel = -1; marcarSel(); } else if (no.p) subir(no.p); break;
     case 'ArrowRight': case 'ArrowDown': if (f.length) { e.preventDefault(); sel = (sel + 1) % f.length; marcarSel(); } break;
     case 'ArrowLeft': case 'ArrowUp': if (f.length) { e.preventDefault(); sel = sel <= 0 ? f.length - 1 : sel - 1; marcarSel(); } break;
     case 'Enter': if (sel >= 0) { e.preventDefault(); irPara(f[sel], cartaoDe(f[sel])); } break;
     case ' ': if (sel >= 0) { e.preventDefault(); abrirCaixa(f[sel]); } break;
-    case 'F2': e.preventDefault(); if (sel >= 0) renomear(f[sel]); else mapa.querySelector('.c-tit').focus(); break;
+    case 'F2': e.preventDefault(); if (sel >= 0) renomear(f[sel]); else palco.querySelector('.c-nome').focus(); break;
     case 'Backspace': case 'Delete': if (sel >= 0) { e.preventDefault(); apagar(f[sel]); } break;
+    case 'b': if (figC) bater(no, figC); break;
+    case 'f': if (figC) festinhas(no, figC); break;
+    case 'e': escolherBoneco(atual); break;
+    case '0': ajustar(true); break;
   }
 });
 
@@ -669,13 +1081,15 @@ let tToast;
 function toast(msg, comDesfazer) {
   const t = $('#toast'); t.innerHTML = ''; t.append(el('span', null, msg));
   if (comDesfazer) t.append(btn('Desfazer', '⌘Z', () => { t.hidden = true; desfazer(); }));
-  t.hidden = false; clearTimeout(tToast); tToast = setTimeout(() => { t.hidden = true; }, comDesfazer ? 6000 : 2800);
+  t.hidden = false; clearTimeout(tToast); tToast = setTimeout(() => { t.hidden = true; }, comDesfazer ? 6000 : 3500);
 }
 
 /* ---------- Arranque ---------- */
+$('#logo').innerHTML = desenharBoneco({ k: 'cerebro', e: 'feliz' });
 let tResize;
 addEventListener('resize', () => { clearTimeout(tResize); tResize = setTimeout(() => { if (!ocupado) render(); }, 120); });
 render(); estado();
+if (!dados.nomeado) boasVindas();
 (async () => {
   if (!temFS) return;
   try {
