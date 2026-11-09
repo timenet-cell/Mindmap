@@ -1,2 +1,4 @@
 .claude/
+# Os dados e cópias da pessoa nunca vêm para aqui
 *.json
+!versao.json
