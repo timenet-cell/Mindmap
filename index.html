@@ -235,6 +235,31 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .resp-bola .fig { width: 160px; height: 160px; }
 .resp-txt { font-size: 30px; font-weight: 700; color: #fff; text-shadow: 0 2px 0 #2a2230, 0 0 12px rgba(0,0,0,.25); }
 
+/* Estatísticas */
+.st-caixa { width: min(760px, 100%); }
+.st-per { display: flex; gap: 4px; margin-left: auto; margin-right: 8px; }
+.st-per button { border: 2px solid var(--linha); background: var(--surface); border-radius: 999px; padding: 2px 11px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.st-per button.on { background: var(--sel-bg); }
+.st-frase { font-size: 17px; font-weight: 600; background: var(--surface2); border-radius: 16px; padding: 10px 14px; }
+.st-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+.st-tile { border: 2.5px solid var(--linha); border-radius: 18px; box-shadow: 0 3px 0 var(--linha); padding: 8px 10px; text-align: center; }
+.st-tile b { display: block; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.st-tile span { font-size: 12.5px; color: var(--text2); }
+.st-sec { font-size: 15px; font-weight: 700; margin-top: 4px; }
+.st-sub { font-size: 12.5px; color: var(--text2); }
+.st-barras { display: flex; flex-direction: column; gap: 5px; }
+.st-bar { display: grid; grid-template-columns: 30px 120px 1fr 36px; align-items: center; gap: 8px; font-size: 13.5px; }
+.st-bar .fig-in { width: 30px; height: 30px; animation: none; }
+.st-trilho { height: 14px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.st-enche { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; }
+.st-bar .n { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text2); }
+.st-dias { display: flex; gap: 6px; flex-wrap: wrap; }
+.st-dia { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--text3); }
+.st-dia i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text3); display: block; }
+.st-dia.on i { background: var(--accent); border-color: var(--linha); }
+.st-duas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .st-duas { grid-template-columns: 1fr; } .st-bar { grid-template-columns: 30px 96px 1fr 30px; } }
+
 /* Mãos, estrelas e corações */
 .mao { position: fixed; z-index: 50; left: 0; top: 0; pointer-events: none; font-size: 66px; line-height: 1; will-change: transform; }
 .voa { position: fixed; z-index: 49; left: 0; top: 0; pointer-events: none; font-size: 24px; line-height: 1; }
@@ -311,6 +336,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
       <button class="link" id="esp-repor">↺ Pôr todas as ideias no sítio automático</button>
     </div>
   </div>
+  <button id="bt-stats" class="bt redondo" title="Como tens andado">📊</button>
   <button id="bt-arrumados" class="bt redondo" title="Assuntos arrumados">📦</button>
   <button id="bt-trancar" class="bt redondo" title="Trancar o Mindmap">🔒</button>
   <button id="estado" class="estado"></button>
@@ -396,6 +422,14 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
     <div class="arq-lista"></div>
   </div>
 </div>
+<div id="stats" class="janela" hidden>
+  <div class="j-caixa st-caixa" role="dialog" aria-label="Como tens andado">
+    <div class="j-topo"><b>📊 Como tens andado</b>
+      <div class="st-per"><button data-d="7">7 dias</button><button data-d="30">30 dias</button><button data-d="0">Sempre</button></div>
+      <button class="bt redondo" data-fechar title="Fechar">×</button></div>
+    <div class="st-corpo"></div>
+  </div>
+</div>
 <div id="pergunta" class="janela" hidden>
   <div class="j-caixa bv" role="dialog"><div class="fig pg-fig"><div class="fig-in"></div></div><h2 class="pg-tit"></h2><p class="pg-sub"></p><div class="acoes pg-bts"></div></div>
 </div>
@@ -432,7 +466,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.09.04';
+const APP_VERSAO = '2026.11.09.05';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -570,7 +604,7 @@ function fig(b, cor, cls) {
 
 /* ---------- Dados ---------- */
 function inicial() {
-  return { v: 2, raiz: 'r', savedAt: 0, nomeado: false, colecoes: {}, despejo: { texto: '', frases: [] },
+  return { v: 2, raiz: 'r', savedAt: 0, nomeado: false, colecoes: {}, despejo: { texto: '', frases: [] }, diario: [],
     nos: { r: { id: 'r', t: '', n: '', c: CORES[4], f: [], p: null, b: { k: 'cerebro', e: 'feliz' } } } };
 }
 function valido(d) {
@@ -1191,6 +1225,7 @@ function novoRamo(pid, tipo) {
   const pai = dados.nos[pid], id = novoId(), naRaiz = pai.p === null;
   if (naRaiz && !TIPO_IDEIA[tipo]) tipo = 'outra';
   const cor = naRaiz ? TIPO_IDEIA[tipo].cor : pai.c;
+  registar('ideia');
   mudar(() => {
     dados.nos[id] = { id, t: '', n: '', c: cor, f: [], p: pid };
     if (naRaiz) {
@@ -1219,7 +1254,11 @@ function renomear(id, novo) {
   const fim = prox => {
     if (feito) return; feito = true;
     const v = inp.value.trim();
-    if (!v && novo) { pilha.pop(); removerNo(id); guardar(); }
+    if (!v && novo) {
+      pilha.pop(); removerNo(id);
+      const ult = dados.diario[dados.diario.length - 1]; if (ult && ult.a === 'ideia') dados.diario.pop();
+      guardar();
+    }
     else if (v && v !== n.t) { if (!novo) guardarUndo(); n.t = v; guardar(); }
     if (prox === 'irmao' && dados.nos[n.p] && (v || !novo)) novoRamo(n.p, n.tipo); else render();
   };
@@ -1345,7 +1384,7 @@ function bater(no, f) {
     if (!reduz) document.body.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-15px,8px)' }, { transform: 'translate(13px,-10px)' },
       { transform: 'translate(-10px,-5px)' }, { transform: 'translate(8px,7px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(0,0)' }], { duration: 460 });
     caraPorUmBocado(f, no, 'tonto', 1100);
-    no.socos = (no.socos || 0) + 1; guardar(); contador(f, no);
+    no.socos = (no.socos || 0) + 1; registar('soco'); guardar(); contador(f, no);
     // Depois de muitos socos seguidos, um convite suave para acalmar.
     const agora = Date.now();
     socosRecentes = socosRecentes.filter(x => agora - x < 20000); socosRecentes.push(agora);
@@ -1369,7 +1408,7 @@ function festinhas(no, f) {
     voar(['💗', '💖', '💕'][i % 3], [{ transform: `translate(${hx}px,${hy}px) scale(.5)`, opacity: 0 },
       { transform: `translate(${hx}px,${hy - 30}px) scale(1)`, opacity: 1, offset: .3 }, { transform: `translate(${hx + dx}px,${hy - 100}px) scale(.9)`, opacity: 0 }], 1300);
   }, 120 + i * 220);
-  som('festa'); no.festas = (no.festas || 0) + 1; guardar(); contador(f, no);
+  som('festa'); no.festas = (no.festas || 0) + 1; registar('festa'); guardar(); contador(f, no);
 }
 
 /* ---------- Escolher o boneco e a emoção, e os teus bonecos ---------- */
@@ -1475,7 +1514,7 @@ $('#dp-partir').onclick = () => {
   const txt = dados.despejo.texto.trim();
   if (!txt) { toast('Escreve primeiro o que te vai na cabeça 💭'); $('#dp-texto').focus(); return; }
   const novas = txt.split(/(?<=[.!?…])\s+|\n+/).map(s => s.trim()).filter(s => s.length > 1);
-  dados.despejo.frases.push(...novas); dados.despejo.texto = ''; $('#dp-texto').value = '';
+  dados.despejo.frases.push(...novas); dados.despejo.texto = ''; $('#dp-texto').value = ''; registar('despejo');
   guardar(); desenharFrases();
   toast('Já saiu da cabeça 💗 Agora, sem pressa, arrasta cada frase para o sítio dela.');
 };
@@ -1493,6 +1532,7 @@ function desenharFrases() {
 function porFrase(i, id) {
   const fr = dados.despejo.frases[i], pai = dados.nos[id]; if (fr == null || !pai) return;
   const nid = novoId(), curto = fr.length > 60 ? fr.slice(0, 57) + '…' : fr;
+  registar('ideia');
   mudar(() => { dados.nos[nid] = { id: nid, t: curto, n: fr.length > 60 ? fr : '', c: pai.c, f: [], p: id }; pai.f.push(nid); });
   dados.despejo.frases.splice(i, 1); guardar(); desenharFrases(); render();
   toast(pai.g === 'largar' ? '🍃 Deixaste ir. Não é teu para carregar.' : pai.g === 'bom' ? '🌱 Que bom. Guarda isso contigo.' : `Arrumado em «${titulo(pai)}» ✨`, true);
@@ -1512,7 +1552,7 @@ function respirar() {
     tResp.push(setTimeout(() => { tx.textContent = 'Inspira…'; b.style.transition = `transform ${IN}ms ease-in-out`; b.style.transform = 'scale(1.12)'; }, t)); t += IN;
     tResp.push(setTimeout(() => { tx.textContent = 'Expira devagarinho…'; b.style.transition = `transform ${OUT}ms ease-in-out`; b.style.transform = 'scale(.55)'; }, t)); t += OUT;
   }
-  tResp.push(setTimeout(() => { pararRespirar(); toast('Muito bem 💗 Estás aqui, e isso chega.'); }, t));
+  tResp.push(setTimeout(() => { pararRespirar(); registar('respirar'); guardar(); toast('Muito bem 💗 Estás aqui, e isso chega.'); }, t));
 }
 function pararRespirar() { tResp.forEach(clearTimeout); tResp = []; $('#respirar').hidden = true; }
 $('#resp-parar').onclick = pararRespirar;
@@ -1538,6 +1578,7 @@ function confirmarArrumar() {
   const no = dados.nos[arrId], j = $('#arrumar'); if (!no) return;
   const concl = [...j.querySelectorAll('.arr-concl')].map(i => i.value.trim()).filter(Boolean);
   const bomTxt = j.querySelector('.arr-bom input').value.trim();
+  registar('arrumar'); if (bomTxt) registar('bom');
   mudar(() => {
     no.arq = { data: Date.now(), concl };
     const fecho = gavetaDe(no, 'fecho'); if (fecho && concl.length) fecho.n = concl.join('\n');
@@ -1610,7 +1651,7 @@ function perguntar(tit, sub, opcoes) {
   j.hidden = false;
 }
 document.querySelectorAll('[data-fechar]').forEach(b => b.onclick = () => { b.closest('.janela').hidden = true; });
-['arrumar', 'arrumados', 'pergunta'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
+['arrumar', 'arrumados', 'pergunta', 'stats'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
 
 /* ---------- Dar nome ao Cérebro ---------- */
 const bv = $('#boasvindas');
@@ -1788,6 +1829,70 @@ function toast(msg, comDesfazer, botoes = []) {
   botoes.forEach(([l, fn]) => t.append(btn(l, '', () => { t.hidden = true; fn(); })));
   t.hidden = false; clearTimeout(tToast);
   tToast = setTimeout(() => { t.hidden = true; }, botoes.length ? 10000 : comDesfazer ? 6000 : 3500);
+}
+
+/* ---------- Estatísticas: como tens andado ---------- */
+let stDias = 7;
+function abrirStats() { desenharStats(stDias); $('#stats').hidden = false; }
+$('#bt-stats').onclick = abrirStats;
+document.querySelectorAll('.st-per button').forEach(b => b.onclick = () => { stDias = +b.dataset.d; desenharStats(stDias); });
+// Barras de uma só cor; o nome e o número estão sempre escritos ao lado.
+function barras(linhas) {   // [figura|null, nome, valor, dica]
+  const box = el('div', 'st-barras'), max = Math.max(1, ...linhas.map(l => l[2]));
+  linhas.forEach(([b, nome, v, dica]) => {
+    const r = el('div', 'st-bar'); r.title = dica || `${nome}: ${v}`;
+    const ic = el('div', 'fig-in'); if (b) ic.innerHTML = desenharBoneco(b);
+    const tr = el('div', 'st-trilho'), en = el('div', 'st-enche'); en.style.width = (v / max * 100) + '%'; tr.append(en);
+    r.append(ic, el('span', null, nome), tr, el('span', 'n', String(v))); box.append(r);
+  });
+  return box;
+}
+function desenharStats(dias) {
+  const c = $('#stats .st-corpo'); c.innerHTML = '';
+  document.querySelectorAll('.st-per button').forEach(b => b.classList.toggle('on', +b.dataset.d === dias));
+  const desde = dias ? Date.now() - dias * 864e5 : 0, ev = dados.diario.filter(x => x.t >= desde);
+  const conta = a => ev.filter(x => x.a === a).length;
+  const nos = Object.values(dados.nos);
+  const bons = nos.filter(n => n.g === 'bom').reduce((s, n) => s + (n.n || '').split('\n').filter(l => l.trim()).length + n.f.length, 0);
+  const pl = (n, s, p) => n + ' ' + (n === 1 ? s : p);
+  // Primeiro, uma frase gentil.
+  const periodo = dias === 7 ? 'Nos últimos 7 dias' : dias === 30 ? 'Nos últimos 30 dias' : 'Desde o início';
+  const partes = [];
+  if (conta('ideia')) partes.push('tiraste ' + pl(conta('ideia'), 'ideia', 'ideias') + ' da cabeça');
+  if (conta('arrumar')) partes.push('arrumaste ' + pl(conta('arrumar'), 'assunto', 'assuntos'));
+  if (conta('respirar')) partes.push('respiraste com calma ' + pl(conta('respirar'), 'vez', 'vezes'));
+  c.append(el('div', 'st-frase', partes.length ? `${periodo}, ${partes.join(', ')} 💗` : 'Cada vez que vens aqui, já estás a cuidar de ti 💗'));
+  // Os números.
+  const tiles = el('div', 'st-tiles');
+  [['💭', conta('ideia'), 'ideias tiradas da cabeça'], ['📦', conta('arrumar'), 'assuntos arrumados'], ['🫁', conta('respirar'), 'respirações'],
+   ['🌱', bons, 'coisas boas guardadas'], ['🤚', conta('festa'), 'festinhas'], ['🤜', conta('soco'), 'socos']]
+    .forEach(([ic, v, t]) => { const x = el('div', 'st-tile'); x.append(el('b', null, ic + ' ' + v), el('span', null, t)); tiles.append(x); });
+  c.append(tiles);
+  // As emoções escolhidas no período.
+  c.append(el('div', 'st-sec', 'As emoções que escolheste'));
+  const emos = ev.filter(x => x.a === 'emo');
+  if (!emos.length) c.append(el('div', 'st-sub', 'Ainda não há emoções neste período. Quando mudares a emoção de um boneco com o 😶, ela aparece aqui.'));
+  else c.append(barras(EMOCOES.map(([e, nome]) => { const v = emos.filter(x => x.e === e).length; return [{ k: 'cerebro', e }, nome, v, `${nome}: ${pl(v, 'vez', 'vezes')}`]; })));
+  // O mapa agora.
+  const duas = el('div', 'st-duas'), a = el('div'), b = el('div');
+  const topo = visiveis(dados.nos[dados.raiz]).map(x => dados.nos[x]);
+  a.append(el('div', 'st-sec', 'As ideias no teu Cérebro'));
+  const porTipo = TIPOS_IDEIA.map(([k, ic, nome]) => [null, ic + ' ' + nome, topo.filter(n => (n.tipo === 'animal' ? 'gato' : n.tipo || 'outra') === k).length]).filter(l => l[2]);
+  a.append(porTipo.length ? barras(porTipo) : el('div', 'st-sub', 'Ainda não há ideias junto ao Cérebro.'));
+  b.append(el('div', 'st-sec', 'As gavetas mais usadas'));
+  const gav = GAVETAS.map(([k, ic, nome]) => [null, ic + ' ' + nome, nos.filter(n => n.g === k && !n.arq && temConteudo(n)).length]).filter(l => l[2]).sort((x, y) => y[2] - x[2]).slice(0, 6);
+  b.append(gav.length ? barras(gav) : el('div', 'st-sub', 'Quando escreveres nas gavetas, aparecem aqui.'));
+  duas.append(a, b); c.append(duas);
+  // Os dias em que veio.
+  c.append(el('div', 'st-sec', 'Os dias em que vieste aqui'));
+  const dd = el('div', 'st-dias'), dset = new Set(dados.diario.map(x => new Date(x.t).toDateString()));
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 864e5), on = dset.has(d.toDateString());
+    const x = el('div', 'st-dia' + (on ? ' on' : ''));
+    x.title = d.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }) + (on ? ' · vieste 💗' : '');
+    x.append(el('i'), el('span', null, d.toLocaleDateString('pt-PT', { weekday: 'narrow' }))); dd.append(x);
+  }
+  c.append(dd);
 }
 
 /* ---------- Versão nova no GitHub ---------- */
