@@ -78,7 +78,20 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 #palco { position: absolute; inset: 0; transform-origin: 0 0; }
 #linhas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 #linhas path { fill: none; stroke-width: 4.5; stroke-linecap: round; stroke-opacity: .7; }
-.centro, .no { animation: aparece .28s cubic-bezier(.3,1.5,.6,1); }
+.novo { animation: aparece .32s cubic-bezier(.3,1.5,.6,1); }
+.raiz { position: absolute; z-index: 2; width: 230px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.raiz .fig { width: 150px; height: 150px; }
+.raiz-nome { background: var(--surface); border: 3px solid var(--linha); border-top-color: var(--cor); border-radius: 20px; box-shadow: 0 4px 0 var(--linha);
+  padding: 4px 16px; font-size: 20px; font-weight: 700; text-align: center; }
+.raiz.alvo .raiz-nome { outline: 3px dashed var(--accent); outline-offset: 3px; }
+.centro.aberto { z-index: 4; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 3px solid var(--linha); border-top: 7px solid var(--cor);
+  border-radius: 28px; box-shadow: 0 6px 0 var(--linha); padding: 12px 14px 14px; }
+.centro.aberto .c-fig { width: 130px; height: 130px; }
+.criar-tit { width: 100%; text-align: center; font-size: 13px; font-weight: 600; color: var(--text2); }
+.bt-tipo { border-bottom: 4px solid var(--cor); font-size: 13px; padding: 3px 11px; }
+.gav-vazias { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; align-items: center; font-size: 12.5px; color: var(--text2); font-weight: 600; }
+.gav-bt { width: 32px; height: 32px; border-radius: 50%; border: 2px dashed var(--text3); background: var(--surface2); cursor: pointer; font-size: 15px; padding: 0; }
+.gav-bt:hover, .gav-bt.alvo { border-style: solid; border-color: var(--linha); background: var(--sel-bg); }
 @keyframes aparece { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
 #palco.a-focar > :not(.foco), #palco.a-focar .foco > :not(.fig) { opacity: 0; transition: opacity .35s ease-out; }
 #palco.a-focar .foco .fig-in { animation: none; }
@@ -166,6 +179,40 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .dica { position: absolute; left: 14px; bottom: 14px; z-index: 1; font-size: 12px; color: var(--text2); pointer-events: none; max-width: calc(100% - 300px); }
 .dica kbd { font: inherit; font-weight: 600; border: 1.5px solid var(--text3); border-radius: 5px; padding: 0 4px; background: var(--surface); }
 
+/* Gavetas, despejo, arrumar e respirar */
+.no.apagada { opacity: .42; } .no.apagada .fig { transform: scale(.78); } .no.apagada:hover { opacity: 1; }
+.bt-arrumar { background: #e3e4ff; color: #2a2230; } .bt-despejo { background: #e3f1ff; color: #2a2230; } .bt-resp { background: #dff4ff; color: #2a2230; }
+#despejo { position: absolute; top: 12px; right: 12px; bottom: 64px; width: min(370px, calc(100% - 24px)); z-index: 7; background: var(--surface);
+  border: 3px solid var(--linha); border-radius: 24px; box-shadow: 0 6px 0 var(--linha); padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; overflow: auto; cursor: default; }
+#despejo[hidden] { display: none; }
+.dp-sub, .dp-dita, .dp-dica { font-size: 13px; color: var(--text2); }
+.dp-linha { display: flex; align-items: center; gap: 10px; }
+.dp-fig .fig { width: 74px; height: 74px; }
+.dp-acoes { justify-content: flex-start; }
+#dp-texto { min-height: 150px; flex: 0 0 auto; resize: vertical; border: 3px solid var(--linha); border-radius: 20px; padding: 10px 13px;
+  outline: none; background: var(--surface2); font-size: 15px; line-height: 1.45; }
+#dp-texto:focus { box-shadow: 0 0 0 5px var(--sel-bg); }
+.dp-frases { display: flex; flex-direction: column; gap: 7px; }
+.frase { position: relative; border: 2.5px solid var(--linha); border-radius: 16px; background: #fff1c2; color: #2a2230; padding: 6px 30px 6px 11px;
+  cursor: grab; font-size: 13.5px; box-shadow: 0 3px 0 var(--linha); }
+.frase-x { position: absolute; top: 4px; right: 6px; border: none; background: none; cursor: pointer; font-weight: 700; color: #2a2230; }
+.arq-banner { background: var(--surface2); border: 2.5px dashed var(--text3); border-radius: 16px; padding: 8px 12px; font-size: 13.5px; width: 100%; }
+.arq-banner ul, .arq-item ul { margin: 4px 0 0; padding-left: 18px; }
+.arq-lista { display: flex; flex-direction: column; gap: 10px; }
+.arq-item { display: flex; gap: 12px; align-items: center; border: 2.5px solid var(--linha); border-left: 7px solid var(--cor); border-radius: 18px; padding: 8px 12px; }
+.arq-item .arq-fig { width: 56px; height: 56px; flex: 0 0 auto; }
+.arq-tx { flex: 1; min-width: 0; } .arq-tx small { color: var(--text3); display: block; }
+.arq-bts { display: flex; flex-direction: column; gap: 6px; }
+.arr-concl, .arr-bom input { width: 100%; border: 2.5px solid var(--linha); border-radius: 999px; padding: 6px 14px; outline: none; background: var(--surface2); font-size: 15px; }
+.arr-bom { display: flex; flex-direction: column; gap: 6px; }
+.arr-bom[hidden] { display: none; }
+.bv .pg-fig { width: 120px; height: 120px; }
+.resp { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.resp-bola { width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f1f9ff, #a9d6ff);
+  border: 4px solid var(--linha); display: flex; align-items: center; justify-content: center; transform: scale(.55); box-shadow: 0 0 60px rgba(169,214,255,.6); }
+.resp-bola .fig { width: 160px; height: 160px; }
+.resp-txt { font-size: 30px; font-weight: 700; color: #fff; text-shadow: 0 2px 0 #2a2230, 0 0 12px rgba(0,0,0,.25); }
+
 /* Mãos, estrelas e corações */
 .mao { position: fixed; z-index: 50; left: 0; top: 0; pointer-events: none; font-size: 66px; line-height: 1; will-change: transform; }
 .voa { position: fixed; z-index: 49; left: 0; top: 0; pointer-events: none; font-size: 24px; line-height: 1; }
@@ -222,6 +269,8 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
     <div id="resultados" hidden></div>
   </div>
   <div class="esp"></div>
+  <button id="bt-despejo" class="bt bt-despejo" title="Despejar tudo o que tens na cabeça">🌪️ Despejar</button>
+  <button id="bt-arrumados" class="bt redondo" title="Assuntos arrumados">📦</button>
   <button id="estado" class="estado"></button>
   <button id="bt-desfazer" class="bt redondo" title="Desfazer (⌘Z)">↶</button>
   <details class="menu" id="menu">
@@ -245,7 +294,18 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
     <button class="bt" data-z="+" title="Aproximar (⌘ + roda)">+</button>
     <button class="bt" data-z="ajustar" title="Ver tudo (duplo clique no fundo)">⌖</button>
   </div>
-  <div class="dica">Carrega numa ideia para ela vir ao centro · <kbd>Esc</kbd> volta · <kbd>Tab</kbd> nova ideia · arrasta o fundo para mexer · <kbd>⌘</kbd>+roda zoom · duplo clique no fundo para ver tudo</div>
+  <aside id="despejo" hidden>
+    <div class="j-topo"><b>🌪️ Despejar</b><button class="bt redondo" id="dp-fechar" title="Fechar">×</button></div>
+    <div class="dp-sub">Escreve tudo como vier, sem arrumar. É só teu.</div>
+    <div class="dp-linha"><div class="dp-fig"></div>
+      <div class="acoes dp-acoes"><button class="bt bt-soco" id="dp-bater">🤜 Bater</button><button class="bt bt-festa" id="dp-festa">🤚 Festinhas</button><button class="bt bt-resp" id="dp-resp">🫁 Respirar</button></div></div>
+    <textarea id="dp-texto" placeholder="Despeja aqui…"></textarea>
+    <div class="dp-dita">🎤 Para ditar em vez de escrever: carrega duas vezes na tecla <b>fn</b> do Mac.</div>
+    <button class="bt bt-ideia" id="dp-partir">✂️ Partir em frases</button>
+    <div class="dp-frases"></div>
+    <div class="dp-dica" hidden>Arrasta cada frase para uma ideia ou gaveta no mapa. Sem pressa.</div>
+  </aside>
+  <div class="dica">Carrega numa ideia para a abrir · <kbd>Esc</kbd> volta · <kbd>Tab</kbd> nova ideia · <kbd>R</kbd> respirar · arrasta o fundo para mexer · <kbd>⌘</kbd>+roda zoom · duplo clique no fundo para ver tudo</div>
 </main>
 
 <div id="escolher" class="janela" hidden>
@@ -266,6 +326,28 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
     <button class="bt" id="bv-ok">Vamos lá!</button>
   </div>
 </div>
+<div id="arrumar" class="janela" hidden>
+  <div class="j-caixa" role="dialog" aria-label="Arrumar assunto">
+    <div class="j-topo"><b class="arr-tit"></b><button class="bt redondo" data-fechar title="Fechar">×</button></div>
+    <div class="j-sub">O que decides por hoje? Uma a três frases, gentis contigo.</div>
+    <input class="arr-concl" placeholder="Ex.: Fiz o que estava ao meu alcance."><input class="arr-concl" placeholder="(opcional)"><input class="arr-concl" placeholder="(opcional)">
+    <div class="arr-bom"><div class="j-sub">🌱 Antes de arrumar: há pelo menos uma coisa boa, nisto ou em ti hoje?</div><input placeholder="(opcional)"></div>
+    <div class="acoes"><button class="bt bt-arrumar" id="arr-ok">📦 Arrumar por hoje</button><button class="bt" data-fechar>Ainda não</button></div>
+  </div>
+</div>
+<div id="arrumados" class="janela" hidden>
+  <div class="j-caixa" role="dialog" aria-label="Assuntos arrumados">
+    <div class="j-topo"><b>📦 Arrumados</b><button class="bt redondo" data-fechar title="Fechar">×</button></div>
+    <div class="j-sub">Está tudo guardado aqui. Nada se perdeu.</div>
+    <div class="arq-lista"></div>
+  </div>
+</div>
+<div id="pergunta" class="janela" hidden>
+  <div class="j-caixa bv" role="dialog"><div class="fig pg-fig"><div class="fig-in"></div></div><h2 class="pg-tit"></h2><p class="pg-sub"></p><div class="acoes pg-bts"></div></div>
+</div>
+<div id="respirar" class="janela" hidden>
+  <div class="resp"><div class="resp-bola"><div class="fig"><div class="fig-in"></div></div></div><div class="resp-txt">Prepara-te…</div><button class="bt" id="resp-parar">Parar</button></div>
+</div>
 <input type="file" id="ficheiro-in" accept=".json,application/json" hidden>
 <input type="file" id="bnc-in" accept="image/*" hidden>
 <div id="toast" hidden></div>
@@ -274,6 +356,33 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
+// As gavetas de cada assunto: tirar da cabeça a parte objectiva, peça a peça.
+const GAVETAS = [
+  ['factos', '📌', 'O que aconteceu', 'Só os factos, com calma. O que viste e ouviste?', '#4aa8ff'],
+  ['pessoas', '👥', 'Quem está envolvido', 'Quem faz parte disto? Uma ideia por pessoa (tu também contas).', '#3fd0d0'],
+  ['penso', '💭', 'O que penso', 'Que histórias a tua cabeça está a contar? Haverá outra forma, mais gentil, de ver isto?', '#b07cff'],
+  ['sinto', '💗', 'O que sinto', 'Que emoção, e com que força (1 a 10)? Tudo o que sentes é válido.', '#ff5c8a'],
+  ['ese', '🌀', 'E se…?', 'Que medos aparecem? E se, afinal, correr melhor do que pensas?', '#8e8ea0'],
+  ['antes', '🕰️', 'Já aconteceu antes', 'Isto lembra-te alguma coisa? Da outra vez, como é que conseguiste passar?', '#c29a6b'],
+  ['naosei', '❓', 'Coisas que não sei', 'Que perguntas não têm resposta agora? Podem esperar aqui, guardadas.', '#9aa6b2'],
+  ['preciso', '🙋', 'O que preciso', 'Do que é que tu precisas? Mereces cuidar de ti.', '#ff8a4c'],
+  ['meu', '✅', 'É meu', 'O que depende só de ti? Pequenos passos chegam.', '#4cd07a'],
+  ['influencio', '🤝', 'Posso influenciar', 'Há alguma coisa pequena que podes tentar? Depois, deixas o resto acontecer.', '#ffb03a'],
+  ['largar', '🍃', 'Deixar ir', 'O que não é teu para carregar? Põe aqui e deixa ir com o vento.', '#7fcfb0'],
+  ['bom', '🌱', 'Coisas boas', 'O que já fizeste bem? Quem te ajuda? O que te faz sorrir, mesmo pouquinho?', '#5cc95c'],
+  ['fecho', '🔒', 'Fecho', 'O que decides por hoje? Uma frase gentil para ti chega.', '#6b7cff'],
+];
+// Os tipos de ideia que nascem junto ao Cérebro.
+const TIPOS_IDEIA = [
+  ['mim', '🙋‍♀️', 'Sobre mim', '#ff5c8a', 'O que é sobre ti?'],
+  ['pessoa', '👤', 'Pessoa', '#3fd0d0', 'Nome da pessoa…'],
+  ['animal', '🐾', 'Animal', '#ffb03a', 'Nome do animal…'],
+  ['questao', '❓', 'Questão', '#4aa8ff', 'Qual é a questão?'],
+  ['sonho', '✨', 'Sonho', '#b07cff', 'Com que sonhas?'],
+  ['outra', '💭', 'Outra', '#4cd07a', 'Nova ideia…'],
+];
+const TIPO_IDEIA = Object.fromEntries(TIPOS_IDEIA.map(t => [t[0], { k: t[0], ic: t[1], nome: t[2], cor: t[3], ph: t[4] }]));
+const GAV = Object.fromEntries(GAVETAS.map(g => [g[0], { k: g[0], ic: g[1], nome: g[2], perg: g[3], cor: g[4] }]));
 const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const temFS = 'showSaveFilePicker' in window;
 const $ = s => document.querySelector(s);
@@ -286,7 +395,16 @@ function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e
 function novoId() { return Math.random().toString(36).slice(2, 10); }
 function norm(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
 function hora(t) { return new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }); }
-function titulo(n) { return n.t || (n.p ? 'Ideia sem nome' : 'Cérebro'); }
+function titulo(n) {
+  if (n.g && GAV[n.g]) return GAV[n.g].ic + ' ' + GAV[n.g].nome;
+  const t = n.t || (n.p ? 'Ideia sem nome' : 'Cérebro');
+  return n.tipo && TIPO_IDEIA[n.tipo] && n.tipo !== 'outra' ? TIPO_IDEIA[n.tipo].ic + ' ' + t : t;
+}
+// Os filhos que não estão arrumados; e os que se desenham no mapa (as gavetas
+// vazias só aparecem quando o assunto delas está no centro).
+function visiveis(n) { return n.f.filter(x => dados.nos[x] && (!dados.nos[x].arq || dentroDe(atual, x))); }
+function temConteudo(n) { return !!(n.n || '').trim() || n.f.some(x => dados.nos[x] && !dados.nos[x].arq); }
+function noMapa(n) { return visiveis(n).filter(x => { const c = dados.nos[x]; return !(c.g && !temConteudo(c)) || dentroDe(atual, x); }); }
 function rgb(hex) { const n = parseInt(hex.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
 function clarear(hex, f) { return 'rgb(' + rgb(hex).map(v => Math.round(v + (255 - v) * f)).join(',') + ')'; }
 function escurecer(hex, f) { return 'rgb(' + rgb(hex).map(v => Math.round(v * (1 - f))).join(',') + ')'; }
@@ -367,7 +485,7 @@ function fig(b, cor, cls) {
 
 /* ---------- Dados ---------- */
 function inicial() {
-  return { v: 2, raiz: 'r', savedAt: 0, nomeado: false, colecoes: {},
+  return { v: 2, raiz: 'r', savedAt: 0, nomeado: false, colecoes: {}, despejo: { texto: '', frases: [] },
     nos: { r: { id: 'r', t: '', n: '', c: CORES[4], f: [], p: null, b: { k: 'cerebro', e: 'feliz' } } } };
 }
 function valido(d) {
@@ -377,6 +495,8 @@ function valido(d) {
 function arrumar(d) {
   d.colecoes = d.colecoes && typeof d.colecoes === 'object' ? d.colecoes : {};
   if (!d.nos[d.raiz].b) d.nos[d.raiz].b = { k: 'cerebro', e: 'feliz' };
+  if (!d.despejo || typeof d.despejo.texto !== 'string') d.despejo = { texto: '', frases: [] };
+  if (!Array.isArray(d.despejo.frases)) d.despejo.frases = [];
   return d;
 }
 function carregar() {
@@ -386,7 +506,7 @@ function carregar() {
 let dados = carregar();
 let atual = (location.hash.match(/n=([\w-]+)/) || [])[1] || dados.raiz;
 if (!dados.nos[atual]) atual = dados.raiz;
-let sel = -1, ocupado = false, caixa = null, arrastado = null;
+let sel = -1, ocupado = false, caixa = null, arrastado = null, arrastoFrase = null;
 let pilha = [], pendente = null;
 
 function caminho(id) { const r = []; let x = dados.nos[id]; while (x) { r.unshift(x.id); x = x.p ? dados.nos[x.p] : null; } return r; }
@@ -470,7 +590,7 @@ async function sincronizar() {
 }
 function substituir(d) {
   pilha = [];
-  dados = arrumar({ v: 2, raiz: d.raiz, nos: d.nos, colecoes: d.colecoes, nomeado: true, savedAt: 0 });
+  dados = arrumar({ v: 2, raiz: d.raiz, nos: d.nos, colecoes: d.colecoes, despejo: d.despejo, nomeado: true, savedAt: 0 });
   atual = dados.raiz; sel = -1; guardar(); render();
 }
 function exportar() {
@@ -519,16 +639,16 @@ function aplicarVista(suave, ms) {
   palco.style.transform = `translate(${vista.x}px,${vista.y}px) scale(${vista.z})`;
   $('#zoom-val').textContent = Math.round(vista.z * 100) + '%';
 }
-function ajustar(suave, ms) {
+function ajustar(suave, ms, lista, zMin = .35) {
   const W = mapa.clientWidth, H = mapa.clientHeight;
   let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
-  palco.querySelectorAll('.centro, .no:not(.fantasma)').forEach(e => {
+  (lista || palco.querySelectorAll('.centro, .raiz, .no')).forEach(e => {
     x1 = Math.min(x1, e.offsetLeft); y1 = Math.min(y1, e.offsetTop);
     x2 = Math.max(x2, e.offsetLeft + e.offsetWidth); y2 = Math.max(y2, e.offsetTop + e.offsetHeight);
   });
   if (x1 === Infinity) vista = { x: 0, y: 0, z: 1 };
   else {
-    const z = Math.max(.35, Math.min(1, (W - 40) / (x2 - x1), (H - 60) / (y2 - y1)));
+    const z = Math.max(zMin, Math.min(1, (W - 40) / (x2 - x1), (H - 60) / (y2 - y1)));
     vista = { z, x: W / 2 - (x1 + x2) / 2 * z, y: H / 2 - (y1 + y2) / 2 * z };
   }
   aplicarVista(suave, ms);
@@ -540,7 +660,7 @@ function zoomPara(z2, px, py) {
   aplicarVista(false);
 }
 mapa.addEventListener('wheel', e => {
-  if (e.target.closest('.caixa')) return;
+  if (e.target.closest('.caixa, #despejo')) return;
   const ta = e.target.closest('textarea');
   if (ta && ta.scrollHeight > ta.clientHeight && !(e.ctrlKey || e.metaKey)) return;
   e.preventDefault();
@@ -555,7 +675,7 @@ let arr = null;
 mapa.addEventListener('mousedown', e => {
   if (e.button !== 0) return;
   if (caixa && !e.target.closest('.caixa')) { e.preventDefault(); fecharCaixa(); return; }
-  if (e.target.closest('.no, .centro, .caixa, .zoom, button, input, textarea')) return;
+  if (e.target.closest('.no, .centro, .caixa, .zoom, #despejo, button, input, textarea')) return;
   e.preventDefault();                               // o fundo: arrastar mexe o mapa
   arr = { x: e.clientX, y: e.clientY, vx: vista.x, vy: vista.y, mexeu: false };
   mapa.classList.add('a-arrastar');
@@ -571,7 +691,7 @@ document.addEventListener('mouseup', () => {
   if (!arr.mexeu && sel >= 0) { sel = -1; marcarSel(); }   // um clique simples no fundo limpa a escolha
   arr = null; mapa.classList.remove('a-arrastar');
 });
-mapa.addEventListener('dblclick', e => { if (!e.target.closest('.no, .centro, .caixa, .zoom')) ajustar(true); });
+mapa.addEventListener('dblclick', e => { if (!e.target.closest('.no, .centro, .caixa, .zoom, #despejo')) ajustar(true); });
 document.querySelectorAll('.zoom [data-z]').forEach(b => b.onclick = () => {
   const z = b.dataset.z;
   if (z === 'ajustar') ajustar(true); else if (z === '1') zoomPara(1); else zoomPara(vista.z * (z === '+' ? 1.2 : 1 / 1.2));
@@ -589,17 +709,23 @@ function linhaCores(no, depois) {
 }
 function alvo(elem, id) {
   elem.addEventListener('dragover', e => {
+    if (arrastoFrase != null) { e.preventDefault(); elem.classList.add('alvo'); return; }
     if (!arrastado || arrastado === id || dentroDe(id, arrastado) || dados.nos[arrastado].p === id) return;
     e.preventDefault(); elem.classList.add('alvo');
   });
   elem.addEventListener('dragleave', () => elem.classList.remove('alvo'));
-  elem.addEventListener('drop', e => { e.preventDefault(); elem.classList.remove('alvo'); if (arrastado) mover(arrastado, id); });
+  elem.addEventListener('drop', e => {
+    e.preventDefault(); elem.classList.remove('alvo');
+    if (arrastoFrase != null) { const i = arrastoFrase; arrastoFrase = null; porFrase(i, id); return; }
+    if (arrastado) mover(arrastado, id);
+  });
 }
 function mover(id, paraId) {
   const n = dados.nos[id];
   if (!n || n.p === paraId || id === paraId || dentroDe(paraId, id)) return;
   mudar(() => { const pai = dados.nos[n.p]; pai.f = pai.f.filter(x => x !== id); dados.nos[paraId].f.push(id); n.p = paraId; });
-  sel = -1; render(); toast(`«${titulo(n)}» passou para «${titulo(dados.nos[paraId])}»`, true);
+  sel = -1; render();
+  toast(dados.nos[paraId].g === 'largar' ? `🍃 Deixaste ir «${titulo(n)}». Não é teu para carregar.` : `«${titulo(n)}» passou para «${titulo(dados.nos[paraId])}»`, true);
 }
 
 // Os botões de sentir (bater, festinhas, emoção) — no centro e na caixa.
@@ -607,7 +733,8 @@ function acoesSentir(no, f) {
   const a = el('div', 'acoes');
   a.append(btn('🤜 Bater', 'Bater (B)', () => bater(no, f), 'bt bt-soco'),
            btn('🤚 Festinhas', 'Dar festinhas (F)', () => festinhas(no, f), 'bt bt-festa'),
-           btn('😶 Emoção', 'Mudar o boneco ou a emoção (E)', () => escolherBoneco(no.id), 'bt bt-emo'));
+           btn('😶 Emoção', 'Mudar o boneco ou a emoção (E)', () => escolherBoneco(no.id), 'bt bt-emo'),
+           btn('🫁 Respirar', 'Respirar comigo (R)', respirar, 'bt bt-resp'));
   return a;
 }
 function contador(f, no) {
@@ -617,7 +744,7 @@ function contador(f, no) {
 }
 
 function construirCentro(no) {
-  const c = el('div', 'centro'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
+  const c = el('div', 'centro' + (no.p ? ' aberto' : '')); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
   const cam = caminho(no.id);
   if (cam.length > 1) {
     const r = el('div', 'c-rasto');
@@ -631,28 +758,48 @@ function construirCentro(no) {
   }
   const f = fig(figura(no), no.c, 'c-fig'); f.title = 'Mudar o boneco ou a emoção';
   f.onclick = () => escolherBoneco(no.id);
-  const t = el('input', 'c-nome'); t.value = no.t; t.placeholder = no.p ? 'Dá um nome a esta ideia' : 'Nome do Cérebro'; t.spellcheck = false;
-  campo(t, v => { no.t = v; });
+  alvo(f, no.id);
+  const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = no.p ? 'Dá um nome a esta ideia' : 'Nome do Cérebro'; t.spellcheck = false;
+  if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; });
   t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
   t.addEventListener('blur', () => { document.title = titulo(no) + ' · Mindmap'; });
   const ac = acoesSentir(no, f);
-  ac.append(btn('＋ Ideia', 'Nova ideia (Tab)', () => novoRamo(no.id), 'bt bt-ideia'));
+  const extra = el('div', 'acoes');
+  if (no.p) ac.append(btn('＋ Ideia', 'Nova ideia (Tab)', () => novoRamo(no.id), 'bt bt-ideia'));
+  else {
+    extra.append(el('span', 'criar-tit', 'Nova ideia sobre:'));
+    TIPOS_IDEIA.forEach(([k, ic, nome, cor]) => { const b = btn(ic + ' ' + nome, '', () => novoRamo(no.id, k), 'bt bt-tipo'); b.style.setProperty('--cor', cor); extra.append(b); });
+  }
+  if (no.p && !no.g && !no.f.some(x => dados.nos[x] && dados.nos[x].g))
+    extra.append(btn('🗂️ Abrir gavetas', 'Abrir as 13 gavetas para arrumar este assunto', () => porGavetas(no.id), 'bt'));
+  if (no.p && !no.g && !no.arq) extra.append(btn('📦 Arrumar por hoje', 'Fechar este assunto por hoje', () => abrirArrumar(no.id), 'bt bt-arrumar'));
   f._cont = el('div', 'contador'); contador(f, no);
   const bolha = el('div', 'bolha'), n = el('textarea');
   n.value = no.n || ''; n.rows = mapa.clientHeight < 700 ? 2 : 3;
-  n.placeholder = no.p ? 'O que estás a pensar sobre isto?' : 'O que te anda na cabeça?';
+  n.placeholder = no.g ? GAV[no.g].perg : no.p ? 'O que estás a pensar sobre isto?' : 'O que te anda na cabeça?';
   campo(n, v => { no.n = v; });
   n.addEventListener('keydown', e => { if (e.key === 'Escape') n.blur(); });
   bolha.append(n);
-  c.append(f, t, ac, f._cont, bolha, linhaCores(no, () => render()));
+  const partes = [f, t];
+  if (no.arq) partes.push(faixaArrumado(no));
+  c.append(...partes, ac);
+  if (extra.childNodes.length) c.append(extra);
+  // As gavetas ainda vazias ficam aqui como botões; com algo escrito, passam para o mapa.
+  const vazias = no.f.map(x => dados.nos[x]).filter(x => x && x.g && !x.arq && !temConteudo(x));
+  if (vazias.length) {
+    const s = el('div', 'gav-vazias'); s.append(el('span', null, 'Gavetas:'));
+    vazias.forEach(g => { const b = btn(GAV[g.g].ic, GAV[g.g].nome + ' · ' + GAV[g.g].perg, () => abrirCaixa(g.id), 'gav-bt'); alvo(b, g.id); s.append(b); });
+    c.append(s);
+  }
+  c.append(f._cont, bolha, linhaCores(no, () => render()));
   return c;
 }
 
 function construirCartao(no, prof = 1) {
-  const d = el('div', 'no' + (prof > 1 ? ' p' + Math.min(prof, 3) : '')); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
+  const d = el('div', 'no' + (prof > 1 ? ' p' + Math.min(prof, 3) : '') + (no.g && !temConteudo(no) ? ' apagada' : '')); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
   const bts = el('div', 'no-bts');
-  bts.append(btn('✎', 'Mudar o nome (F2)', () => renomear(no.id)),
-             btn('↗', 'Abrir aqui', () => abrirCaixa(no.id)),
+  if (!no.g) bts.append(btn('✎', 'Mudar o nome (F2)', () => renomear(no.id)));
+  bts.append(btn('↗', 'Abrir aqui', () => abrirCaixa(no.id)),
              btn('×', 'Apagar (⌫)', () => apagar(no.id), 'x'));
   const nome = el('div', 'no-nome' + (no.t ? '' : ' sem'), titulo(no));
   d.append(bts, fig(figura(no), no.c), nome);
@@ -668,20 +815,20 @@ function construirCartao(no, prof = 1) {
 // dentro delas no 2.º, e assim até MAXP. Cada ideia fica com uma fatia do
 // círculo à medida das ideias que tem dentro, e os filhos dentro da fatia dela.
 const MAXP = Infinity; // sem limite de níveis
-function folhas(id, d) { const n = dados.nos[id]; return d >= MAXP || !n.f.length ? 1 : n.f.reduce((s, f) => s + folhas(f, d + 1), 0); }
+function folhas(id, d) { const fs = noMapa(dados.nos[id]); return d >= MAXP || !fs.length ? 1 : fs.reduce((s, f) => s + folhas(f, d + 1), 0); }
 function arvore(no, W, H, cw, ch) {
-  const itens = [], porNivel = [0];
+  const itens = [], porNivel = [0], n1 = noMapa(no).length;
   (function distribuir(id, a0, a1, d) {
-    const n = dados.nos[id]; if (d > MAXP || !n.f.length) return;
+    const fs = noMapa(dados.nos[id]); if (d > MAXP || !fs.length) return;
     if (d > 1 && a1 - a0 > Math.PI * .9) { const m = (a0 + a1) / 2; a0 = m - Math.PI * .45; a1 = m + Math.PI * .45; }
-    const tot = n.f.reduce((s, f) => s + folhas(f, d), 0);
+    const tot = fs.reduce((s, f) => s + folhas(f, d), 0);
     let a = a0;
-    n.f.forEach(f => {
+    fs.forEach(f => {
       const w = folhas(f, d) / tot * (a1 - a0);
       itens.push({ id: f, pai: id, d, a: a + w / 2 }); porNivel[d] = (porNivel[d] || 0) + 1;
       distribuir(f, a, a + w, d + 1); a += w;
     });
-  })(no.id, no.f.length === 1 ? -Math.PI : -Math.PI / 2, no.f.length === 1 ? Math.PI : Math.PI * 1.5, 1);
+  })(no.id, n1 === 1 ? -Math.PI : -Math.PI / 2, n1 === 1 ? Math.PI : Math.PI * 1.5, 1);
   // O tamanho de cada anel: longe do centro e com espaço para as ideias desse anel.
   const raios = [null], larg = d => d === 1 ? 150 : d === 2 ? 124 : 108;
   let rx = Math.max(cw / 2 + 135, 250 + (porNivel[1] || 0) * 14), ry = Math.max(ch / 2 + 85, 190 + (porNivel[1] || 0) * 8);
@@ -699,21 +846,32 @@ function arvore(no, W, H, cw, ch) {
   return itens;
 }
 
+function elDe(id) { return palco.querySelector(`[data-id="${id}"]`); }
+function poe(e, x, y) { e.style.left = Math.round(x - e.offsetWidth / 2) + 'px'; e.style.top = Math.round(y - e.offsetHeight / 2) + 'px'; }
+function construirRaiz(no) {
+  const d = el('div', 'raiz'); d.dataset.id = no.id; d.style.setProperty('--cor', no.c);
+  d.append(fig(figura(no), no.c), el('div', 'raiz-nome', titulo(no)));
+  d.title = 'Voltar ao Cérebro (Esc)'; d.onclick = () => foco(no.id); alvo(d, no.id);
+  return d;
+}
+// O mapa é sempre a árvore toda a partir do Cérebro; a ideia em foco abre-se no sítio dela.
 function render(opts = {}) {
   fecharCaixa(true);
-  palco.querySelectorAll('.no, .centro, .fantasma').forEach(e => e.remove());
+  if (!dados.nos[atual]) atual = dados.raiz;
+  const antes = new Set([...palco.querySelectorAll('[data-id]')].map(e => e.dataset.id));
+  palco.querySelectorAll('.no, .centro, .raiz, .fantasma').forEach(e => e.remove());
   palco.classList.remove('a-focar');
-  const no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
-  const c = construirCentro(no); palco.append(c);
-  const cw = c.offsetWidth, ch = c.offsetHeight;
-  c.style.left = Math.round((W - cw) / 2) + 'px'; c.style.top = Math.round((H - ch) / 2) + 'px';
-  arvore(no, W, H, cw, ch).forEach(it => {
-    const card = construirCartao(dados.nos[it.id], it.d); card.dataset.pai = it.pai; palco.append(card);
-    card.style.left = Math.round(it.x - card.offsetWidth / 2) + 'px';
-    card.style.top = Math.round(it.y - card.offsetHeight / 2) + 'px';
+  const raiz = dados.nos[dados.raiz], no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
+  const novo = (e, id) => { if (!antes.has(id) || id === atual) e.classList.add('novo'); };
+  const r = atual === raiz.id ? construirCentro(raiz) : construirRaiz(raiz);
+  palco.append(r); poe(r, W / 2, H / 2); novo(r, raiz.id);
+  arvore(raiz, W, H, 340, 600).forEach(it => {
+    const n = dados.nos[it.id], e = it.id === atual ? construirCentro(n) : construirCartao(n, it.d);
+    e.dataset.pai = it.pai; palco.append(e); poe(e, it.x, it.y); novo(e, it.id);
   });
-  if (sel >= no.f.length) sel = no.f.length - 1;
-  marcarSel(); linhas(); if (!opts.semAjuste) ajustar(opts.suave);
+  if (!elDe(atual)) { atual = dados.raiz; render(opts); return; }
+  if (sel >= visiveis(no).length) sel = visiveis(no).length - 1;
+  marcarSel(); linhas(); enquadrar(opts.suave);
   history.replaceState(null, '', '#n=' + atual);
   document.title = titulo(no) + ' · Mindmap';
 }
@@ -723,9 +881,8 @@ function meioFig(caixaEl) {
 }
 function linhas() {
   const svg = $('#linhas'); svg.innerHTML = '';
-  const c = palco.querySelector('.centro'); if (!c) return;
-  palco.querySelectorAll('.no:not(.fantasma)').forEach(n => {
-    const paiEl = n.dataset.pai === atual ? c : cartaoDe(n.dataset.pai); if (!paiEl) return;
+  palco.querySelectorAll('[data-pai]').forEach(n => {
+    const paiEl = elDe(n.dataset.pai); if (!paiEl) return;
     const a = meioFig(paiEl), b = meioFig(n), dx = b.x - a.x, dy = b.y - a.y;
     const mx = (a.x + b.x) / 2 - dy * .15, my = (a.y + b.y) / 2 + dx * .15;
     const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -735,75 +892,60 @@ function linhas() {
   });
 }
 function marcarSel() {
-  const f = dados.nos[atual].f;
+  const f = visiveis(dados.nos[atual]);
   palco.querySelectorAll('.no').forEach(n => n.classList.toggle('sel', sel >= 0 && n.dataset.id === f[sel]));
 }
 function cartaoDe(id) { return palco.querySelector(`.no[data-id="${id}"]:not(.fantasma)`); }
 
-/* ---------- O movimento entre níveis: a câmara desliza (como a VNI) ---------- */
-const FOCO_MS = 620;
+/* ---------- O foco: o Cérebro fica sempre no centro do mapa e a câmara viaja ---------- */
+const FOCO_MS = 750;
 function rectFig(caixaEl) {
   const f = caixaEl.querySelector('.fig');
   return { l: caixaEl.offsetLeft + f.offsetLeft, t: caixaEl.offsetTop + f.offsetTop, w: f.offsetWidth, h: f.offsetHeight };
 }
 function porEm(g, r) { g.style.left = r.l + 'px'; g.style.top = r.t + 'px'; g.style.width = r.w + 'px'; g.style.height = r.h + 'px'; }
-// No ecrã: onde está o meio do boneco e que tamanho tem.
-function noEcra(r) { return { x: vista.x + (r.l + r.w / 2) * vista.z, y: vista.y + (r.t + r.h / 2) * vista.z, s: r.w * vista.z }; }
-// Põe a câmara de modo a que o boneco r fique no sítio e no tamanho e (sem animar).
-function encaixar(r, e) {
-  const z = e.s / r.w;
-  vista = { z, x: e.x - (r.l + r.w / 2) * z, y: e.y - (r.t + r.h / 2) * z };
-  aplicarVista(false); palco.offsetWidth;
+// Carregar numa ideia: ela abre-se no sítio dela e a câmara viaja devagar até
+// lá. O mapa não muda de sítio; as linhas continuam a ir até ao Cérebro.
+function foco(id) {
+  if (!dados.nos[id]) return;
+  if (id === atual) { enquadrar(true); return; }
+  const anterior = atual; atual = id;
+  sel = id === dados.nos[anterior]?.p ? visiveis(dados.nos[id]).indexOf(anterior) : -1;
+  render({ suave: true });
 }
-// Carregar numa ideia: a câmara vai até ela e aproxima, o resto desvanece,
-// e ela passa a ser o centro sem salto; depois a câmara recua para ver tudo.
-function irPara(id, deEl) {
-  if (ocupado || id === atual || !dados.nos[id]) return;
-  const centro = palco.querySelector('.centro');
-  sel = -1;
-  if (reduz || !deEl || !centro) { atual = id; render(); return; }
-  ocupado = true;
-  const rf = rectFig(deEl), alvo = noEcra(rectFig(centro));
-  const z2 = vista.z * alvo.s / (rf.w * vista.z);
-  vista = { z: z2, x: alvo.x - (rf.l + rf.w / 2) * z2, y: alvo.y - (rf.t + rf.h / 2) * z2 };
-  deEl.classList.add('foco'); palco.classList.add('a-focar');
-  aplicarVista(true, FOCO_MS);
-  setTimeout(() => {
-    const e = noEcra(rf);
-    atual = id; render({ semAjuste: true });
-    encaixar(rectFig(palco.querySelector('.centro')), e);
-    ajustar(true, FOCO_MS);
-    setTimeout(() => { ocupado = false; }, FOCO_MS);
-  }, FOCO_MS);
-}
-// Voltar: o centro passa a ser a ideia de onde se veio e a câmara afasta-se.
-function subir(aid) {
-  if (ocupado || aid === atual) return;
-  const cam = caminho(atual), i = cam.indexOf(aid); if (i < 0) return;
-  const k = cam[i + 1], centro = palco.querySelector('.centro');
-  atual = aid; sel = dados.nos[aid].f.indexOf(k);
-  if (reduz || !centro) { render(); return; }
-  ocupado = true;
-  const e = noEcra(rectFig(centro));
-  render({ semAjuste: true });
-  const card = cartaoDe(k);
-  if (card) encaixar(rectFig(card), e);
-  ajustar(true, FOCO_MS);
-  setTimeout(() => { ocupado = false; }, FOCO_MS);
+function irPara(id) { foco(id); }
+function subir(id) { foco(id); }
+// A câmara: no Cérebro vê-se tudo; numa ideia, ela e o que tem à volta.
+function enquadrar(suave) {
+  if (atual === dados.raiz) { ajustar(suave, FOCO_MS); return; }
+  const f = elDe(atual); if (!f) { ajustar(suave, FOCO_MS); return; }
+  ajustar(suave, FOCO_MS, [f, ...palco.querySelectorAll(`[data-pai="${atual}"]`)], .55);
 }
 
 /* ---------- Criar, renomear, apagar ---------- */
-function novoRamo(pid) {
-  const pai = dados.nos[pid], id = novoId();
-  const cor = pai.p === null ? CORES[pai.f.length % CORES.length] : pai.c;
-  mudar(() => { dados.nos[id] = { id, t: '', n: '', c: cor, f: [], p: pid }; pai.f.push(id); });
-  if (pid === atual) { sel = pai.f.length - 1; render(); renomear(id, true); }
+function novoRamo(pid, tipo) {
+  const pai = dados.nos[pid], id = novoId(), naRaiz = pai.p === null;
+  if (naRaiz && !TIPO_IDEIA[tipo]) tipo = 'outra';
+  const cor = naRaiz ? TIPO_IDEIA[tipo].cor : pai.c;
+  mudar(() => {
+    dados.nos[id] = { id, t: '', n: '', c: cor, f: [], p: pid };
+    if (naRaiz) { dados.nos[id].tipo = tipo; if (tipo === 'animal') dados.nos[id].b = { k: 'gato', e: 'calmo' }; }
+    pai.f.push(id); if (naRaiz) criarGavetas(id);
+  });
+  if (pid === atual) { sel = visiveis(pai).indexOf(id); render(); renomear(id, true); }
   return id;
 }
+function criarGavetas(id) {
+  GAVETAS.forEach(g => { const gid = novoId(); dados.nos[gid] = { id: gid, t: '', n: '', c: g[4], f: [], p: id, g: g[0] }; dados.nos[id].f.push(gid); });
+}
+function porGavetas(id) {
+  mudar(() => criarGavetas(id)); render({ suave: true });
+  toast('As gavetas estão abertas 🗂️ Escreve só nas que te fizerem sentido, ao teu ritmo.');
+}
 function renomear(id, novo) {
-  const card = cartaoDe(id); if (!card) return;
+  const card = cartaoDe(id); if (!card || dados.nos[id].g) return;
   const n = dados.nos[id], nome = card.querySelector('.no-nome');
-  const inp = el('input', 'no-inp'); inp.value = n.t; inp.placeholder = 'Nova ideia…'; inp.spellcheck = false;
+  const inp = el('input', 'no-inp'); inp.value = n.t; inp.placeholder = TIPO_IDEIA[n.tipo] ? TIPO_IDEIA[n.tipo].ph : 'Nova ideia…'; inp.spellcheck = false;
   nome.replaceWith(inp); card.draggable = false; inp.focus(); inp.select();
   let feito = false;
   const fim = prox => {
@@ -811,7 +953,7 @@ function renomear(id, novo) {
     const v = inp.value.trim();
     if (!v && novo) { pilha.pop(); removerNo(id); guardar(); }
     else if (v && v !== n.t) { if (!novo) guardarUndo(); n.t = v; guardar(); }
-    if (prox === 'irmao' && dados.nos[n.p] && (v || !novo)) novoRamo(n.p); else render();
+    if (prox === 'irmao' && dados.nos[n.p] && (v || !novo)) novoRamo(n.p, n.tipo); else render();
   };
   inp.addEventListener('keydown', e => {
     e.stopPropagation();
@@ -827,7 +969,7 @@ function apagar(id) {
   const n = dados.nos[id]; if (!n || !n.p) return;
   const dentro = contar(id) - 1, t = titulo(n);
   mudar(() => removerNo(id));
-  sel = Math.min(sel, dados.nos[atual].f.length - 1);
+  sel = Math.min(sel, visiveis(dados.nos[atual]).length - 1);
   render(); toast(`Apagado «${t}»${dentro ? ` e ${dentro} ideia${dentro === 1 ? '' : 's'} dentro` : ''}`, true);
 }
 
@@ -840,8 +982,8 @@ function abrirCaixa(id) {
   const topo = el('div', 'cx-topo');
   const f = fig(figura(no), no.c); f.title = 'Mudar o boneco ou a emoção'; f.onclick = () => escolherBoneco(id);
   const meio = el('div', 'cx-meio');
-  const t = el('input', 'c-nome'); t.value = no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
-  campo(t, v => { no.t = v; });
+  const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
+  if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; });
   t.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); notas.focus(); } });
   f._cont = el('div', 'contador'); contador(f, no);
   meio.append(t, acoesSentir(no, f), f._cont);
@@ -849,7 +991,7 @@ function abrirCaixa(id) {
   bts.append(btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'bt redondo'), btn('⤢', 'Pôr no centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt redondo'));
   topo.append(f, meio, bts);
   const bolha = el('div', 'bolha'), notas = el('textarea');
-  notas.value = no.n || ''; notas.placeholder = 'Escreve aqui tudo o que te vem à cabeça…';
+  notas.value = no.n || ''; notas.placeholder = no.g ? GAV[no.g].perg : 'Escreve aqui tudo o que te vem à cabeça…';
   campo(notas, v => { no.n = v; }); bolha.append(notas);
   const cores = linhaCores(no, () => { cx.style.setProperty('--cor', no.c); cores.querySelectorAll('.cor').forEach((b, i) => b.classList.toggle('on', CORES[i] === no.c)); });
   cores.style.justifyContent = 'flex-start';
@@ -896,7 +1038,7 @@ function caraPorUmBocado(f, no, e, ms) {
   i.innerHTML = desenharBoneco({ k: b.k, e }, no.c);
   f._t = setTimeout(() => { i.innerHTML = desenharBoneco(figura(no), no.c); }, ms);
 }
-let audio = null;
+let audio = null, socosRecentes = [], ultimoConvite = 0;
 function som(tipo) {
   try {
     audio = audio || new (window.AudioContext || window.webkitAudioContext)();
@@ -936,6 +1078,14 @@ function bater(no, f) {
       { transform: 'translate(-10px,-5px)' }, { transform: 'translate(8px,7px)' }, { transform: 'translate(-3px,2px)' }, { transform: 'translate(0,0)' }], { duration: 460 });
     caraPorUmBocado(f, no, 'tonto', 1100);
     no.socos = (no.socos || 0) + 1; guardar(); contador(f, no);
+    // Depois de muitos socos seguidos, um convite suave para acalmar.
+    const agora = Date.now();
+    socosRecentes = socosRecentes.filter(x => agora - x < 20000); socosRecentes.push(agora);
+    if (socosRecentes.length >= 6 && agora - ultimoConvite > 60000) {
+      ultimoConvite = agora; socosRecentes = [];
+      setTimeout(() => toast('Uff! Já puseste muita força cá para fora 💪 Agora, um bocadinho de calma?', false,
+        [['🤚 Festinhas', () => festinhas(no, f)], ['🫁 Respirar comigo', respirar]]), 900);
+    }
   }, dur * .7);
 }
 function festinhas(no, f) {
@@ -1036,6 +1186,163 @@ $('#bnc-in').onchange = async e => {
   } catch (err) { toast('Não consegui ler essa imagem'); }
 };
 
+/* ---------- Despejar ---------- */
+const dp = $('#despejo');
+function abrirDespejo() {
+  dp.hidden = !dp.hidden;
+  if (dp.hidden) return;
+  const raiz = dados.nos[dados.raiz], fw = dp.querySelector('.dp-fig');
+  fw.innerHTML = ''; dp._fig = fig(figura(raiz), raiz.c); fw.append(dp._fig);
+  $('#dp-texto').value = dados.despejo.texto; desenharFrases();
+  setTimeout(() => $('#dp-texto').focus(), 50);
+}
+$('#bt-despejo').onclick = abrirDespejo;
+$('#dp-fechar').onclick = abrirDespejo;
+$('#dp-texto').addEventListener('input', e => { dados.despejo.texto = e.target.value; guardar(); });
+$('#dp-bater').onclick = () => bater(dados.nos[dados.raiz], dp._fig);
+$('#dp-festa').onclick = () => festinhas(dados.nos[dados.raiz], dp._fig);
+$('#dp-resp').onclick = () => respirar();
+$('#dp-partir').onclick = () => {
+  const txt = dados.despejo.texto.trim();
+  if (!txt) { toast('Escreve primeiro o que te vai na cabeça 💭'); $('#dp-texto').focus(); return; }
+  const novas = txt.split(/(?<=[.!?…])\s+|\n+/).map(s => s.trim()).filter(s => s.length > 1);
+  dados.despejo.frases.push(...novas); dados.despejo.texto = ''; $('#dp-texto').value = '';
+  guardar(); desenharFrases();
+  toast('Já saiu da cabeça 💗 Agora, sem pressa, arrasta cada frase para o sítio dela.');
+};
+function desenharFrases() {
+  const l = dp.querySelector('.dp-frases'); l.innerHTML = '';
+  dados.despejo.frases.forEach((fr, i) => {
+    const c = el('div', 'frase', fr); c.draggable = true;
+    c.ondragstart = e => { arrastoFrase = i; e.dataTransfer.setData('text/plain', fr); e.dataTransfer.effectAllowed = 'copy'; };
+    c.ondragend = () => { arrastoFrase = null; document.querySelectorAll('.alvo').forEach(x => x.classList.remove('alvo')); };
+    c.append(btn('×', 'Tirar esta frase', () => { dados.despejo.frases.splice(i, 1); guardar(); desenharFrases(); }, 'frase-x'));
+    l.append(c);
+  });
+  dp.querySelector('.dp-dica').hidden = !dados.despejo.frases.length;
+}
+function porFrase(i, id) {
+  const fr = dados.despejo.frases[i], pai = dados.nos[id]; if (fr == null || !pai) return;
+  const nid = novoId(), curto = fr.length > 60 ? fr.slice(0, 57) + '…' : fr;
+  mudar(() => { dados.nos[nid] = { id: nid, t: curto, n: fr.length > 60 ? fr : '', c: pai.c, f: [], p: id }; pai.f.push(nid); });
+  dados.despejo.frases.splice(i, 1); guardar(); desenharFrases(); render();
+  toast(pai.g === 'largar' ? '🍃 Deixaste ir. Não é teu para carregar.' : pai.g === 'bom' ? '🌱 Que bom. Guarda isso contigo.' : `Arrumado em «${titulo(pai)}» ✨`, true);
+}
+
+/* ---------- Respirar ---------- */
+let tResp = [];
+function respirar() {
+  const j = $('#respirar'), b = j.querySelector('.resp-bola'), tx = j.querySelector('.resp-txt');
+  j.querySelector('.fig-in').innerHTML = desenharBoneco({ k: 'cerebro', e: 'calmo' });
+  tResp.forEach(clearTimeout); tResp = [];
+  b.style.transition = 'none'; b.style.transform = 'scale(.55)'; tx.textContent = 'Prepara-te…';
+  j.hidden = false;
+  const IN = 4000, OUT = 6000;
+  let t = 1200;
+  for (let i = 0; i < 4; i++) {
+    tResp.push(setTimeout(() => { tx.textContent = 'Inspira…'; b.style.transition = `transform ${IN}ms ease-in-out`; b.style.transform = 'scale(1.12)'; }, t)); t += IN;
+    tResp.push(setTimeout(() => { tx.textContent = 'Expira devagarinho…'; b.style.transition = `transform ${OUT}ms ease-in-out`; b.style.transform = 'scale(.55)'; }, t)); t += OUT;
+  }
+  tResp.push(setTimeout(() => { pararRespirar(); toast('Muito bem 💗 Estás aqui, e isso chega.'); }, t));
+}
+function pararRespirar() { tResp.forEach(clearTimeout); tResp = []; $('#respirar').hidden = true; }
+$('#resp-parar').onclick = pararRespirar;
+
+/* ---------- Arrumar por hoje ---------- */
+let arrId = null;
+const FRASES_FECHO = ['Arrumado 📦 Por hoje está fechado. Podes descansar disto.', 'Arrumado 📦 Fizeste uma coisa boa por ti.',
+  'Arrumado 📦 Nada se perdeu: está guardado. A tua cabeça pode largar.'];
+function dataHora(t) { return new Date(t).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+function hoje(t) { return new Date(t).toDateString() === new Date().toDateString(); }
+function gavetaDe(no, k) { return no.f.map(x => dados.nos[x]).find(x => x && x.g === k); }
+function abrirArrumar(id) {
+  arrId = id; const no = dados.nos[id], j = $('#arrumar');
+  j.querySelector('.arr-tit').textContent = `Arrumar «${titulo(no)}»`;
+  const fecho = gavetaDe(no, 'fecho'), linhas = ((fecho && fecho.n) || '').split('\n').map(s => s.trim()).filter(Boolean);
+  j.querySelectorAll('.arr-concl').forEach((i, k) => { i.value = linhas[k] || ''; });
+  const bom = gavetaDe(no, 'bom');
+  j.querySelector('.arr-bom').hidden = !!(bom && temConteudo(bom));
+  j.querySelector('.arr-bom input').value = '';
+  j.hidden = false; setTimeout(() => j.querySelector('.arr-concl').focus(), 60);
+}
+function confirmarArrumar() {
+  const no = dados.nos[arrId], j = $('#arrumar'); if (!no) return;
+  const concl = [...j.querySelectorAll('.arr-concl')].map(i => i.value.trim()).filter(Boolean);
+  const bomTxt = j.querySelector('.arr-bom input').value.trim();
+  mudar(() => {
+    no.arq = { data: Date.now(), concl };
+    const fecho = gavetaDe(no, 'fecho'); if (fecho && concl.length) fecho.n = concl.join('\n');
+    if (bomTxt) { const bom = gavetaDe(no, 'bom'); if (bom) bom.n = (bom.n ? bom.n + '\n' : '') + bomTxt; else no.n = (no.n ? no.n + '\n' : '') + '🌱 ' + bomTxt; }
+  });
+  j.hidden = true; animarArrumar(no);
+}
+$('#arr-ok').onclick = confirmarArrumar;
+$('#arrumar').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const is = [...$('#arrumar').querySelectorAll('input')], i = is.indexOf(e.target);
+  if (i >= 0 && i < is.length - 1 && !is[i + 1].closest('[hidden]')) is[i + 1].focus(); else confirmarArrumar();
+});
+function animarArrumar(no) {
+  const elFig = atual === no.id ? palco.querySelector('.centro .fig') : (cartaoDe(no.id) || {}).querySelector && cartaoDe(no.id).querySelector('.fig');
+  const fim = () => {
+    if (atual === no.id || dentroDe(atual, no.id)) atual = no.p;
+    sel = -1; render({ suave: true }); toast(FRASES_FECHO[Math.floor(Math.random() * FRASES_FECHO.length)]);
+  };
+  if (!elFig || reduz) { fim(); return; }
+  const r = elFig.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  voar('📦', [{ transform: `translate(${cx - 45}px,${cy}px) scale(0)` }, { transform: `translate(${cx - 45}px,${cy}px) scale(1.15)`, offset: .3 },
+    { transform: `translate(${cx - 45}px,${cy}px) scale(1)`, offset: .5 }, { transform: `translate(${cx - 45}px,${cy}px) scale(1.12,.88)`, offset: .75 },
+    { transform: `translate(${cx - 45}px,${cy}px) scale(0)`, opacity: 0 }], 1600, 90);
+  elFig.animate([{ transform: 'none' }, { transform: 'translateY(70px) scale(.12)', opacity: 0 }], { duration: 600, delay: 350, easing: 'ease-in', fill: 'forwards' });
+  setTimeout(() => {
+    for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2;
+      voar('✨', [{ transform: `translate(${cx - 12}px,${cy + 30}px) scale(.4)`, opacity: 1 }, { transform: `translate(${cx - 12 + Math.cos(a) * 100}px,${cy + 30 + Math.sin(a) * 75}px) scale(1)`, opacity: 0 }], 800); }
+  }, 1000);
+  setTimeout(fim, 1700);
+}
+function faixaArrumado(no) {
+  const b = el('div', 'arq-banner');
+  b.append(el('b', null, '📦 Arrumado a ' + dataHora(no.arq.data)));
+  if (no.arq.concl.length) { const ul = el('ul'); no.arq.concl.forEach(c => ul.append(el('li', null, c))); b.append(ul); }
+  const r = btn('Reabrir', '', () => reabrir(no.id), 'link'); r.style.marginTop = '4px'; b.append(el('br'), r);
+  return b;
+}
+function abrirArrumados() {
+  const j = $('#arrumados'), l = j.querySelector('.arq-lista'); l.innerHTML = '';
+  const lista = Object.values(dados.nos).filter(n => n.arq).sort((a, b) => b.arq.data - a.arq.data);
+  if (!lista.length) l.append(el('div', 'j-sub', 'Ainda não arrumaste nenhum assunto. Quando arrumares, fica aqui guardado.'));
+  lista.forEach(n => {
+    const it = el('div', 'arq-item'); it.style.setProperty('--cor', n.c);
+    const fg = fig(figura(n), n.c, 'arq-fig'), tx = el('div', 'arq-tx');
+    tx.append(el('b', null, titulo(n)), el('small', null, 'Arrumado a ' + dataHora(n.arq.data)));
+    if (n.arq.concl.length) { const ul = el('ul'); n.arq.concl.forEach(c => ul.append(el('li', null, c))); tx.append(ul); }
+    const bs = el('div', 'arq-bts');
+    bs.append(btn('Ver', '', () => { j.hidden = true; atual = n.id; sel = -1; render({ suave: true }); }, 'bt'),
+              btn('Reabrir', '', () => { j.hidden = true; reabrir(n.id); }, 'bt'));
+    it.append(fg, tx, bs); l.append(it);
+  });
+  j.hidden = false;
+}
+$('#bt-arrumados').onclick = abrirArrumados;
+function reabrir(id) {
+  const n = dados.nos[id]; if (!n || !n.arq) return;
+  const fazer = () => { mudar(() => { delete n.arq; }); atual = id; sel = -1; render({ suave: true }); };
+  if (hoje(n.arq.data)) perguntar(`Já arrumaste isto hoje, às ${hora(n.arq.data)} 💗`,
+    n.arq.concl.length ? `Decidiste: «${n.arq.concl.join(' · ')}». Queres mesmo voltar a abrir?` : 'Queres mesmo voltar a abrir?',
+    [['Deixar arrumado', () => {}, 'bt bt-ideia'], ['Quero reabrir', fazer, 'bt']]);
+  else fazer();
+}
+function perguntar(tit, sub, opcoes) {
+  const j = $('#pergunta');
+  j.querySelector('.pg-tit').textContent = tit; j.querySelector('.pg-sub').textContent = sub;
+  j.querySelector('.fig-in').innerHTML = desenharBoneco({ k: 'cerebro', e: 'carinho' });
+  const b = j.querySelector('.pg-bts'); b.innerHTML = '';
+  opcoes.forEach(([l, fn, cls]) => b.append(btn(l, '', () => { j.hidden = true; fn(); }, cls || 'bt')));
+  j.hidden = false;
+}
+document.querySelectorAll('[data-fechar]').forEach(b => b.onclick = () => { b.closest('.janela').hidden = true; });
+['arrumar', 'arrumados', 'pergunta'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
+
 /* ---------- Dar nome ao Cérebro ---------- */
 const bv = $('#boasvindas');
 function boasVindas() {
@@ -1065,7 +1372,7 @@ busca.addEventListener('input', () => {
   if (!lista.length) res.append(el('div', 'nada', 'Nada encontrado'));
   lista.forEach((n, i) => {
     const b = el('button', i === 0 ? 'on' : null); b.dataset.id = n.id;
-    b.append(el('b', null, titulo(n)), el('small', null, caminho(n.id).slice(0, -1).map(x => titulo(dados.nos[x])).join(' › ') || 'o Cérebro'));
+    b.append(el('b', null, (n.arq ? '📦 ' : '') + titulo(n)), el('small', null, caminho(n.id).slice(0, -1).map(x => titulo(dados.nos[x])).join(' › ') || 'o Cérebro'));
     b.addEventListener('mousedown', e => { e.preventDefault(); irDireto(n.id); });
     res.append(b);
   });
@@ -1085,13 +1392,14 @@ busca.addEventListener('blur', () => setTimeout(() => { res.hidden = true; }, 10
 function emTexto(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
 document.addEventListener('keydown', e => {
   if (!bv.hidden) return;
-  if (!esc.hidden) { if (e.key === 'Escape') esc.hidden = true; return; }
+  const jan = [...document.querySelectorAll('.janela')].find(j => !j.hidden);
+  if (jan) { if (e.key === 'Escape') { if (jan.id === 'respirar') pararRespirar(); else jan.hidden = true; } return; }
   const mod = e.metaKey || e.ctrlKey;
   if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey && !emTexto(e.target)) { e.preventDefault(); desfazer(); return; }
   if (mod && (e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'f')) { e.preventDefault(); busca.focus(); busca.select(); return; }
   if (emTexto(e.target) || mod || ocupado) return;
   if (caixa) { if (e.key === 'Escape') fecharCaixa(); return; }
-  const no = dados.nos[atual], f = no.f, figC = palco.querySelector('.centro .fig');
+  const no = dados.nos[atual], f = visiveis(no), figC = palco.querySelector('.centro .fig');
   switch (e.key.length === 1 ? e.key.toLowerCase() : e.key) {
     case 'Tab': e.preventDefault(); novoRamo(atual); break;
     case 'Escape': if (sel >= 0) { sel = -1; marcarSel(); } else if (no.p) subir(no.p); break;
@@ -1104,16 +1412,19 @@ document.addEventListener('keydown', e => {
     case 'b': if (figC) bater(no, figC); break;
     case 'f': if (figC) festinhas(no, figC); break;
     case 'e': escolherBoneco(atual); break;
+    case 'r': respirar(); break;
     case '0': ajustar(true); break;
   }
 });
 
 /* ---------- Aviso em baixo ---------- */
 let tToast;
-function toast(msg, comDesfazer) {
+function toast(msg, comDesfazer, botoes = []) {
   const t = $('#toast'); t.innerHTML = ''; t.append(el('span', null, msg));
   if (comDesfazer) t.append(btn('Desfazer', '⌘Z', () => { t.hidden = true; desfazer(); }));
-  t.hidden = false; clearTimeout(tToast); tToast = setTimeout(() => { t.hidden = true; }, comDesfazer ? 6000 : 3500);
+  botoes.forEach(([l, fn]) => t.append(btn(l, '', () => { t.hidden = true; fn(); })));
+  t.hidden = false; clearTimeout(tToast);
+  tToast = setTimeout(() => { t.hidden = true; }, botoes.length ? 10000 : comDesfazer ? 6000 : 3500);
 }
 
 /* ---------- Arranque ---------- */
