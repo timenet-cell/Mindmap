@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideias</title>
+<style>
+:root {
+  --bg: #f5f5f7; --surface: #fff; --surface2: #f0f0f3; --border: #d9d9de;
+  --text: #1d1d1f; --text2: #55555c; --text3: #8a8a90; --dot: #d6d6dc;
+  --accent: #0a84ff; --sel-bg: rgba(10,132,255,.18); --red: #ff3b30; --green: #28a745; --orange: #d97706;
+  --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161618; --surface: #232326; --surface2: #2e2e33; --border: #3a3a40;
+    --text: #f2f2f5; --text2: #b4b4bc; --text3: #7c7c84; --dot: #2c2c31;
+    --green: #30d158; --orange: #ff9f0a;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+  font: 14px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+button { font: inherit; color: inherit; }
+input, textarea { font: inherit; color: inherit; }
+
+/* Barra de cima */
+header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--border); position: relative; z-index: 20; }
+.marca { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+.marca svg { color: var(--accent); }
+.busca-wrap { position: relative; display: flex; align-items: center; gap: 7px; width: 320px; max-width: 40vw;
+  border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; background: var(--bg); color: var(--text2); }
+.busca-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--sel-bg); }
+.busca-wrap input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; }
+#resultados { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: 4px; max-height: 60vh; overflow: auto; }
+#resultados button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 6px 8px;
+  border-radius: 6px; cursor: pointer; }
+#resultados button:hover, #resultados button.on { background: var(--sel-bg); }
+#resultados b { display: block; font-size: 13px; }
+#resultados small { color: var(--text3); font-size: 11px; }
+#resultados .nada { padding: 8px; color: var(--text3); font-size: 12px; }
+.esp { flex: 1; }
+.estado { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 11px 4px 9px;
+  font-size: 12px; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  max-width: 42vw; overflow: hidden; text-overflow: ellipsis; }
+.estado::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--text3); flex: 0 0 auto; }
+.estado.ok::before { background: var(--green); }
+.estado.aviso { color: var(--orange); border-color: color-mix(in srgb, var(--orange) 45%, var(--border)); }
+.estado.aviso::before { background: var(--orange); }
+.bt { border: 1px solid var(--border); background: var(--surface); border-radius: 7px; padding: 4px 10px; cursor: pointer; }
+.bt:hover { border-color: var(--accent); color: var(--accent); }
+.menu { position: relative; }
+.menu summary { list-style: none; }
+.menu summary::-webkit-details-marker { display: none; }
+.menu-itens { position: absolute; right: 0; top: calc(100% + 6px); background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 4px; width: 300px; }
+.menu-itens button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 7px 9px;
+  border-radius: 6px; cursor: pointer; }
+.menu-itens button:hover { background: var(--sel-bg); }
+.menu-itens small { display: block; color: var(--text3); font-size: 11px; }
+.menu-itens hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* O mapa */
+#mapa { position: relative; flex: 1; overflow: hidden;
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px); background-size: 22px 22px; }
+#linhas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#linhas line { stroke-width: 2; stroke-linecap: round; stroke-opacity: .5; }
+.centro, .no { animation: aparece .2s ease-out; }
+@keyframes aparece { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+#mapa.a-sair > .no:not(.fantasma), #mapa.a-sair > .centro:not(.fantasma), #mapa.a-sair > #linhas { opacity: 0; transition: opacity .2s; }
+#mapa.com-caixa > .no, #mapa.com-caixa > .centro, #mapa.com-caixa > #linhas { opacity: .3; transition: opacity .2s; }
+
+.centro { position: absolute; z-index: 2; width: 340px; background: var(--surface); border: 1px solid var(--border);
+  border-top: 4px solid var(--cor); border-radius: 12px; box-shadow: var(--shadow); padding: 11px 14px 12px;
+  display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.c-topo { display: flex; align-items: center; gap: 8px; }
+.voltar { flex: 0 0 auto; width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--surface); cursor: pointer; color: var(--text2); }
+.voltar:hover { border-color: var(--accent); color: var(--accent); }
+.c-tit { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; border: none; outline: none; background: transparent;
+  padding: 2px 0; border-bottom: 1px dashed transparent; }
+.c-tit:focus { border-bottom-color: var(--border); }
+.rasto { display: flex; flex-wrap: wrap; gap: 2px 4px; font-size: 11px; color: var(--text3); }
+.rasto button { border: none; background: none; padding: 0 2px; font: inherit; color: var(--accent); cursor: pointer; border-radius: 3px; }
+.rasto button:hover { text-decoration: underline; }
+.rasto button.alvo { outline: 2px dashed var(--accent); }
+.notas { width: 100%; resize: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px;
+  background: var(--bg); outline: none; line-height: 1.45; font-size: 13px; }
+.notas:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--sel-bg); }
+.c-pe { display: flex; align-items: center; gap: 8px; }
+.c-pe .bt { font-size: 12.5px; }
+.vazio { font-size: 12px; color: var(--text3); }
+.cores { display: flex; gap: 5px; margin-left: auto; }
+.cor { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; padding: 0; }
+.cor.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--text2); }
+
+.no { position: absolute; z-index: 2; background: var(--surface); border: 1px solid var(--border);
+  border-left: 4px solid var(--cor); border-radius: 10px; box-shadow: var(--shadow); padding: 8px 8px 8px 10px;
+  cursor: pointer; display: flex; flex-direction: column; gap: 3px; overflow: hidden;
+  transition: border-color .12s, box-shadow .12s; }
+.no:hover { border-color: var(--cor); }
+.no.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+.no.alvo { outline: 2px dashed var(--accent); outline-offset: 2px; }
+.no.a-arrastar { opacity: .4; }
+.no-tit { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; min-height: 22px; }
+.no-tit b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.no-tit b.sem { color: var(--text3); font-weight: 500; font-style: italic; }
+.no-inp { flex: 1; min-width: 0; font-weight: 700; font-size: 13px; border: none; outline: none; background: var(--sel-bg);
+  border-radius: 4px; padding: 1px 4px; }
+.no-bts { display: flex; gap: 1px; opacity: 0; transition: opacity .12s; }
+.no:hover .no-bts, .no.sel .no-bts { opacity: 1; }
+.no-bts button { border: none; background: transparent; color: var(--text2); width: 22px; height: 22px; border-radius: 5px;
+  cursor: pointer; font-size: 12px; padding: 0; }
+.no-bts button:hover { background: var(--surface2); color: var(--accent); }
+.no-bts button.x:hover { color: var(--red); }
+.no-linha { font-size: 11.5px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.no-pe { font-size: 10.5px; color: var(--text3); }
+.fantasma { z-index: 8 !important; pointer-events: none; animation: none !important;
+  transition: left .3s ease-out, top .3s ease-out, width .3s ease-out, height .3s ease-out; }
+
+/* A caixa aberta no mapa (o ↗) */
+.caixa { position: absolute; z-index: 6; background: var(--surface); border: 1px solid var(--border);
+  border-top: 4px solid var(--cor); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.25);
+  display: flex; flex-direction: column; gap: 10px; padding: 12px 16px 14px; overflow: hidden;
+  transition: left .22s ease, top .22s ease, width .22s ease, height .22s ease; }
+.caixa .c-topo .bt { font-size: 12px; white-space: nowrap; }
+.caixa .notas { flex: 1; min-height: 60px; font-size: 14px; }
+.cx-ramos { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.cx-ramos > span { color: var(--text3); }
+.chip { border: 1px solid var(--border); border-left: 3px solid var(--cor); background: var(--bg); border-radius: 6px;
+  padding: 3px 8px; cursor: pointer; font-size: 12px; }
+.chip:hover { border-color: var(--accent); }
+.chip-inp { border: 1px dashed var(--border); border-radius: 6px; padding: 3px 8px; background: transparent; outline: none;
+  font-size: 12px; width: 150px; }
+.chip-inp:focus { border-color: var(--accent); }
+
+.dica { position: absolute; left: 14px; bottom: 10px; font-size: 11px; color: var(--text3); z-index: 1; pointer-events: none; }
+.dica kbd { font: inherit; border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; background: var(--surface); }
+#toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 30; background: var(--text);
+  color: var(--bg); border-radius: 9px; padding: 8px 10px 8px 14px; display: flex; gap: 12px; align-items: center;
+  box-shadow: var(--shadow); font-size: 13px; max-width: 90vw; }
+#toast[hidden], #resultados[hidden] { display: none; }
+#toast button { border: none; background: transparent; color: var(--accent); font-weight: 700; cursor: pointer; }
+@media (prefers-color-scheme: dark) { #toast button { color: #0a6cdc; } }
+@media (max-width: 760px) { .marca span, .dica { display: none; } .busca-wrap { width: auto; flex: 1; max-width: none; } }
+@media (prefers-reduced-motion: reduce) { .centro, .no { animation: none; } .caixa { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="marca">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+      <circle cx="10" cy="10" r="3.2"/><circle cx="3" cy="4" r="1.8"/><circle cx="17" cy="4" r="1.8"/><circle cx="3.5" cy="16" r="1.8"/><circle cx="16.5" cy="16" r="1.8"/>
+      <path d="M7.6 8 4.4 5.2M12.4 8l3.2-2.8M7.7 12.2l-2.8 2.6M12.3 12.2l2.8 2.6"/>
+    </svg>
+    <span>Ideias</span>
+  </div>
+  <div class="busca-wrap">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg>
+    <input id="busca" placeholder="Procurar ideia…  (⌘K)" autocomplete="off" spellcheck="false">
+    <div id="resultados" hidden></div>
+  </div>
+  <div class="esp"></div>
+  <button id="estado" class="estado" title=""></button>
+  <button id="bt-desfazer" class="bt" title="Desfazer (⌘Z)">↶</button>
+  <details class="menu" id="menu">
+    <summary class="bt">Ficheiro</summary>
+    <div class="menu-itens">
+      <button data-acao="ligar" class="so-fs">Gravar automaticamente num ficheiro…<small>Escolhe uma pasta no iCloud Drive e fica sempre com cópia</small></button>
+      <button data-acao="abrir" class="so-fs">Abrir um ficheiro e continuar nele…<small>Para voltar a ligar um ideias.json que já existe</small></button>
+      <hr class="so-fs">
+      <button data-acao="exportar">Exportar cópia (.json)</button>
+      <button data-acao="importar">Importar cópia…<small>Substitui o mapa atual (dá para desfazer)</small></button>
+    </div>
+  </details>
+  <input type="file" id="ficheiro-in" accept=".json,application/json" hidden>
+</header>
+<main id="mapa">
+  <svg id="linhas"></svg>
+  <div class="dica"><kbd>Tab</kbd> novo ramo · <kbd>←→</kbd> escolher · <kbd>Enter</kbd> entrar · <kbd>Esc</kbd> voltar · <kbd>F2</kbd> renomear · <kbd>⌫</kbd> apagar · <kbd>⌘Z</kbd> desfazer · arrasta um bloco para cima de outro para o mudar de sítio</div>
+</main>
+<div id="toast" hidden></div>
+
+<script>
+'use strict';
+const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export';
+const CORES = ['#0a84ff', '#30d158', '#ff9f0a', '#ff375f', '#bf5af2', '#40c8e0', '#8e8e93'];
+const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const temFS = 'showSaveFilePicker' in window;
+const $ = s => document.querySelector(s);
+const mapa = $('#mapa');
+
+function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+function btn(txt, title, fn, cls) { const b = el('button', cls, txt); b.title = title; b.onclick = e => { e.stopPropagation(); fn(); }; return b; }
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+function novoId() { return Math.random().toString(36).slice(2, 10); }
+function norm(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function hora(t) { return new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }); }
+function titulo(n) { return n.t || 'Sem título'; }
+
+/* ---------- Dados ---------- */
+function inicial() {
+  return { v: 1, raiz: 'r', savedAt: 0,
+    nos: { r: { id: 'r', t: 'As minhas ideias', n: '', c: CORES[0], f: [], p: null } } };
+}
+function valido(d) {
+  if (!d || typeof d !== 'object' || !d.nos || !d.raiz || !d.nos[d.raiz]) return false;
+  return Object.values(d.nos).every(n => n && n.id && Array.isArray(n.f));
+}
+function carregar() {
+  try { const d = JSON.parse(lsGet(KEY)); if (valido(d)) return d; } catch (e) {}
+  return inicial();
+}
+let dados = carregar();
+let atual = (location.hash.match(/n=([\w-]+)/) || [])[1] || dados.raiz;
+if (!dados.nos[atual]) atual = dados.raiz;
+let sel = -1, ocupado = false, caixa = null, arrastado = null;
+let pilha = [], pendente = null;
+
+function caminho(id) { const r = []; let x = dados.nos[id]; while (x) { r.unshift(x.id); x = x.p ? dados.nos[x.p] : null; } return r; }
+function contar(id) { const n = dados.nos[id]; return 1 + n.f.reduce((s, f) => s + contar(f), 0); }
+function dentroDe(a, b) { let x = dados.nos[a]; while (x) { if (x.id === b) return true; x = x.p ? dados.nos[x.p] : null; } return false; }
+
+function guardarUndo(snap) { pilha.push(snap || JSON.stringify(dados.nos)); if (pilha.length > 150) pilha.shift(); }
+function mudar(fn) { guardarUndo(); fn(); guardar(); }
+// Escrever num campo: um só passo de desfazer por cada vez que se entra nele.
+function campo(e, aoEscrever) {
+  e.addEventListener('focus', () => { pendente = JSON.stringify(dados.nos); });
+  e.addEventListener('input', () => { if (pendente) { guardarUndo(pendente); pendente = null; } aoEscrever(e.value); guardar(); });
+  e.addEventListener('blur', () => { pendente = null; });
+}
+function desfazer() {
+  if (!pilha.length) { toast('Nada para desfazer'); return; }
+  dados.nos = JSON.parse(pilha.pop());
+  if (!dados.nos[atual]) atual = dados.raiz;
+  guardar(); render(); toast('Desfeito');
+}
+function removerNo(id) {
+  const n = dados.nos[id], pai = dados.nos[n.p];
+  pai.f = pai.f.filter(x => x !== id);
+  (function rm(x) { dados.nos[x].f.forEach(rm); delete dados.nos[x]; })(id);
+}
+
+/* ---------- Gravar: browser + ficheiro (Chrome/Edge) ---------- */
+let fh = null, fhOk = false, tFich = null, ultimaEscrita = 0;
+function guardar() {
+  dados.savedAt = Date.now();
+  if (!lsSet(KEY, JSON.stringify(dados))) toast('Não consegui gravar no browser — exporta uma cópia');
+  if (fh && fhOk) { clearTimeout(tFich); tFich = setTimeout(escreverFicheiro, 500); }
+}
+async function escreverFicheiro() {
+  if (!fh || !fhOk) return;
+  try {
+    const w = await fh.createWritable();
+    await w.write(JSON.stringify(dados, null, 2)); await w.close();
+    ultimaEscrita = Date.now();
+  } catch (e) { fhOk = false; toast('Perdi o acesso ao ficheiro — carrega no estado para religar'); }
+  estado();
+}
+function idb(modo, fn) {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('ideias', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onerror = () => rej(r.error);
+    r.onsuccess = () => { const q = fn(r.result.transaction('kv', modo).objectStore('kv')); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); };
+  });
+}
+const idbGet = k => idb('readonly', s => s.get(k));
+const idbSet = (k, v) => idb('readwrite', s => s.put(v, k));
+
+async function ligarFicheiro() {
+  try {
+    const h = await showSaveFilePicker({ suggestedName: 'ideias.json', types: [{ description: 'Mapa de ideias', accept: { 'application/json': ['.json'] } }] });
+    fh = h; fhOk = true; try { await idbSet('fh', h); } catch (e) {}
+    await escreverFicheiro(); toast('A gravar automaticamente em ' + h.name);
+  } catch (e) { if (e.name !== 'AbortError') toast('Não deu para ligar o ficheiro'); }
+}
+async function abrirFicheiro() {
+  try {
+    const [h] = await showOpenFilePicker({ types: [{ description: 'Mapa de ideias', accept: { 'application/json': ['.json'] } }] });
+    const d = JSON.parse(await (await h.getFile()).text());
+    if (!valido(d)) { toast('Esse ficheiro não é um mapa de ideias'); return; }
+    substituir(d);
+    fh = h; try { await idbSet('fh', h); } catch (e) {}
+    fhOk = (await h.requestPermission({ mode: 'readwrite' })) === 'granted';
+    estado(); toast('Aberto ' + h.name + (fhOk ? ' — as alterações gravam lá' : ''));
+  } catch (e) { if (e.name !== 'AbortError') toast('Não deu para abrir o ficheiro'); }
+}
+async function religar() {
+  try {
+    if ((await fh.requestPermission({ mode: 'readwrite' })) !== 'granted') return;
+    fhOk = true; await sincronizar();
+  } catch (e) { toast('Não deu para religar o ficheiro'); }
+  estado();
+}
+// Ao religar: fica o mais recente dos dois (o browser ou o ficheiro).
+async function sincronizar() {
+  let d = null;
+  try { const txt = await (await fh.getFile()).text(); if (txt.trim()) d = JSON.parse(txt); } catch (e) {}
+  if (valido(d) && (d.savedAt || 0) > (dados.savedAt || 0)) {
+    dados = d; lsSet(KEY, JSON.stringify(dados)); pilha = [];
+    if (!dados.nos[atual]) atual = dados.raiz;
+    render(); toast('Carreguei a versão mais recente de ' + fh.name);
+  } else await escreverFicheiro();
+}
+function substituir(d) {
+  guardarUndo(); // dá para desfazer se a raiz for a mesma; senão limpa
+  if (d.raiz !== dados.raiz) pilha = [];
+  dados = { v: 1, raiz: d.raiz, nos: d.nos, savedAt: 0 };
+  atual = dados.raiz; sel = -1; guardar(); render();
+}
+function exportar() {
+  const a = el('a'); const d = new Date();
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' }));
+  a.download = `ideias-${d.toISOString().slice(0, 10)}.json`;
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  lsSet(KEY_EXP, String(Date.now())); estado();
+}
+$('#ficheiro-in').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!valido(d)) { toast('Esse ficheiro não é um mapa de ideias'); return; }
+    substituir(d); toast('Importado ' + f.name);
+  } catch (err) { toast('Não consegui ler esse ficheiro'); }
+};
+function estado() {
+  const s = $('#estado'); let txt, cls = '', dica;
+  if (fh && fhOk) { txt = `${fh.name} · gravado ${hora(ultimaEscrita || Date.now())}`; cls = 'ok'; dica = 'Cada alteração grava neste ficheiro'; }
+  else if (fh) { txt = `Carrega para religar ${fh.name}`; cls = 'aviso'; dica = 'O browser pede autorização de novo depois de reabrir'; }
+  else {
+    const ult = +lsGet(KEY_EXP) || 0, dias = ult ? Math.floor((Date.now() - ult) / 864e5) : null;
+    if (temFS) { txt = 'Só no browser · ligar ficheiro para backup'; cls = 'aviso'; dica = 'Carrega para escolher onde gravar (ex.: iCloud Drive)'; }
+    else { txt = ult ? `Só no browser · última cópia há ${dias} dia${dias === 1 ? '' : 's'}` : 'Só no browser · sem cópia'; cls = (!ult || dias >= 7) ? 'aviso' : '';
+      dica = 'Carrega para exportar uma cópia. Para gravar sozinho num ficheiro, abre no Chrome.'; }
+  }
+  s.textContent = txt; s.className = 'estado ' + cls; s.title = dica;
+}
+$('#estado').onclick = () => { if (fh && !fhOk) religar(); else if (temFS && !fh) ligarFicheiro(); else if (!temFS) exportar(); };
+$('#bt-desfazer').onclick = desfazer;
+document.querySelectorAll('.so-fs').forEach(e => { if (!temFS) e.remove(); });
+$('#menu').addEventListener('click', e => {
+  const b = e.target.closest('[data-acao]'); if (!b) return;
+  $('#menu').open = false;
+  ({ ligar: ligarFicheiro, abrir: abrirFicheiro, exportar, importar: () => $('#ficheiro-in').click() })[b.dataset.acao]();
+});
+document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').open = false; });
+document.addEventListener('visibilitychange', () => { if (document.hidden && tFich) { clearTimeout(tFich); tFich = null; escreverFicheiro(); } });
+
+/* ---------- Desenhar o mapa ---------- */
+function linhaCores(no, depois) {
+  const r = el('div', 'cores');
+  CORES.forEach(c => {
+    const b = el('button', 'cor' + (c === no.c ? ' on' : '')); b.style.background = c; b.title = 'Cor';
+    b.onclick = e => { e.stopPropagation(); if (no.c === c) return; mudar(() => { no.c = c; }); depois(); };
+    r.append(b);
+  });
+  return r;
+}
+function alvo(elem, id) {
+  elem.addEventListener('dragover', e => {
+    if (!arrastado || arrastado === id || dentroDe(id, arrastado) || dados.nos[arrastado].p === id) return;
+    e.preventDefault(); elem.classList.add('alvo');
+  });
+  elem.addEventListener('dragleave', () => elem.classList.remove('alvo'));
+  elem.addEventListener('drop', e => { e.preventDefault(); elem.classList.remove('alvo'); if (arrastado) mover(arrastado, id); });
+}
+function mover(id, paraId) {
+  const n = dados.nos[id];
+  if (!n || n.p === paraId || id === paraId || dentroDe(paraId, id)) return;
+  mudar(() => { const pai = dados.nos[n.p]; pai.f = pai.f.filter(x => x !== id); dados.nos[paraId].f.push(id); n.p = paraId; });
+  sel = -1; render(); toast(`«${titulo(n)}» passou para «${titulo(dados.nos[paraId])}»`, true);
+}
+
+function construirCentro(no, H) {
+  const c = el('div', 'centro'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
+  const topo = el('div', 'c-topo');
+  if (no.p) topo.append(btn('←', 'Voltar (Esc)', () => subir(no.p), 'voltar'));
+  const t = el('input', 'c-tit'); t.value = no.t; t.placeholder = 'Sem título'; t.spellcheck = false;
+  campo(t, v => { no.t = v; });
+  t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
+  t.addEventListener('blur', () => { document.title = titulo(no) + ' · Ideias'; });
+  topo.append(t); c.append(topo);
+
+  const cam = caminho(no.id);
+  if (cam.length > 1) {
+    const r = el('div', 'rasto');
+    cam.slice(0, -1).forEach((id, i) => {
+      const b = btn(titulo(dados.nos[id]), 'Ir para aqui (larga aqui um bloco para o mudar para cá)', () => subir(id));
+      alvo(b, id); r.append(b, el('span', null, '›'));
+    });
+    r.append(el('span', null, titulo(no))); c.append(r);
+  }
+  const n = el('textarea', 'notas'); n.value = no.n || ''; n.placeholder = 'Notas…'; n.rows = H < 620 ? 3 : 6;
+  campo(n, v => { no.n = v; });
+  n.addEventListener('keydown', e => { if (e.key === 'Escape') n.blur(); });
+  c.append(n);
+  const pe = el('div', 'c-pe');
+  pe.append(btn('+ Novo ramo', 'Novo ramo (Tab)', () => novoRamo(no.id), 'bt'));
+  if (!no.f.length) pe.append(el('span', 'vazio', 'ou carrega Tab'));
+  pe.append(linhaCores(no, () => render()));
+  c.append(pe);
+  return c;
+}
+
+function construirCartao(no) {
+  const d = el('div', 'no'); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
+  const tt = el('div', 'no-tit');
+  const b = el('b', no.t ? null : 'sem', titulo(no));
+  const bts = el('div', 'no-bts');
+  bts.append(btn('✎', 'Renomear (F2)', () => renomear(no.id)),
+             btn('↗', 'Abrir aqui no mapa', () => abrirCaixa(no.id)),
+             btn('×', 'Apagar (⌫)', () => apagar(no.id), 'x'));
+  tt.append(b, bts); d.append(tt);
+  const l1 = (no.n || '').split('\n').find(s => s.trim());
+  if (l1) d.append(el('div', 'no-linha', l1));
+  if (no.f.length) d.append(el('div', 'no-pe', `${no.f.length} ramo${no.f.length === 1 ? '' : 's'} ›`));
+  d.onclick = e => { if (e.target.closest('button,input')) return; irPara(no.id, d); };
+  d.ondragstart = e => { arrastado = no.id; e.dataTransfer.setData('text/plain', no.id); e.dataTransfer.effectAllowed = 'move'; d.classList.add('a-arrastar'); };
+  d.ondragend = () => { arrastado = null; d.classList.remove('a-arrastar'); document.querySelectorAll('.alvo').forEach(x => x.classList.remove('alvo')); };
+  alvo(d, no.id);
+  return d;
+}
+
+// Os ramos à volta do centro, numa elipse; com muitos, alternam dentro/fora.
+function posicoes(n, W, H, cw, ch, cardW) {
+  const cardH = 76, pad = 14, out = [];
+  const rx = Math.max(cw / 2 + cardW / 2 + 40, Math.min(W / 2 - cardW / 2 - pad, 380 + n * 14));
+  const ry = Math.max(ch / 2 + cardH / 2 + 24, Math.min(H / 2 - cardH / 2 - pad, 230 + n * 8));
+  for (let i = 0; i < n; i++) {
+    const a = n === 1 ? 0 : -Math.PI / 2 + 2 * Math.PI * (i + 0.5) / n;
+    const k = n > 10 && i % 2 ? 0.8 : 1;
+    let x = W / 2 + Math.cos(a) * rx * k, y = H / 2 + Math.sin(a) * ry * k;
+    x = Math.min(W - cardW / 2 - pad, Math.max(cardW / 2 + pad, x));
+    y = Math.min(H - cardH / 2 - pad, Math.max(cardH / 2 + pad, y));
+    out.push({ x, y });
+  }
+  return out;
+}
+
+function render(opts = {}) {
+  fecharCaixa(true);
+  mapa.querySelectorAll('.no, .centro, .fantasma').forEach(e => e.remove());
+  mapa.classList.remove('a-sair');
+  const no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
+  const c = construirCentro(no, H);
+  if (W < 900) c.style.width = '300px';
+  mapa.append(c);
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  c.style.left = Math.round((W - cw) / 2) + 'px';
+  c.style.top = Math.round(Math.max(8, (H - ch) / 2)) + 'px';
+  const cardW = W < 900 ? 150 : 180;
+  const pos = posicoes(no.f.length, W, H, cw, ch, cardW);
+  no.f.forEach((id, i) => {
+    const card = construirCartao(dados.nos[id]);
+    card.style.width = cardW + 'px'; mapa.append(card);
+    card.style.left = Math.round(pos[i].x - cardW / 2) + 'px';
+    card.style.top = Math.round(pos[i].y - card.offsetHeight / 2) + 'px';
+    if (opts.esconder === id) card.style.visibility = 'hidden';
+  });
+  if (sel >= no.f.length) sel = no.f.length - 1;
+  marcarSel(); linhas();
+  history.replaceState(null, '', '#n=' + atual);
+  document.title = titulo(no) + ' · Ideias';
+}
+function linhas() {
+  const svg = $('#linhas'); svg.innerHTML = '';
+  const c = mapa.querySelector('.centro:not(.fantasma)'); if (!c) return;
+  const cx = c.offsetLeft + c.offsetWidth / 2, cy = c.offsetTop + c.offsetHeight / 2;
+  mapa.querySelectorAll('.no:not(.fantasma)').forEach(n => {
+    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', cx); l.setAttribute('y1', cy);
+    l.setAttribute('x2', n.offsetLeft + n.offsetWidth / 2); l.setAttribute('y2', n.offsetTop + n.offsetHeight / 2);
+    l.setAttribute('stroke', n.style.getPropertyValue('--cor'));
+    svg.append(l);
+  });
+}
+function marcarSel() {
+  const f = dados.nos[atual].f;
+  mapa.querySelectorAll('.no').forEach(n => n.classList.toggle('sel', sel >= 0 && n.dataset.id === f[sel]));
+}
+function cartaoDe(id) { return mapa.querySelector(`.no[data-id="${id}"]:not(.fantasma)`); }
+
+/* ---------- O movimento entre níveis ---------- */
+function retangulo(e) { return { l: e.offsetLeft, t: e.offsetTop, w: e.offsetWidth, h: e.offsetHeight }; }
+function porEm(g, r) { g.style.left = r.l + 'px'; g.style.top = r.t + 'px'; g.style.width = r.w + 'px'; g.style.height = r.h + 'px'; }
+function animar(g, r, fim) {
+  g.offsetWidth; // fixa o ponto de partida antes de mudar
+  requestAnimationFrame(() => porEm(g, r));
+  let feito = false;
+  const acabar = () => { if (feito) return; feito = true; fim(); };
+  g.addEventListener('transitionend', acabar, { once: true });
+  setTimeout(acabar, 420); // num separador escondido as animações param
+}
+// Um bloco à volta desliza até ao centro e passa a ser o centro.
+function irPara(id, deEl) {
+  if (ocupado || id === atual || !dados.nos[id]) return;
+  const centro = mapa.querySelector('.centro');
+  sel = -1;
+  if (reduz || !deEl || !centro) { atual = id; render(); return; }
+  ocupado = true;
+  const g = deEl.cloneNode(true); g.classList.add('fantasma'); g.classList.remove('sel'); g.removeAttribute('draggable');
+  porEm(g, retangulo(deEl)); mapa.append(g);
+  mapa.classList.add('a-sair');
+  animar(g, retangulo(centro), () => { atual = id; render(); ocupado = false; });
+}
+// O contrário: o centro volta para o bloco de onde se saiu.
+function subir(aid) {
+  if (ocupado || aid === atual) return;
+  const cam = caminho(atual), i = cam.indexOf(aid); if (i < 0) return;
+  const k = cam[i + 1], centro = mapa.querySelector('.centro');
+  atual = aid; sel = dados.nos[aid].f.indexOf(k);
+  if (reduz || !centro) { render(); return; }
+  ocupado = true;
+  const r = retangulo(centro), g = centro.cloneNode(true);
+  g.querySelector('.c-tit').value = centro.querySelector('.c-tit').value;
+  g.querySelector('.notas').value = centro.querySelector('.notas').value;
+  render({ esconder: k });
+  g.classList.add('fantasma'); porEm(g, r); mapa.append(g);
+  const card = cartaoDe(k);
+  if (!card) { g.remove(); ocupado = false; return; }
+  animar(g, retangulo(card), () => { g.remove(); card.style.visibility = ''; ocupado = false; });
+}
+
+/* ---------- Criar, renomear, apagar ---------- */
+function novoRamo(pid) {
+  const pai = dados.nos[pid], id = novoId();
+  const cor = pai.p === null ? CORES[pai.f.length % (CORES.length - 1)] : pai.c;
+  mudar(() => { dados.nos[id] = { id, t: '', n: '', c: cor, f: [], p: pid }; pai.f.push(id); });
+  if (pid === atual) { sel = pai.f.length - 1; render(); renomear(id, true); }
+  return id;
+}
+function renomear(id, novo) {
+  const card = cartaoDe(id); if (!card) return;
+  const n = dados.nos[id], b = card.querySelector('.no-tit b');
+  const inp = el('input', 'no-inp'); inp.value = n.t; inp.placeholder = 'Nova ideia'; inp.spellcheck = false;
+  b.replaceWith(inp); card.draggable = false; inp.focus(); inp.select();
+  let feito = false;
+  const fim = prox => {
+    if (feito) return; feito = true;
+    const v = inp.value.trim();
+    if (!v && novo) { pilha.pop(); removerNo(id); guardar(); }
+    else if (v && v !== n.t) { if (!novo) guardarUndo(); n.t = v; guardar(); }
+    if (prox === 'irmao' && dados.nos[n.p] && (v || !novo)) novoRamo(n.p); else render();
+  };
+  inp.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') { e.preventDefault(); fim(); }
+    else if (e.key === 'Tab') { e.preventDefault(); fim('irmao'); }
+    else if (e.key === 'Escape') { e.preventDefault(); inp.value = novo ? '' : n.t; fim(); }
+  });
+  inp.addEventListener('blur', () => fim());
+  inp.addEventListener('click', e => e.stopPropagation());
+}
+function apagar(id) {
+  const n = dados.nos[id]; if (!n || !n.p) return;
+  const dentro = contar(id) - 1, t = titulo(n);
+  mudar(() => removerNo(id));
+  sel = Math.min(sel, dados.nos[atual].f.length - 1);
+  render(); toast(`Apagado «${t}»${dentro ? ` e ${dentro} ramo${dentro === 1 ? '' : 's'} dentro` : ''}`, true);
+}
+
+/* ---------- A caixa aberta no mapa (↗) ---------- */
+function abrirCaixa(id) {
+  fecharCaixa(true);
+  const no = dados.nos[id], card = cartaoDe(id); if (!no) return;
+  const W = mapa.clientWidth, H = mapa.clientHeight;
+  const cx = el('div', 'caixa'); cx.style.setProperty('--cor', no.c);
+  const topo = el('div', 'c-topo');
+  const t = el('input', 'c-tit'); t.value = no.t; t.placeholder = 'Sem título'; t.spellcheck = false;
+  campo(t, v => { no.t = v; });
+  t.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); notas.focus(); } });
+  topo.append(t, btn('Pôr no centro', 'Fazer desta ideia o centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt'),
+              btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'voltar'));
+  const cores = linhaCores(no, () => { cx.style.setProperty('--cor', no.c); cores.querySelectorAll('.cor').forEach((b, i) => b.classList.toggle('on', CORES[i] === no.c)); });
+  cores.style.marginLeft = '0';
+  const notas = el('textarea', 'notas'); notas.value = no.n || ''; notas.placeholder = 'Escreve aqui à vontade…';
+  campo(notas, v => { no.n = v; });
+  const ramos = el('div', 'cx-ramos');
+  const desenharRamos = () => {
+    ramos.innerHTML = ''; ramos.append(el('span', null, no.f.length ? 'Ramos:' : 'Sem ramos.'));
+    no.f.forEach(fid => {
+      const f = dados.nos[fid], ch = el('button', 'chip', titulo(f)); ch.style.setProperty('--cor', f.c);
+      ch.title = 'Ir para aqui'; ch.onclick = () => { atual = fid; sel = -1; render(); };
+      ramos.append(ch);
+    });
+    const inp = el('input', 'chip-inp'); inp.placeholder = '+ novo ramo, Enter';
+    inp.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' || !inp.value.trim()) return;
+      const nid = novoId(), v = inp.value.trim();
+      mudar(() => { dados.nos[nid] = { id: nid, t: v, n: '', c: no.c, f: [], p: id }; no.f.push(nid); });
+      desenharRamos(); ramos.querySelector('.chip-inp').focus();
+    });
+    ramos.append(inp);
+  };
+  desenharRamos();
+  cx.append(topo, cores, notas, ramos);
+  porEm(cx, card ? retangulo(card) : { l: W / 2 - 90, t: H / 2 - 40, w: 180, h: 80 });
+  mapa.append(cx); mapa.classList.add('com-caixa');
+  caixa = { el: cx, id };
+  const w = Math.min(760, Math.max(320, W * 0.6)), h = Math.min(580, Math.max(300, H * 0.72));
+  cx.offsetWidth;
+  if (reduz) porEm(cx, { l: (W - w) / 2, t: (H - h) / 2, w, h });
+  else requestAnimationFrame(() => porEm(cx, { l: (W - w) / 2, t: (H - h) / 2, w, h }));
+  setTimeout(() => notas.focus(), 230);
+}
+function fecharCaixa(semRedesenhar) {
+  if (!caixa) return;
+  caixa.el.remove(); caixa = null; mapa.classList.remove('com-caixa');
+  if (!semRedesenhar) render();
+}
+mapa.addEventListener('mousedown', e => { if (caixa && !e.target.closest('.caixa')) { e.preventDefault(); fecharCaixa(); } });
+
+/* ---------- Procurar ---------- */
+const busca = $('#busca'), res = $('#resultados');
+let resIdx = 0;
+function irDireto(id) { atual = id; sel = -1; busca.value = ''; res.hidden = true; busca.blur(); render(); }
+busca.addEventListener('input', () => {
+  const q = norm(busca.value.trim()); res.innerHTML = ''; resIdx = 0;
+  if (!q) { res.hidden = true; return; }
+  const lista = Object.values(dados.nos).filter(n => norm(n.t).includes(q) || norm(n.n).includes(q)).slice(0, 14);
+  if (!lista.length) res.append(el('div', 'nada', 'Nada encontrado'));
+  lista.forEach((n, i) => {
+    const b = el('button', i === 0 ? 'on' : null); b.dataset.id = n.id;
+    b.append(el('b', null, titulo(n)), el('small', null, caminho(n.id).slice(0, -1).map(x => titulo(dados.nos[x])).join(' › ') || 'topo'));
+    b.addEventListener('mousedown', e => { e.preventDefault(); irDireto(n.id); });
+    res.append(b);
+  });
+  res.hidden = false;
+});
+busca.addEventListener('keydown', e => {
+  const bs = [...res.querySelectorAll('button')];
+  if (e.key === 'Escape') { busca.value = ''; res.hidden = true; busca.blur(); }
+  else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && bs.length) {
+    e.preventDefault(); resIdx = (resIdx + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length;
+    bs.forEach((b, i) => b.classList.toggle('on', i === resIdx)); bs[resIdx].scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter' && bs[resIdx]) { e.preventDefault(); irDireto(bs[resIdx].dataset.id); }
+});
+busca.addEventListener('blur', () => setTimeout(() => { res.hidden = true; }, 100));
+
+/* ---------- Teclado ---------- */
+function emTexto(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable); }
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.key.toLowerCase() === 'z' && !e.shiftKey && !emTexto(e.target)) { e.preventDefault(); desfazer(); return; }
+  if (mod && (e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'f')) { e.preventDefault(); busca.focus(); busca.select(); return; }
+  if (emTexto(e.target) || mod || ocupado) return;
+  if (caixa) { if (e.key === 'Escape') fecharCaixa(); return; }
+  const f = dados.nos[atual].f;
+  switch (e.key) {
+    case 'Tab': e.preventDefault(); novoRamo(atual); break;
+    case 'Escape': if (sel >= 0) { sel = -1; marcarSel(); } else if (dados.nos[atual].p) subir(dados.nos[atual].p); break;
+    case 'ArrowRight': case 'ArrowDown': if (f.length) { e.preventDefault(); sel = (sel + 1) % f.length; marcarSel(); } break;
+    case 'ArrowLeft': case 'ArrowUp': if (f.length) { e.preventDefault(); sel = sel <= 0 ? f.length - 1 : sel - 1; marcarSel(); } break;
+    case 'Enter': if (sel >= 0) { e.preventDefault(); irPara(f[sel], cartaoDe(f[sel])); } break;
+    case ' ': if (sel >= 0) { e.preventDefault(); abrirCaixa(f[sel]); } break;
+    case 'F2': e.preventDefault(); if (sel >= 0) renomear(f[sel]); else mapa.querySelector('.c-tit').focus(); break;
+    case 'Backspace': case 'Delete': if (sel >= 0) { e.preventDefault(); apagar(f[sel]); } break;
+  }
+});
+
+/* ---------- Aviso em baixo ---------- */
+let tToast;
+function toast(msg, comDesfazer) {
+  const t = $('#toast'); t.innerHTML = ''; t.append(el('span', null, msg));
+  if (comDesfazer) t.append(btn('Desfazer', '⌘Z', () => { t.hidden = true; desfazer(); }));
+  t.hidden = false; clearTimeout(tToast); tToast = setTimeout(() => { t.hidden = true; }, comDesfazer ? 6000 : 2800);
+}
+
+/* ---------- Arranque ---------- */
+let tResize;
+addEventListener('resize', () => { clearTimeout(tResize); tResize = setTimeout(() => { if (!ocupado) render(); }, 120); });
+render(); estado();
+(async () => {
+  if (!temFS) return;
+  try {
+    const h = await idbGet('fh'); if (!h) return;
+    fh = h;
+    if ((await h.queryPermission({ mode: 'readwrite' })) === 'granted') { fhOk = true; await sincronizar(); }
+  } catch (e) {}
+  estado();
+})();
+</script>
+</body>
+</html>
