@@ -289,9 +289,9 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 <main id="mapa">
   <div id="palco"><svg id="linhas"></svg></div>
   <div class="zoom">
-    <button class="bt" data-z="-" title="Afastar (⌘ + roda)">−</button>
+    <button class="bt" data-z="-" title="Afastar (roda do rato)">−</button>
     <button class="bt" data-z="1" id="zoom-val" title="Tamanho normal">100%</button>
-    <button class="bt" data-z="+" title="Aproximar (⌘ + roda)">+</button>
+    <button class="bt" data-z="+" title="Aproximar (roda do rato)">+</button>
     <button class="bt" data-z="ajustar" title="Ver tudo (duplo clique no fundo)">⌖</button>
   </div>
   <aside id="despejo" hidden>
@@ -305,7 +305,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
     <div class="dp-frases"></div>
     <div class="dp-dica" hidden>Arrasta cada frase para uma ideia ou gaveta no mapa. Sem pressa.</div>
   </aside>
-  <div class="dica">Carrega numa ideia para a abrir · <kbd>Esc</kbd> volta · <kbd>Tab</kbd> nova ideia · <kbd>R</kbd> respirar · arrasta o fundo para mexer · <kbd>⌘</kbd>+roda zoom · duplo clique no fundo para ver tudo</div>
+  <div class="dica">Carrega numa ideia para a abrir · <kbd>Esc</kbd> volta · <kbd>Tab</kbd> nova ideia · <kbd>R</kbd> respirar · roda do rato para zoom · carrega no fundo e arrasta para andar · duplo clique no fundo para ver tudo</div>
 </main>
 
 <div id="escolher" class="janela" hidden>
@@ -664,12 +664,9 @@ mapa.addEventListener('wheel', e => {
   const ta = e.target.closest('textarea');
   if (ta && ta.scrollHeight > ta.clientHeight && !(e.ctrlKey || e.metaKey)) return;
   e.preventDefault();
-  if (e.ctrlKey || e.metaKey) {                    // ⌘/Ctrl + roda (ou beliscar no trackpad): zoom no sítio do rato
-    const r = mapa.getBoundingClientRect();
-    zoomPara(vista.z * Math.exp(-e.deltaY * .0028), e.clientX - r.left, e.clientY - r.top);
-  } else {                                          // a roda desloca o mapa
-    vista.x -= e.shiftKey ? e.deltaY : e.deltaX; vista.y -= e.shiftKey ? 0 : e.deltaY; aplicarVista(false);
-  }
+  // A roda faz zoom no sítio do rato (para andar, arrasta-se o fundo).
+  const r = mapa.getBoundingClientRect(), dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+  zoomPara(vista.z * Math.exp(-dy * (e.ctrlKey ? .01 : .0022)), e.clientX - r.left, e.clientY - r.top);
 }, { passive: false });
 let arr = null;
 mapa.addEventListener('mousedown', e => {

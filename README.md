@@ -14,9 +14,9 @@ Faz duplo clique em `index.html`, de preferência no Chrome.
 
 | Rato / tecla | O que faz |
 |---|---|
-| Clicar numa ideia | Vem para o centro |
-| Arrastar o fundo / roda | Mexe o mapa |
-| `⌘` ou `Ctrl` + roda (ou beliscar no trackpad) | Zoom |
+| Clicar numa ideia | Abre-a; a câmara viaja até ela |
+| Carregar no fundo e arrastar | Anda pelo mapa |
+| Roda do rato (ou beliscar no trackpad) | Zoom no sítio do rato |
 | Duplo clique no fundo / `0` | Ver tudo |
 | `Tab` | Nova ideia (e `Tab` outra vez para a seguinte) |
 | `Esc` | Voltar |
