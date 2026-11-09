@@ -88,6 +88,8 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .raiz.alvo .raiz-nome { outline: 3px dashed var(--accent); outline-offset: 3px; }
 .centro.aberto { z-index: 4; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 3px solid var(--linha); border-top: 7px solid var(--cor);
   border-radius: 28px; box-shadow: 0 6px 0 var(--linha); padding: 12px 14px 14px; }
+.centro:not(.aberto) { z-index: 5; background: color-mix(in srgb, var(--surface) 90%, transparent); border: 3px solid var(--linha);
+  border-radius: 30px; box-shadow: 0 6px 0 var(--linha); padding: 10px 14px 14px; }
 .centro.aberto { width: 250px; gap: 7px; padding: 10px 12px 12px; }
 .centro.aberto .c-fig { width: 104px; height: 104px; }
 .centro.aberto .c-nome { font-size: 17px; padding: 3px 10px; border-radius: 16px; border-width: 2.5px; box-shadow: 0 3px 0 var(--linha); }
@@ -142,18 +144,27 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .cor.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--linha); }
 
 /* As ideias à volta */
-.no { position: absolute; z-index: 2; width: 150px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-.no .fig { width: 88px; height: 88px; }
-.no-nome { max-width: 150px; background: var(--surface); border: 2.5px solid var(--linha); border-bottom: 4px solid var(--cor);
-  border-radius: 16px; padding: 3px 11px; font-weight: 600; font-size: 14px; text-align: center; box-shadow: 0 3px 0 var(--linha);
+/* --s: o tamanho da ideia (mais pequena quanto mais longe do Cérebro).
+   --lz: os nomes crescem quando se afasta a vista, para continuarem a ler-se. */
+.no { position: absolute; z-index: 2; width: calc(170px * var(--s, 1)); display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+.no .fig { width: calc(92px * var(--s, 1)); height: calc(92px * var(--s, 1)); }
+.no.a-mover { z-index: 9; cursor: grabbing; opacity: .9; }
+.no.a-mover .fig-in { animation: none; }
+.no-nome { max-width: calc(170px * var(--s, 1) * var(--lz, 1)); background: var(--surface); border: 2.5px solid var(--linha); border-bottom: 4px solid var(--cor);
+  border-radius: 16px; padding: 3px 12px; font-weight: 700; font-size: calc(18px * max(var(--s, 1), .78) * var(--lz, 1)); line-height: 1.2;
+  text-align: center; box-shadow: 0 3px 0 var(--linha);
   overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; transition: transform .12s; }
 .no-nome.sem { color: var(--text3); font-style: italic; font-weight: 500; }
 .no:hover .no-nome { transform: translateY(-2px) rotate(-1deg); }
 .no.sel .no-nome { outline: 3px solid var(--accent); outline-offset: 3px; }
 .no.alvo .no-nome { outline: 3px dashed var(--accent); outline-offset: 3px; }
 .no.a-arrastar { opacity: .4; }
-.no.p2 { width: 124px; } .no.p2 .fig { width: 62px; height: 62px; } .no.p2 .no-nome { font-size: 12.5px; max-width: 124px; padding: 2px 9px; }
-.no.p3 { width: 108px; } .no.p3 .fig { width: 48px; height: 48px; } .no.p3 .no-nome { font-size: 12px; max-width: 108px; padding: 2px 8px; }
+.esp-wrap { position: relative; }
+.esp-pop { position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; background: var(--surface); border: 2.5px solid var(--linha); border-radius: 18px;
+  box-shadow: 0 4px 0 var(--linha); padding: 12px 14px; width: 270px; display: flex; flex-direction: column; gap: 8px; }
+.esp-pop[hidden] { display: none; }
+.esp-pop input[type=range] { width: 100%; accent-color: var(--accent); }
+.esp-lbl { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text2); font-weight: 600; }
 .no-extra { font-size: 12px; color: var(--text2); font-weight: 600; }
 .no-inp { width: 140px; text-align: center; font-weight: 600; font-size: 14px; border: 2.5px solid var(--linha); border-radius: 16px;
   padding: 3px 9px; outline: none; background: var(--surface); box-shadow: 0 0 0 4px var(--sel-bg); }
@@ -291,6 +302,15 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
   </div>
   <div class="esp"></div>
   <button id="bt-despejo" class="bt bt-despejo" title="Despejar tudo o que tens na cabeça">🌪️ Despejar</button>
+  <div class="esp-wrap">
+    <button id="bt-esp" class="bt" title="Ideias mais juntas ou mais espalhadas">↔ Sparse</button>
+    <div class="esp-pop" id="esp-pop" hidden>
+      <b>Espaço entre as ideias</b>
+      <input type="range" id="esp-r" min="0.55" max="2" step="0.05">
+      <div class="esp-lbl"><span>Mais juntas</span><span>Mais espalhadas</span></div>
+      <button class="link" id="esp-repor">↺ Pôr todas as ideias no sítio automático</button>
+    </div>
+  </div>
   <button id="bt-arrumados" class="bt redondo" title="Assuntos arrumados">📦</button>
   <button id="bt-trancar" class="bt redondo" title="Trancar o Mindmap">🔒</button>
   <button id="estado" class="estado"></button>
@@ -412,7 +432,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.09.03';
+const APP_VERSAO = '2026.11.09.04';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -770,6 +790,9 @@ let vista = { x: 0, y: 0, z: 1 };
 function aplicarVista(suave, ms) {
   palco.style.transition = suave && !reduz ? `transform ${ms || 350}ms cubic-bezier(.45,.05,.25,1)` : 'none';
   palco.style.transform = `translate(${vista.x}px,${vista.y}px) scale(${vista.z})`;
+  // Ao afastar a vista, os nomes das ideias crescem para continuarem a ler-se.
+  const lz = Math.round(Math.min(2.4, Math.max(1, .9 / vista.z)) * 10) / 10;
+  if (palco.style.getPropertyValue('--lz') !== String(lz)) palco.style.setProperty('--lz', lz);
   $('#zoom-val').textContent = Math.round(vista.z * 100) + '%';
 }
 function ajustar(suave, ms, lista, zMin = .35) {
@@ -845,6 +868,56 @@ document.addEventListener('mouseup', () => {
   if (!arr.mexeu && sel >= 0) { sel = -1; marcarSel(); }   // um clique simples no fundo limpa a escolha
   arr = null; mapa.classList.remove('a-arrastar');
 });
+// Mexer numa ideia à mão: arrasta-se e fica lá (com as que tem dentro). Largada
+// em cima de outra ideia (ou do Cérebro), passa a ficar dentro dessa.
+let mov = null, acabouDeMover = false;
+palco.addEventListener('mousedown', e => {
+  const card = e.target.closest('.no');
+  if (!card || e.button !== 0 || caixa || e.target.closest('button, input, textarea')) return;
+  e.preventDefault(); pararVoo();
+  const id = card.dataset.id;
+  const grupo = [...palco.querySelectorAll('.no, .centro.aberto')].filter(x => x.dataset.id === id || dentroDe(x.dataset.id, id))
+    .map(x => ({ el: x, l: x.offsetLeft, t: x.offsetTop }));
+  mov = { id, card, x0: e.clientX, y0: e.clientY, grupo, mexeu: false, alvo: null };
+});
+document.addEventListener('mousemove', e => {
+  if (!mov) return;
+  const dx = (e.clientX - mov.x0) / vista.z, dy = (e.clientY - mov.y0) / vista.z;
+  if (!mov.mexeu && Math.abs(e.clientX - mov.x0) + Math.abs(e.clientY - mov.y0) < 5) return;
+  mov.mexeu = true; mov.card.classList.add('a-mover');
+  mov.grupo.forEach(g => { g.el.style.left = (g.l + dx) + 'px'; g.el.style.top = (g.t + dy) + 'px'; });
+  linhas();
+  mov.grupo.forEach(g => { g.el.style.pointerEvents = 'none'; });
+  const sob = document.elementFromPoint(e.clientX, e.clientY);
+  mov.grupo.forEach(g => { g.el.style.pointerEvents = ''; });
+  const t = sob && sob.closest('.no, .raiz, .centro'), tid = t && t.dataset.id;
+  const ok = tid && tid !== mov.id && !dentroDe(tid, mov.id) && dados.nos[mov.id].p !== tid;
+  if (mov.alvo && mov.alvo !== t) mov.alvo.classList.remove('alvo');
+  mov.alvo = ok ? t : null; if (ok) t.classList.add('alvo');
+});
+document.addEventListener('mouseup', () => {
+  if (!mov) return;
+  const m = mov; mov = null; m.card.classList.remove('a-mover');
+  if (!m.mexeu) return;
+  acabouDeMover = true; setTimeout(() => { acabouDeMover = false; }, 0);
+  const n = dados.nos[m.id];
+  if (m.alvo) { m.alvo.classList.remove('alvo'); delete n.pos; mover(m.id, m.alvo.dataset.id); return; }
+  const g = m.grupo.find(x => x.el === m.card), ddx = m.card.offsetLeft - g.l, ddy = m.card.offsetTop - g.t;
+  mudar(() => { n.pos = { dx: ((n.pos && n.pos.dx) || 0) + ddx, dy: ((n.pos && n.pos.dy) || 0) + ddy }; });
+  render({ semCamara: true });
+});
+
+/* Sparse: ideias mais juntas ou mais espalhadas */
+const espPop = $('#esp-pop');
+$('#bt-esp').onclick = e => { e.stopPropagation(); $('#esp-r').value = dados.esp || 1; espPop.hidden = !espPop.hidden; };
+document.addEventListener('mousedown', e => { if (!e.target.closest('.esp-wrap')) espPop.hidden = true; });
+$('#esp-r').addEventListener('input', e => { dados.esp = +e.target.value; guardar(); render({ semCamara: true }); });
+$('#esp-r').addEventListener('change', () => ajustar(true));
+$('#esp-repor').onclick = () => {
+  mudar(() => Object.values(dados.nos).forEach(n => { delete n.pos; }));
+  render({ suave: true }); toast('Todas as ideias voltaram ao sítio automático ✨', true);
+};
+
 mapa.addEventListener('dblclick', e => { if (!e.target.closest('.no, .centro, .caixa, .zoom, #despejo')) ajustar(true); });
 document.querySelectorAll('.zoom [data-z]').forEach(b => b.onclick = () => {
   const z = b.dataset.z;
@@ -981,7 +1054,8 @@ function construirCentro(no) {
 }
 
 function construirCartao(no, prof = 1) {
-  const d = el('div', 'no' + (prof > 1 ? ' p' + Math.min(prof, 3) : '') + (no.g && !temConteudo(no) ? ' apagada' : '')); d.dataset.id = no.id; d.style.setProperty('--cor', no.c); d.draggable = true;
+  const d = el('div', 'no' + (no.g && !temConteudo(no) ? ' apagada' : '')); d.dataset.id = no.id; d.style.setProperty('--cor', no.c);
+  d.style.setProperty('--s', tamanho(prof));
   const bts = el('div', 'no-bts');
   if (!no.g) bts.append(btn('✎', 'Mudar o nome (F2)', () => renomear(no.id)));
   bts.append(btn('↗', 'Abrir aqui', () => abrirCaixa(no.id)),
@@ -989,9 +1063,7 @@ function construirCartao(no, prof = 1) {
   const nome = el('div', 'no-nome' + (no.t ? '' : ' sem'), titulo(no));
   d.append(bts, fig(figura(no), no.c), nome);
   if (no.f.length && prof >= MAXP) d.append(el('div', 'no-extra', `💭 ${no.f.length} ideia${no.f.length === 1 ? '' : 's'}`));
-  d.onclick = e => { if (e.target.closest('button,input')) return; irPara(no.id, d); };
-  d.ondragstart = e => { arrastado = no.id; e.dataTransfer.setData('text/plain', no.id); e.dataTransfer.effectAllowed = 'move'; d.classList.add('a-arrastar'); };
-  d.ondragend = () => { arrastado = null; d.classList.remove('a-arrastar'); document.querySelectorAll('.alvo').forEach(x => x.classList.remove('alvo')); };
+  d.onclick = e => { if (acabouDeMover || e.target.closest('button,input')) return; irPara(no.id, d); };
   alvo(d, no.id);
   return d;
 }
@@ -1000,6 +1072,10 @@ function construirCartao(no, prof = 1) {
 // dentro delas no 2.º, e assim até MAXP. Cada ideia fica com uma fatia do
 // círculo à medida das ideias que tem dentro, e os filhos dentro da fatia dela.
 const MAXP = Infinity; // sem limite de níveis
+// Quanto mais longe do Cérebro, mais pequena a ideia (nunca menos de 40%).
+function tamanho(prof) { return Math.max(.4, Math.pow(.8, prof - 1)); }
+// Uma ideia mexida à mão leva consigo as que estão dentro dela.
+function desvio(id) { let dx = 0, dy = 0, x = dados.nos[id]; while (x && x.p) { if (x.pos) { dx += x.pos.dx; dy += x.pos.dy; } x = dados.nos[x.p]; } return { dx, dy }; }
 function folhas(id, d) { const fs = noMapa(dados.nos[id]); return d >= MAXP || !fs.length ? 1 : fs.reduce((s, f) => s + folhas(f, d + 1), 0); }
 function arvore(no, W, H, cw, ch) {
   const itens = [], porNivel = [0], n1 = noMapa(no).length;
@@ -1015,10 +1091,11 @@ function arvore(no, W, H, cw, ch) {
     });
   })(no.id, n1 === 1 ? -Math.PI : -Math.PI / 2, n1 === 1 ? Math.PI : Math.PI * 1.5, 1);
   // O tamanho de cada anel: longe do centro e com espaço para as ideias desse anel.
-  const raios = [null], larg = d => d === 1 ? 150 : d === 2 ? 124 : 108;
-  let rx = Math.max(cw / 2 + 135, 250 + (porNivel[1] || 0) * 14), ry = Math.max(ch / 2 + 85, 190 + (porNivel[1] || 0) * 8);
+  // O Sparse (dados.esp) afasta ou aproxima os anéis; nunca ao ponto de as ideias se tocarem.
+  const esp = dados.esp || 1, raios = [null], larg = d => 170 * tamanho(d);
+  let rx = Math.max(cw / 2 + 80, (240 + (porNivel[1] || 0) * 11) * esp), ry = Math.max(ch / 2 + 70, (200 + (porNivel[1] || 0) * 6) * esp);
   for (let d = 1; d < porNivel.length; d++) {
-    if (d > 1) { rx += 165; ry += 135; }
+    if (d > 1) { rx += 125 * tamanho(d) * esp + 20; ry += 100 * tamanho(d) * esp + 16; }
     const precisa = porNivel[d] * larg(d) * 1.05 / (2 * Math.PI), media = (rx + ry) / 2;
     if (precisa > media) { const k = precisa / media; rx *= k; ry *= k; }
     raios.push([rx, ry]);
@@ -1052,13 +1129,13 @@ function render(opts = {}) {
   palco.append(r); poe(r, W / 2, H / 2);
   if (r.className !== render.raizCls) r.classList.add('novo');   // o Cérebro só se anima quando muda de forma
   render.raizCls = r.className.replace(' novo', '');
-  arvore(raiz, W, H, 340, 600).forEach(it => {
-    const n = dados.nos[it.id], e = it.id === atual ? construirCentro(n) : construirCartao(n, it.d);
-    e.dataset.pai = it.pai; palco.append(e); poe(e, it.x, it.y); novo(e, it.id);
+  arvore(raiz, W, H, 230, 240).forEach(it => {
+    const n = dados.nos[it.id], e = it.id === atual ? construirCentro(n) : construirCartao(n, it.d), dv = desvio(it.id);
+    e.dataset.pai = it.pai; palco.append(e); poe(e, it.x + dv.dx, it.y + dv.dy); novo(e, it.id);
   });
   if (!elDe(atual)) { atual = dados.raiz; render(opts); return; }
   if (sel >= visiveis(no).length) sel = visiveis(no).length - 1;
-  marcarSel(); linhas(); enquadrar(opts.suave);
+  marcarSel(); linhas(); if (!opts.semCamara) enquadrar(opts.suave);
   history.replaceState(null, '', '#n=' + atual);
   document.title = titulo(no) + ' · Mindmap';
 }
