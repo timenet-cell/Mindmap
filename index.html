@@ -573,7 +573,22 @@ const GAVETAS = [
   ['largar', '🍃', 'Deixar ir', 'O que não é teu para carregar? Põe aqui e deixa ir com o vento.', '#7fcfb0'],
   ['bom', '🌱', 'Coisas boas', 'O que já fizeste bem? Quem te ajuda? O que te faz sorrir, mesmo pouquinho?', '#5cc95c'],
   ['fecho', '🔒', 'Fecho', 'O que decides por hoje? Uma frase gentil para ti chega.', '#6b7cff'],
+  // Estas são para as pessoas, os animais e os objectos (ver GAVETAS_TIPO).
+  ['gosto', '💛', 'O que gosto', 'O que gostas aqui? O que te faz bem?', '#ffc94a'],
+  ['custa', '🌧️', 'O que me custa', 'O que te magoa ou te cansa nisto? Podes dizer, é só teu.', '#8fa3c7'],
+  ['dizer', '💬', 'O que queria dizer', 'Se pudesses dizer tudo, com calma, o que dizias?', '#5cb8e6'],
+  ['memorias', '📸', 'Memórias', 'Que momentos guardas? Um de cada vez.', '#e88fb8'],
+  ['cuidar', '🦴', 'Como cuido', 'O que fazes por ele? O que ele faz por ti?', '#e3a857'],
+  ['significa', '💡', 'O que significa para mim', 'Porque é que isto é importante para ti?', '#f2b84b'],
 ];
+// Que gavetas tem cada tipo de ideia, por ordem. Os tipos que não estão aqui (ideia e os antigos) têm as 13 primeiras.
+const GAVETAS_ASSUNTO = GAVETAS.slice(0, 13).map(g => g[0]);
+const GAVETAS_TIPO = {
+  pessoa: ['gosto', 'custa', 'dizer', 'preciso', 'meu', 'largar', 'bom', 'fecho'],
+  animal: ['gosto', 'memorias', 'cuidar', 'bom'], cao: ['gosto', 'memorias', 'cuidar', 'bom'], gato: ['gosto', 'memorias', 'cuidar', 'bom'],
+  objeto: ['significa', 'memorias', 'largar', 'fecho'],
+};
+const gavetasDoTipo = tipo => GAVETAS_TIPO[tipo] || GAVETAS_ASSUNTO;
 // Os tipos de ideia que nascem junto ao Cérebro.
 const TIPOS_IDEIA = [
   ['mim', '🙋‍♀️', 'Sobre mim', '#ff5c8a', 'O que é sobre ti?'],
@@ -1387,7 +1402,8 @@ function desenharBarra() {
   if (!raiz && !gav) menu('arrumar', '📦 Arrumar', 'Gavetas e arrumar por hoje', pop => {
     const gavs = no.f.map(x => dados.nos[x]).filter(x => x && x.g);
     const vazias = gavs.filter(x => !x.arq && !temConteudo(x));
-    if (!gavs.length) pop.append(item('🗂️', 'Abrir as gavetas', '13 perguntas para arrumar este assunto, peça a peça', '', () => porGavetas(no.id)));
+    const q = gavetasDoTipo(no.tipo).length;
+    if (!gavs.length) pop.append(item('🗂️', 'Abrir as gavetas', `${q} pergunta${q === 1 ? '' : 's'} para arrumar este assunto, peça a peça`, '', () => porGavetas(no.id)));
     else if (vazias.length) {
       pop.append(el('div', 'b-sec', 'Gavetas por abrir (carrega numa para escrever lá)'));
       const l = el('div', 'b-linha');
@@ -1526,7 +1542,7 @@ function novoRamo(pid, tipo) {
 // O tipo dá o ícone ao nome, o boneco às pessoas e aos animais e, junto ao Cérebro, a cor.
 const KEY_PESSOA = 'mindmap-ultima-pessoa', B_AUTO = ['nuvem', 'cao', 'gato', 'rapaz', 'rapariga'];
 function porTipo(n, tipo) {
-  n.tipo = tipo;
+  n.tipo = tipo; acertarGavetas(n);
   if (dados.nos[n.p] && dados.nos[n.p].p === null) n.c = TIPO_IDEIA[tipo].cor;
   const animal = tipo === 'animal' || tipo === 'cao' || tipo === 'gato', pessoa = tipo === 'pessoa';
   const quer = animal ? (tipo === 'gato' ? 'gato' : 'cao') : pessoa ? (lsGet(KEY_PESSOA) === 'rapaz' ? 'rapaz' : 'rapariga') : 'nuvem';
@@ -1549,8 +1565,22 @@ function botoesTipo(n, depois) {
     chip('👧 Rapariga', n.b && n.b.k === 'rapariga', () => depois('pessoa', 'rapariga')));
   return bs;
 }
+function novaGaveta(id, k) { const gid = novoId(); dados.nos[gid] = { id: gid, t: '', n: '', c: GAV[k].cor, f: [], p: id, g: k }; return gid; }
 function criarGavetas(id) {
-  GAVETAS.forEach(g => { const gid = novoId(); dados.nos[gid] = { id: gid, t: '', n: '', c: g[4], f: [], p: id, g: g[0] }; dados.nos[id].f.push(gid); });
+  gavetasDoTipo(dados.nos[id].tipo).forEach(k => dados.nos[id].f.push(novaGaveta(id, k)));
+}
+// Quando o tipo muda, as gavetas acompanham: saem as vazias que não são deste tipo, entram as que faltam,
+// e ficam pela ordem do tipo. As que têm alguma coisa nunca se apagam. Sem gavetas, fica sem gavetas.
+function acertarGavetas(n) {
+  const gavs = n.f.map(x => dados.nos[x]).filter(x => x && x.g);
+  if (!gavs.length) return;
+  const quer = gavetasDoTipo(n.tipo), fica = x => quer.includes(x.g) || x.arq || x.f.length || temConteudo(x);
+  const porK = {}; gavs.forEach(x => { if (quer.includes(x.g) && !porK[x.g]) porK[x.g] = x.id; });
+  const novas = quer.map(k => porK[k] || novaGaveta(n.id, k));
+  gavs.forEach(x => { if (!novas.includes(x.id)) { if (fica(x)) novas.push(x.id); else delete dados.nos[x.id]; } });
+  const eraGav = new Set(gavs.map(x => x.id)), f = []; let pos = false;   // as gavetas ficam juntas, onde estava a primeira
+  n.f.forEach(x => { if (!eraGav.has(x)) f.push(x); else if (!pos) { pos = true; f.push(...novas); } });
+  n.f = f;
 }
 function porGavetas(id) {
   mudar(() => criarGavetas(id)); render({ suave: true });
