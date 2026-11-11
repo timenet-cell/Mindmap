@@ -14,17 +14,21 @@ Faz duplo clique em `index.html`, de preferência no Chrome.
 
 | Rato / tecla | O que faz |
 |---|---|
-| Clicar numa ideia | Abre-a; a câmara viaja até ela |
+| Clicar numa ideia | Abre-a; a câmara viaja até ela e aproxima-se mais nas ideias mais fundas |
+| `←` `↑` `↓` `→` | Escolhe a ideia mais próxima nessa direcção; `Enter` abre-a |
+| `⌘[` / `⌘]` (ou `Alt+←` / `Alt+→`) | Voltar / avançar pelas ideias por onde passaste |
 | Carregar no fundo e arrastar | Anda pelo mapa |
 | Roda do rato (ou beliscar no trackpad) | Zoom no sítio do rato |
 | Duplo clique no fundo / `0` | Ver tudo |
 | `Tab` | Nova ideia (e `Tab` outra vez para a seguinte) |
-| `Esc` | Voltar |
+| `Esc` | Subir para a ideia de cima |
 | `B` / `F` / `E` | Bater / Festinhas / Mudar emoção |
 | `⌘K` | Procurar |
 | `⌘Z` | Desfazer |
 
-Para mudar uma ideia de sítio, arrasta-a para cima de outra, ou para o caminho que aparece por cima do centro.
+No topo do mapa está sempre o caminho até à ideia aberta (Cérebro › … › ideia); cada nome é um botão.
+
+Para mudar uma ideia de sítio, arrasta-a para cima de outra.
 
 ## Onde ficam os dados
 
