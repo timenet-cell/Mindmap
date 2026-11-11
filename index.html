@@ -69,6 +69,9 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .menu-itens button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 7px 10px; border-radius: 10px; cursor: pointer; font-weight: 500; }
 .menu-itens button:hover { background: var(--sel-bg); }
 .menu-itens small { display: block; color: var(--text3); font-size: 12px; font-weight: 400; }
+.bt-txt { white-space: pre; }
+@media (max-width: 1100px) { .bt-txt { display: none; } .busca-wrap { width: 200px; } .estado { max-width: 22vw; } }
+.c-despejo { display: block; width: 100%; margin-top: 8px; }
 .menu-itens hr { border: none; border-top: 2px dashed var(--text3); margin: 4px 6px; }
 
 /* O mapa */
@@ -383,7 +386,15 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
     <div id="resultados" hidden></div>
   </div>
   <div class="esp"></div>
-  <button id="bt-despejo" class="bt bt-despejo" title="Despejar tudo o que tens na cabeça">🌪️ Despejar</button>
+  <details class="menu" id="menu-cerebro">
+    <summary class="bt" title="Tudo o que tem a ver com o teu Cérebro">🧠 O meu Cérebro</summary>
+    <div class="menu-itens">
+      <button data-cer="despejo">🌪️ Despejar a cabeça<small>Escreve tudo como vier e arruma depois</small></button>
+      <button data-cer="entradas">📖 Entradas antigas<small>O que escreveste sobre ti nos outros dias</small></button>
+      <button data-cer="stats">📊 Como tens andado<small>As emoções, as ideias e os dias em que vieste</small></button>
+      <button data-cer="arrumados">📦 Assuntos arrumados<small>Tudo o que fechaste está guardado aqui</small></button>
+    </div>
+  </details>
   <div class="esp-wrap">
     <button id="bt-esp" class="bt" title="Ideias mais juntas ou mais espalhadas">↔ Espaço</button>
     <div class="esp-pop" id="esp-pop" hidden>
@@ -393,11 +404,9 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
       <button class="link" id="esp-repor">↺ Pôr todas as ideias no sítio automático</button>
     </div>
   </div>
-  <button id="bt-stats" class="bt redondo" title="Como tens andado">📊</button>
-  <button id="bt-arrumados" class="bt redondo" title="Assuntos arrumados">📦</button>
-  <button id="bt-trancar" class="bt redondo" title="Trancar o Mindmap">🔒</button>
+  <button id="bt-trancar" class="bt" title="Trancar o Mindmap">🔒<span class="bt-txt"> Trancar</span></button>
   <button id="estado" class="estado"></button>
-  <button id="bt-desfazer" class="bt redondo" title="Desfazer (⌘Z)">↶</button>
+  <button id="bt-desfazer" class="bt" title="Desfazer (⌘Z)">↶<span class="bt-txt"> Desfazer</span></button>
   <details class="menu" id="menu">
     <summary class="bt">Ficheiro</summary>
     <div class="menu-itens">
@@ -904,7 +913,13 @@ $('#menu').addEventListener('click', e => {
   ({ ligar: ligarFicheiro, abrir: abrirFicheiro, exportar, importar: () => $('#ficheiro-in').click(), nome: () => boasVindas('nome'), senha: abrirMudarPw,
      atualizar: () => verAtualizacao(true), sitio: escolherSitio })[b.dataset.acao]();
 });
-document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').open = false; });
+$('#menu-cerebro').addEventListener('click', e => {
+  const b = e.target.closest('[data-cer]'); if (!b) return;
+  $('#menu-cerebro').open = false;
+  ({ despejo: abrirDespejo, entradas: abrirEntradas, stats: abrirStats, arrumados: abrirArrumados })[b.dataset.cer]();
+});
+// Clicar fora fecha os menus; abrir um fecha o outro
+document.addEventListener('click', e => { ['#menu', '#menu-cerebro'].forEach(m => { if (!e.target.closest(m)) $(m).open = false; }); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && tGrava) gravarTudo(); });
 
 /* ---------- Vista: arrastar, roda e zoom ---------- */
@@ -1124,7 +1139,7 @@ const SUGESTAO = {
 };
 function sugestao(no) {
   if (no.g) return GAV[no.g].perg;
-  if (!no.p) return 'Este é o teu Cérebro: escreve aqui sobre ti. Como estás hoje? O que é importante para ti? Amanhã começas uma entrada nova.';
+  if (!no.p) return 'Escreve aqui sobre ti. Como estás hoje? O que é importante para ti?';
   return SUGESTAO[no.tipo] || 'O que estás a pensar sobre isto? Escreve tudo o que te vem à cabeça…';
 }
 // O botão de visto de um campo de texto: tira o cursor do campo e diz que ficou guardado.
@@ -1174,6 +1189,7 @@ function construirCentro(no) {
   c.append(f, t, f._cont, el('div', 'sobre', '💭 Sobre mim · hoje, ' + new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })), bolha);
   const nEnt = (no.entradas || []).length;
   if (nEnt) c.append(btn(`📖 Entradas antigas (${nEnt})`, 'Ver o que escreveste nos outros dias', abrirEntradas, 'link ent-link'));
+  c.append(btn('🌪️ Tenho a cabeça cheia', 'Despejar: escreve tudo como vier e arruma depois', abrirDespejo, 'bt bt-despejo c-despejo'));
   return c;
 }
 
@@ -1825,7 +1841,6 @@ function abrirDespejo() {
   $('#dp-texto').value = dados.despejo.texto; desenharFrases();
   setTimeout(() => $('#dp-texto').focus(), 50);
 }
-$('#bt-despejo').onclick = abrirDespejo;
 $('#dp-fechar').onclick = abrirDespejo;
 $('#dp-texto').addEventListener('input', e => { dados.despejo.texto = e.target.value; guardar(); });
 $('#dp-bater').onclick = () => bater(dados.nos[dados.raiz], dp._fig);
@@ -1959,7 +1974,6 @@ function abrirArrumados() {
   });
   j.hidden = false;
 }
-$('#bt-arrumados').onclick = abrirArrumados;
 function reabrir(id) {
   const n = dados.nos[id]; if (!n || !n.arq) return;
   const fazer = () => { mudar(() => { delete n.arq; }); atual = id; sel = null; render({ suave: true }); };
@@ -2166,7 +2180,6 @@ function toast(msg, comDesfazer, botoes = []) {
 /* ---------- Estatísticas: como tens andado ---------- */
 let stDias = 7;
 function abrirStats() { desenharStats(stDias); $('#stats').hidden = false; }
-$('#bt-stats').onclick = abrirStats;
 document.querySelectorAll('.st-per button').forEach(b => b.onclick = () => { stDias = +b.dataset.d; desenharStats(stDias); });
 // Barras de uma só cor; o nome e o número estão sempre escritos ao lado.
 function barras(linhas) {   // [figura|null, nome, valor, dica]
