@@ -1,0 +1,29 @@
+# Compila a app Universal para o Mac (Intel + Apple Silicon) e deixa-a para descarregar.
+name: App para o Mac
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compilar:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar (Intel + Apple Silicon)
+        run: mac/compilar.sh
+      - name: Confirmar que é Universal
+        run: |
+          lipo -archs dist/Mindmap.app/Contents/MacOS/Mindmap | grep -q x86_64
+          lipo -archs dist/Mindmap.app/Contents/MacOS/Mindmap | grep -q arm64
+          codesign --verify --deep --strict dist/Mindmap.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Mindmap-Mac-Universal
+          path: dist/Mindmap-Mac-Universal.zip
+          if-no-files-found: error

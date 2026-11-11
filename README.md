@@ -16,6 +16,8 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
   - **💗 Sentir**: bater, festinhas, boneco e emoção, respirar;
   - **📦 Arrumar**: as gavetas e arrumar por hoje;
   - **⋯ Mais**: o que é, a cor, mudar o nome e apagar.
+- **As gavetas dependem do que a ideia é**: um assunto tem as 13 perguntas; uma pessoa tem 8 (o que gosto, o que me custa, o que queria dizer…); um animal e um objecto têm 4.
+- **🧠 O meu Cérebro** (na barra de cima) junta Despejar, Entradas antigas, Como tens andado e Assuntos arrumados.
 - O botão **?** (em baixo, à direita) mostra como se anda pelo mapa.
 - **Nos campos de texto**, o `Enter` muda de linha e o botão **✓ Guardar** (ou `⌘Enter`) confirma. Cada ideia sugere o que escrever conforme o que é.
 - **O texto do Cérebro é um diário sobre ti**: uma entrada por dia. No dia seguinte começa uma nova e a anterior fica em **📖 Entradas antigas**.
@@ -51,7 +53,19 @@ Os dados ficam sempre **fora da pasta da app** e nunca vêm para este repositór
 - **No Chrome ou no Edge, sem compilar:** em *Ficheiro → Gravar automaticamente num ficheiro…* escolhe-se onde fica o `mindmap.json`.
 - **No Safari, sem compilar:** o Safari não deixa uma página gravar em ficheiros. Os dados ficam só no Safari, por isso é preciso usar *Ficheiro → Exportar cópia*. A app compilada resolve isto.
 
-## Compilar para o Mac (instruções para o agente)
+## Compilar para o Mac
+
+A app de Mac está em `mac/main.swift` (Swift + WKWebView, sem projecto do Xcode). Para a compilar como **Universal** (Intel + Apple Silicon), num Mac com as ferramentas de linha de comandos do Xcode:
+
+```bash
+mac/compilar.sh
+```
+
+Fica em `dist/Mindmap.app` (e `dist/Mindmap-Mac-Universal.zip`). Precisa do macOS 11.3 ou mais recente.
+
+O GitHub também a compila sozinho em cada pull request e em cada alteração ao `main` (workflow *App para o Mac*): o zip fica nos *Artifacts* dessa execução, com o nome `Mindmap-Mac-Universal`. Como a app tem só assinatura ad-hoc, na primeira vez abre-se com o botão direito › *Abrir* (ou, no Terminal, `xattr -dr com.apple.quarantine Mindmap.app`).
+
+### Como a app fala com a página
 
 Faz-se uma app de Mac que mostra o `index.html` num **WKWebView** (Swift, ou Tauri 2, que no Mac também usa o WKWebView). A página não muda; o programa à volta dela só tem de lhe dar o objecto abaixo, **antes** de os scripts da página correrem (por exemplo com um `WKUserScript` em `atDocumentStart`, ou o `initialization_script` do Tauri):
 
