@@ -8,6 +8,16 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
 - **🤜 Bater:** um punho bate no boneco e o ecrã abana. **🤚 Festinhas:** uma mão faz-lhe festas e saem corações. A app conta quantas vezes já libertaste.
 - **Os meus bonecos:** podes criar bonecos com as tuas próprias imagens, uma por emoção. As imagens ficam só no teu computador e não vêm para este repositório.
 
+## O que se faz com cada ideia
+
+- **Ao criar uma ideia**, a app pergunta logo **o que é**: 👤 Pessoa, 🐾 Animal, 🔑 Objecto ou 💭 Ideia (escolhe-se com o rato ou com `↑` `↓`, enquanto se escreve o nome).
+- **A barra de baixo** tem tudo o que se pode fazer com a ideia aberta, sempre no mesmo sítio e com nome:
+  - **＋ Nova ideia** e **✏️ Escrever**;
+  - **💗 Sentir**: bater, festinhas, boneco e emoção, respirar;
+  - **📦 Arrumar**: as gavetas e arrumar por hoje;
+  - **⋯ Mais**: o que é, a cor, mudar o nome e apagar.
+- O botão **?** (em baixo, à direita) mostra como se anda pelo mapa.
+
 ## Como usar
 
 Faz duplo clique em `index.html`, de preferência no Chrome.
