@@ -143,6 +143,13 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .bolha textarea { display: block; width: 100%; resize: none; border: 3px solid var(--linha); border-radius: 24px; background: var(--surface);
   box-shadow: 0 4px 0 var(--linha); padding: 10px 15px; outline: none; line-height: 1.45; font-size: 14.5px; }
 .bolha textarea:focus { box-shadow: 0 4px 0 var(--linha), 0 0 0 5px var(--sel-bg); }
+/* O visto: confirma o que se escreveu (o Enter fica para mudar de linha) */
+.visto { background: #d6f5df; color: #2a2230; font-size: 14px; padding: 3px 12px; }
+.bolha .visto { position: absolute; right: 10px; bottom: 12px; display: none; }
+.centro .bolha:focus-within .visto { display: inline-flex; }
+.centro .bolha:focus-within textarea { padding-bottom: 40px; }
+.sobre { width: 100%; font-size: 13px; font-weight: 600; color: var(--text2); text-align: left; padding-left: 62px; margin-bottom: -4px; }
+.cx-fim { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--text3); }
 .cores { display: flex; gap: 6px; justify-content: center; }
 .cor { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--linha); cursor: pointer; padding: 0; }
 .cor.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--linha); }
@@ -242,6 +249,14 @@ kbd { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(
 .tipo-pick { position: absolute; bottom: calc(100% + 6px); left: 50%; translate: -50% 0; scale: max(var(--s, 1), .5); transform-origin: 50% 100%; z-index: 10; display: flex; align-items: center; gap: 5px;
   white-space: nowrap; background: var(--surface); border: 2.5px solid var(--linha); border-radius: 999px; box-shadow: 0 3px 0 var(--linha); padding: 4px 8px 4px 12px; cursor: default; font-size: 13.5px; }
 .tipo-pick b { margin-right: 2px; }
+.b-sep { color: var(--text3); font-weight: 700; align-self: center; }
+/* O diário do Cérebro: uma entrada por dia */
+.ent-link { align-self: flex-start; margin-left: 6px; }
+.ent-lista { display: flex; flex-direction: column; gap: 10px; }
+.ent { border: 2.5px solid var(--linha); border-left: 7px solid var(--cor, var(--accent)); border-radius: 18px; padding: 8px 12px; }
+.ent-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ent-topo b { font-size: 14.5px; }
+.ent p { margin: 4px 0 0; white-space: pre-wrap; word-break: break-word; font-size: 14.5px; line-height: 1.45; }
 
 /* Gavetas, despejo, arrumar e respirar */
 .no.apagada { opacity: .42; } .no.apagada .fig { transform: scale(.78); } .no.apagada:hover { opacity: 1; }
@@ -352,7 +367,7 @@ kbd { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(
 @keyframes abana { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
 body.trancado > header, body.trancado > main { visibility: hidden; }
 
-#toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 60; background: var(--surface); border: 2.5px solid var(--linha);
+#toast { position: fixed; left: 50%; bottom: 78px; transform: translateX(-50%); z-index: 60; background: var(--surface); border: 2.5px solid var(--linha);
   border-radius: 999px; padding: 7px 10px 7px 16px; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 0 var(--linha); font-weight: 500; max-width: 90vw; }
 #toast[hidden], #resultados[hidden] { display: none; }
 #toast button { border: none; background: transparent; color: var(--accent); font-weight: 700; cursor: pointer; }
@@ -370,7 +385,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
   <div class="esp"></div>
   <button id="bt-despejo" class="bt bt-despejo" title="Despejar tudo o que tens na cabeça">🌪️ Despejar</button>
   <div class="esp-wrap">
-    <button id="bt-esp" class="bt" title="Ideias mais juntas ou mais espalhadas">↔ Sparse</button>
+    <button id="bt-esp" class="bt" title="Ideias mais juntas ou mais espalhadas">↔ Espaço</button>
     <div class="esp-pop" id="esp-pop" hidden>
       <b>Espaço entre as ideias</b>
       <input type="range" id="esp-r" min="0.55" max="2" step="0.05">
@@ -479,6 +494,13 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
     <div class="arq-lista"></div>
   </div>
 </div>
+<div id="entradas" class="janela" hidden>
+  <div class="j-caixa" role="dialog" aria-label="Entradas antigas">
+    <div class="j-topo"><b>📖 Entradas antigas</b><button class="bt redondo" data-fechar title="Fechar">×</button></div>
+    <div class="j-sub">O que escreveste sobre ti nos outros dias.</div>
+    <div class="ent-lista"></div>
+  </div>
+</div>
 <div id="stats" class="janela" hidden>
   <div class="j-caixa st-caixa" role="dialog" aria-label="Como tens andado">
     <div class="j-topo"><b>📊 Como tens andado</b>
@@ -523,7 +545,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.11.03';
+const APP_VERSAO = '2026.11.11.05';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -601,6 +623,8 @@ const BONECOS = {
   tosta: { nome: 'Tosta', fy: 54, s: 1, corpo: () => `<path d="M24 42 C10 26 28 8 50 10 C72 8 90 26 76 42 L76 86 Q76 92 70 92 L30 92 Q24 92 24 86 Z" fill="#f6d79a" stroke="#a5621f" stroke-width="5.5" stroke-linejoin="round"/>` },
   cacto: { nome: 'Cacto', fy: 40, s: .78, corpo: () => `<path d="M30 80 H70 L65 97 H35 Z" fill="#d9774a" stroke="#7d3b1c" stroke-width="2.6" stroke-linejoin="round"/><g fill="#6cc070" stroke="#25683a" stroke-width="2.6"><rect x="12" y="30" width="13" height="30" rx="6.5"/><rect x="75" y="22" width="13" height="30" rx="6.5"/><rect x="18" y="50" width="18" height="10" rx="5"/><rect x="64" y="42" width="18" height="10" rx="5"/><rect x="30" y="12" width="40" height="70" rx="20"/></g><path d="M36 24 l-3 -2 M64 26 l3 -2 M35 72 l-3 1 M65 68 l3 1" stroke="#25683a" stroke-width="1.5" stroke-linecap="round"/>` },
   ovo: { nome: 'Ovo', fy: 56, s: 1, corpo: () => `<path d="M50 8 C72 8 84 40 84 60 C84 80 70 94 50 94 C30 94 16 80 16 60 C16 40 28 8 50 8Z" fill="#fff6e3" stroke="#a88a52" stroke-width="3"/>` },
+  rapaz: { nome: 'Rapaz', fy: 56, s: 1, corpo: () => `<circle cx="16" cy="60" r="6.5" fill="#ffd3ad" stroke="#8a552a" stroke-width="2.6"/><circle cx="84" cy="60" r="6.5" fill="#ffd3ad" stroke="#8a552a" stroke-width="2.6"/><circle cx="50" cy="57" r="34" fill="#ffd9b8" stroke="#8a552a" stroke-width="3"/><path d="M16 50 C12 24 32 9 52 12 C74 9 91 27 84 50 C80 41 72 34 62 31 C52 37 36 38 25 38 C21 42 18 46 16 50Z" fill="#6b4423" stroke="#3d2610" stroke-width="3" stroke-linejoin="round"/><path d="M44 14 q4 6 0 12 M56 13 q-2 6 2 11" fill="none" stroke="#8a5a33" stroke-width="2" stroke-linecap="round"/>` },
+  rapariga: { nome: 'Rapariga', fy: 56, s: 1, corpo: () => `<path d="M13 58 C7 24 32 7 50 9 C68 7 93 24 87 58 C92 76 88 92 78 95 L70 72 L30 72 L22 95 C12 92 8 76 13 58Z" fill="#8a4b2a" stroke="#4a2512" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="57" r="33" fill="#ffd9b8" stroke="#8a552a" stroke-width="3"/><path d="M17 50 C16 27 35 16 50 18 C65 16 84 27 83 50 C73 46 63 38 57 29 C49 39 31 46 17 50Z" fill="#8a4b2a" stroke="#4a2512" stroke-width="3" stroke-linejoin="round"/><path d="M70 17 L60 9 L61 23 Z M70 17 L80 9 L79 23 Z" fill="#ff7fb0" stroke="#a83d67" stroke-width="2.2" stroke-linejoin="round"/><circle cx="70" cy="17" r="3.6" fill="#ff5c8a" stroke="#a83d67" stroke-width="1.8"/>` },
   robo: { nome: 'Robô', fy: 52, s: 1, corpo: () => `<path d="M50 20 V9" stroke="#43566a" stroke-width="3"/><circle cx="50" cy="7" r="4.5" fill="#ff5f57" stroke="#43566a" stroke-width="2.4"/><rect x="8" y="44" width="8" height="16" rx="3" fill="#7f95ab" stroke="#43566a" stroke-width="2.4"/><rect x="84" y="44" width="8" height="16" rx="3" fill="#7f95ab" stroke="#43566a" stroke-width="2.4"/><rect x="15" y="20" width="70" height="70" rx="14" fill="#b4c7da" stroke="#43566a" stroke-width="3"/><rect x="25" y="32" width="50" height="48" rx="9" fill="#e6eef5" stroke="#43566a" stroke-width="1.8"/>` },
 };
 const K = '#2a2230';
@@ -1090,6 +1114,26 @@ function contador(f, no) {
 }
 
 // Uma nuvem aberta: só o boneco, o nome e a nota. As funções estão na barra de baixo.
+// O que se sugere escrever em cada ideia: depende do que ela é.
+const SUGESTAO = {
+  pessoa: 'Quem é esta pessoa para ti? O que sentes por ela, o que gostavas de lhe dizer?',
+  animal: 'O que este animal é para ti? O que sentes quando pensas nele?', cao: 'O que este cão é para ti? O que sentes quando pensas nele?',
+  gato: 'O que este gato é para ti? O que sentes quando pensas nele?',
+  objeto: 'O que é isto para ti? Porque é que te anda na cabeça?',
+  mim: 'O que se passa contigo? Escreve como vier.', questao: 'O que queres perceber? O que já sabes?', sonho: 'Como seria se acontecesse? O que te aproxima disso?',
+};
+function sugestao(no) {
+  if (no.g) return GAV[no.g].perg;
+  if (!no.p) return 'Este é o teu Cérebro: escreve aqui sobre ti. Como estás hoje? O que é importante para ti? Amanhã começas uma entrada nova.';
+  return SUGESTAO[no.tipo] || 'O que estás a pensar sobre isto? Escreve tudo o que te vem à cabeça…';
+}
+// O botão de visto de um campo de texto: tira o cursor do campo e diz que ficou guardado.
+function visto(campoTxt, depois) {
+  const b = btn('✓ Guardar', 'Confirmar o que escreveste (⌘Enter). O Enter muda de linha.', () => { campoTxt.blur(); if (depois) depois(); toast('Guardado 💗'); }, 'bt visto');
+  b.addEventListener('mousedown', e => e.preventDefault());
+  campoTxt.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); e.stopPropagation(); b.click(); } });
+  return b;
+}
 // O nome da ideia aberta também está no caminho do topo e na barra de baixo.
 function nomeMudou(no) { document.querySelectorAll('#rasto .aqui, .b-nome').forEach(e => { e.textContent = titulo(no); }); }
 function construirAberto(no) {
@@ -1117,14 +1161,33 @@ function construirCentro(no) {
   t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
   t.addEventListener('blur', () => { document.title = titulo(no) + ' · Mindmap'; });
   f._cont = el('div', 'contador'); contador(f, no);
+  // O texto do Cérebro é um diário: uma entrada por dia. A de ontem passa para as entradas antigas.
+  const hojeS = new Date().toDateString();
+  if ((no.n || '').trim() && no.nDia && no.nDia !== hojeS) { (no.entradas ||= []).push({ t: no.nT || Date.now(), txt: no.n.trim() }); no.n = ''; guardar(); }
+  no.nDia = hojeS;
   const bolha = el('div', 'bolha'), n = el('textarea');
   n.value = no.n || ''; n.rows = mapa.clientHeight < 700 ? 2 : 3;
-  n.placeholder = no.g ? GAV[no.g].perg : no.p ? 'O que estás a pensar sobre isto?' : 'O que te anda na cabeça?';
-  campo(n, v => { no.n = v; });
+  n.placeholder = sugestao(no);
+  campo(n, v => { no.n = v; no.nDia = new Date().toDateString(); no.nT = Date.now(); });
   n.addEventListener('keydown', e => { if (e.key === 'Escape') n.blur(); });
-  bolha.append(n);
-  c.append(f, t, f._cont, bolha);
+  bolha.append(n, visto(n));
+  c.append(f, t, f._cont, el('div', 'sobre', '💭 Sobre mim · hoje, ' + new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })), bolha);
+  const nEnt = (no.entradas || []).length;
+  if (nEnt) c.append(btn(`📖 Entradas antigas (${nEnt})`, 'Ver o que escreveste nos outros dias', abrirEntradas, 'link ent-link'));
   return c;
+}
+
+function abrirEntradas() {
+  const j = $('#entradas'), l = j.querySelector('.ent-lista'), raiz = dados.nos[dados.raiz]; l.innerHTML = '';
+  const lista = (raiz.entradas || []).slice().sort((a, b) => b.t - a.t);
+  if (!lista.length) l.append(el('div', 'j-sub', 'Ainda não há entradas antigas. O que escreveres hoje fica aqui a partir de amanhã.'));
+  lista.forEach(en => {
+    const x = el('div', 'ent'), topo = el('div', 'ent-topo'); x.style.setProperty('--cor', raiz.c);
+    topo.append(el('b', null, new Date(en.t).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
+      btn('Apagar', 'Apagar esta entrada', () => { mudar(() => { raiz.entradas = raiz.entradas.filter(y => y !== en); }); abrirEntradas(); render({ semCamara: true }); toast('Entrada apagada', true); }, 'link perigo'));
+    x.append(topo, el('p', null, en.txt)); l.append(x);
+  });
+  j.hidden = false;
 }
 
 function construirCartao(no, prof = 1) {
@@ -1322,7 +1385,7 @@ function desenharBarra() {
   menu('mais', raiz ? '🎨 Cor e nome' : '⋯ Mais', raiz ? 'Mudar a cor e o nome do Cérebro' : 'O que é, cor, nome e apagar', pop => {
     if (!raiz && !gav) {
       pop.append(el('div', 'b-sec', 'O que é'));
-      const l = el('div', 'b-linha'); l.append(...botoesTipo(no, k => { mudar(() => porTipo(no, k)); render({ semCamara: true }); })); pop.append(l);
+      const l = el('div', 'b-linha'); l.append(...botoesTipo(no, (k, bk) => { mudar(() => { if (bk) porPessoa(no, bk); else porTipo(no, k); }); render({ semCamara: true }); })); pop.append(l);
     }
     pop.append(el('div', 'b-sec', 'Cor'));
     const lc = el('div', 'b-linha'); lc.append(linhaCores(no, () => render({ semCamara: true }))); pop.append(lc);
@@ -1444,21 +1507,31 @@ function novoRamo(pid, tipo) {
   if (pid === atual) { sel = id; render(); renomear(id, true, true); }
   return id;
 }
-// O tipo dá o ícone ao nome, o boneco aos animais e, junto ao Cérebro, a cor.
+// O tipo dá o ícone ao nome, o boneco às pessoas e aos animais e, junto ao Cérebro, a cor.
+const KEY_PESSOA = 'mindmap-ultima-pessoa', B_AUTO = ['nuvem', 'cao', 'gato', 'rapaz', 'rapariga'];
 function porTipo(n, tipo) {
   n.tipo = tipo;
   if (dados.nos[n.p] && dados.nos[n.p].p === null) n.c = TIPO_IDEIA[tipo].cor;
-  const animal = tipo === 'animal' || tipo === 'cao' || tipo === 'gato';
-  if (animal && (!n.b || n.b.k === 'nuvem')) n.b = { k: tipo === 'gato' ? 'gato' : 'cao', e: n.b ? n.b.e : 'feliz' };
-  if (!animal && n.b && (n.b.k === 'cao' || n.b.k === 'gato')) n.b = { k: 'nuvem', e: n.b.e };
+  const animal = tipo === 'animal' || tipo === 'cao' || tipo === 'gato', pessoa = tipo === 'pessoa';
+  const quer = animal ? (tipo === 'gato' ? 'gato' : 'cao') : pessoa ? (lsGet(KEY_PESSOA) === 'rapaz' ? 'rapaz' : 'rapariga') : 'nuvem';
+  const k = n.b ? n.b.k : 'nuvem';
+  if (!B_AUTO.includes(k)) return;                                   // um boneco escolhido à mão não se troca
+  if ((animal && (k === 'cao' || k === 'gato')) || (pessoa && (k === 'rapaz' || k === 'rapariga'))) return;
+  n.b = { k: quer, e: n.b ? n.b.e : (quer === 'nuvem' ? 'calmo' : 'feliz') };
 }
+function porPessoa(n, k) { n.b = { k, e: n.b ? n.b.e : 'feliz' }; lsSet(KEY_PESSOA, k); }
+// Os botões de «O que é?»; nas pessoas, também rapaz ou rapariga. depois(tipo, bonecoDaPessoa)
 function botoesTipo(n, depois) {
-  return TIPOS_NOVOS.map(k => {
-    const T = TIPO_IDEIA[k], b = el('button', 'b-chip' + (n.tipo === k ? ' on' : ''), T.ic + ' ' + T.nome);
-    b.dataset.k = k; b.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
-    b.onclick = e => { e.stopPropagation(); depois(k); };
+  const chip = (txt, on, fn) => {
+    const b = el('button', 'b-chip' + (on ? ' on' : ''), txt);
+    b.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+    b.onclick = e => { e.stopPropagation(); fn(); };
     return b;
-  });
+  };
+  const bs = TIPOS_NOVOS.map(k => chip(TIPO_IDEIA[k].ic + ' ' + TIPO_IDEIA[k].nome, n.tipo === k, () => depois(k)));
+  if (n.tipo === 'pessoa') bs.push(el('span', 'b-sep', '›'), chip('👦 Rapaz', n.b && n.b.k === 'rapaz', () => depois('pessoa', 'rapaz')),
+    chip('👧 Rapariga', n.b && n.b.k === 'rapariga', () => depois('pessoa', 'rapariga')));
+  return bs;
 }
 function criarGavetas(id) {
   GAVETAS.forEach(g => { const gid = novoId(); dados.nos[gid] = { id: gid, t: '', n: '', c: g[4], f: [], p: id, g: g[0] }; dados.nos[id].f.push(gid); });
@@ -1475,14 +1548,15 @@ function renomear(id, novo, perguntarTipo) {
   // «O que é?»: escolhe-se com o rato ou com ↑ e ↓, sem sair do nome.
   let escolherTipo = null;
   if (perguntarTipo) {
-    const pk = el('div', 'tipo-pick'); pk.append(el('b', null, 'O que é?'));
-    escolherTipo = k => {
-      porTipo(n, k); guardar();
-      pk.querySelectorAll('.b-chip').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+    const pk = el('div', 'tipo-pick');
+    const encher = () => { pk.innerHTML = ''; pk.append(el('b', null, 'O que é?'), ...botoesTipo(n, escolherTipo)); };
+    escolherTipo = (k, bk) => {
+      if (bk) porPessoa(n, bk); else porTipo(n, k);
+      guardar(); encher();
       inp.placeholder = TIPO_IDEIA[k].ph; card.style.setProperty('--cor', n.c);
       card.querySelector('.fig-in').innerHTML = desenharBoneco(figura(n), n.c); linhas(); inp.focus();
     };
-    pk.append(...botoesTipo(n, escolherTipo));
+    encher();
     pk.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
     pk.addEventListener('click', e => e.stopPropagation());
     card.append(pk); card.style.zIndex = 9;
@@ -1542,14 +1616,16 @@ function abrirCaixa(id) {
   bts.append(btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'bt redondo'), btn('⤢', 'Pôr no centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt redondo'));
   topo.append(f, meio, bts);
   const bolha = el('div', 'bolha'), notas = el('textarea');
-  notas.value = no.n || ''; notas.placeholder = no.g ? GAV[no.g].perg : 'Escreve aqui tudo o que te vem à cabeça…';
+  notas.value = no.n || ''; notas.placeholder = sugestao(no);
   campo(notas, v => { no.n = v; }); bolha.append(notas);
   const cores = linhaCores(no, () => { cx.style.setProperty('--cor', no.c); cores.querySelectorAll('.cor').forEach((b, i) => b.classList.toggle('on', CORES[i] === no.c)); });
   cores.style.justifyContent = 'flex-start';
   const ramos = el('div', 'cx-ramos');
   const desenharRamos = () => {
-    ramos.innerHTML = ''; ramos.append(el('span', null, no.f.length ? 'Ideias aqui dentro:' : 'Ainda sem ideias aqui dentro.'));
-    no.f.forEach(fid => {
+    // As gavetas ainda vazias não aparecem aqui: estão em 📦 Arrumar, na barra.
+    const dentro = no.f.filter(fid => { const x = dados.nos[fid]; return x && !(x.g && !temConteudo(x)); });
+    ramos.innerHTML = ''; ramos.append(el('span', null, dentro.length ? 'Ideias aqui dentro:' : 'Ainda sem ideias aqui dentro.'));
+    dentro.forEach(fid => {
       const x = dados.nos[fid], ch = el('button', 'chip', titulo(x)); ch.style.setProperty('--cor', x.c);
       ch.title = 'Ir para aqui'; ch.onclick = () => { atual = fid; sel = null; render(); };
       ramos.append(ch);
@@ -1564,7 +1640,8 @@ function abrirCaixa(id) {
     ramos.append(inp);
   };
   desenharRamos();
-  cx.append(topo, bolha, cores, ramos);
+  const fim = el('div', 'cx-fim'); fim.append(el('span', null, 'Fica guardado enquanto escreves. O Enter muda de linha.'), visto(notas, () => fecharCaixa()));
+  cx.append(topo, bolha, cores, ramos, fim);
   const m = mapa.getBoundingClientRect(), r0 = card ? card.getBoundingClientRect() : null;
   porEm(cx, r0 ? { l: r0.left - m.left, t: r0.top - m.top, w: r0.width, h: r0.height } : { l: W / 2 - 90, t: H / 2 - 60, w: 180, h: 120 });
   mapa.append(cx); mapa.classList.add('com-caixa');
@@ -1900,7 +1977,7 @@ function perguntar(tit, sub, opcoes) {
   j.hidden = false;
 }
 document.querySelectorAll('[data-fechar]').forEach(b => b.onclick = () => { b.closest('.janela').hidden = true; });
-['arrumar', 'arrumados', 'pergunta', 'stats'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
+['arrumar', 'arrumados', 'pergunta', 'stats', 'entradas'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
 
 /* ---------- Dar nome ao Cérebro ---------- */
 const bv = $('#boasvindas');

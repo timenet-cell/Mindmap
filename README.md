@@ -17,6 +17,9 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
   - **📦 Arrumar**: as gavetas e arrumar por hoje;
   - **⋯ Mais**: o que é, a cor, mudar o nome e apagar.
 - O botão **?** (em baixo, à direita) mostra como se anda pelo mapa.
+- **Nos campos de texto**, o `Enter` muda de linha e o botão **✓ Guardar** (ou `⌘Enter`) confirma. Cada ideia sugere o que escrever conforme o que é.
+- **O texto do Cérebro é um diário sobre ti**: uma entrada por dia. No dia seguinte começa uma nova e a anterior fica em **📖 Entradas antigas**.
+- **As pessoas** têm boneco de 👦 rapaz ou 👧 rapariga (escolhe-se logo a seguir a dizer que é uma pessoa).
 
 ## Como usar
 
