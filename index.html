@@ -523,7 +523,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.11.02';
+const APP_VERSAO = '2026.11.11.03';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -1318,7 +1318,8 @@ function desenharBarra() {
     pop.append(no.arq ? item('📦', 'Reabrir', 'Este assunto está arrumado', '', () => reabrir(no.id))
                       : item('📦', 'Arrumar por hoje', 'Fechar este assunto e descansar dele', '', () => abrirArrumar(no.id)));
   }, true);
-  menu('mais', '⋯ Mais', 'O que é, cor, nome e apagar', pop => {
+  // No Cérebro este menu só tem a cor e o nome: o botão diz logo o que é.
+  menu('mais', raiz ? '🎨 Cor e nome' : '⋯ Mais', raiz ? 'Mudar a cor e o nome do Cérebro' : 'O que é, cor, nome e apagar', pop => {
     if (!raiz && !gav) {
       pop.append(el('div', 'b-sec', 'O que é'));
       const l = el('div', 'b-linha'); l.append(...botoesTipo(no, k => { mudar(() => porTipo(no, k)); render({ semCamara: true }); })); pop.append(l);
