@@ -103,7 +103,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .ab-nota { width: 100%; font-size: 13px; color: var(--text2); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .bt-outro { background: #d9f3ff; color: #2a2230; }
 .ab-outro { width: 100%; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; background: #d9f3ff; color: #2a2230; border: 2px solid var(--linha); border-radius: 999px; padding: 2px 8px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  line-height: 1.25; word-break: break-word; }
 .ab-outro:hover { background: var(--sel-bg); }
 .ab-nota.vazia { color: var(--text3); font-style: italic; }
 .ab-nota:hover { color: var(--accent); }
@@ -579,7 +579,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.12.06';
+const APP_VERSAO = '2026.11.12.07';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -599,7 +599,7 @@ const GAVETAS = [
   ['bom', '🌱', 'Coisas boas', 'O que já fizeste bem? Quem te ajuda? O que te faz sorrir, mesmo pouquinho?', '#5cc95c'],
   ['fecho', '🔒', 'Fecho', 'O que decides por hoje? Uma frase gentil para ti chega.', '#6b7cff'],
   // Estas são para as pessoas, os animais e os objectos (ver GAVETAS_TIPO).
-  ['sente', '🫶', 'Como se sente', 'Como achas que está? O que estará a viver, a precisar, a sentir? Não precisas de ter a certeza.', '#6cc5e8'],
+  ['sente', '💙', 'Como se sente', 'Como achas que está? O que estará a viver, a precisar, a sentir? Não precisas de ter a certeza.', '#6cc5e8'],
   ['gosto', '💛', 'O que gosto', 'O que gostas aqui? O que te faz bem?', '#ffc94a'],
   ['custa', '🌧️', 'O que me custa', 'O que te magoa ou te cansa nisto? Podes dizer, é só teu.', '#8fa3c7'],
   ['dizer', '💬', 'O que queria dizer', 'Se pudesses dizer tudo, com calma, o que dizias?', '#5cb8e6'],
@@ -1438,7 +1438,7 @@ function desenharBarra() {
   };
   br.append(btn('✏️ Escrever', raiz ? 'Escrever sobre ti' : 'Escrever sobre isto, responder às perguntas e arrumar', () => {
               menuBarra = null; if (raiz) { abrir(); desenharBarra(); palco.querySelector('.centro textarea').focus(); } else abrirCaixa(no.id); }, 'bt bt-emo'));
-  if (eSer(no)) br.append(btn(no.b && no.b.dito ? txtOutro(no) : '🫶 Como se sente?', 'Dizer como achas que ' + nomeDe(no) + ' se sente', () => { menuBarra = null; escolherOutro(no.id); }, 'bt bt-outro'));
+  if (eSer(no)) br.append(btn(no.b && no.b.dito ? txtOutro(no) : '💙 Como se sente?', 'Dizer como achas que ' + nomeDe(no) + ' se sente', () => { menuBarra = null; escolherOutro(no.id); }, 'bt bt-outro'));
   menu('sentir', '💗 Sentir', 'Bater, festinhas, emoção e respirar', pop => {
     pop.append(item('🤜', 'Bater', 'Pôr a força cá para fora', 'B', () => bater(no, figC()), true),
                item('🤚', 'Festinhas', 'Dar carinho', 'F', () => festinhas(no, figC()), true),
@@ -1887,9 +1887,9 @@ function definirOutro(e) {
   registar('outro', { e });
   mudar(() => { no.b = { k: figura(no).k, e, dito: true }; });
   esc.hidden = true; render({ semCamara: true }); if (reabrir) abrirCaixa(id);
-  toast(`Olhaste para ${nomeDe(no)} 🫶`);
+  toast(`Olhaste para ${nomeDe(no)} 💙`);
 }
-function txtOutro(no) { return no.b && no.b.dito ? `${EMO_IC[no.b.e] || ''} ${nomeDe(no)}: ${nomeEmo(no.b.e).toLowerCase()}` : `🫶 Como achas que ${nomeDe(no)} se sente?`; }
+function txtOutro(no) { return no.b && no.b.dito ? `${EMO_IC[no.b.e] || ''} ${nomeDe(no)}: ${nomeEmo(no.b.e).toLowerCase()}` : `💙 Como se sente ${nomeDe(no)}?`; }
 function selo(no) {
   const b = el('div', 'sinto', EMO_IC[no.sinto] || '💭'); b.title = 'Como me sinto com isto: ' + nomeEmo(no.sinto);
   return b;
@@ -2395,7 +2395,7 @@ function desenharStats(dias) {
   // Os números.
   const tiles = el('div', 'st-tiles');
   [['💭', conta('ideia'), 'ideias tiradas da cabeça'], ['📦', conta('arrumar'), 'assuntos arrumados'], ['🫁', conta('respirar'), 'respirações'],
-   ['🌱', bons, 'coisas boas guardadas'], ['🫶', conta('outro'), 'vezes a olhar para os outros'], ['🤚', conta('festa'), 'festinhas'], ['🤜', conta('soco'), 'socos']]
+   ['🌱', bons, 'coisas boas guardadas'], ['💙', conta('outro'), 'vezes a olhar para os outros'], ['🤚', conta('festa'), 'festinhas'], ['🤜', conta('soco'), 'socos']]
     .forEach(([ic, v, t]) => { const x = el('div', 'st-tile'); x.append(el('b', null, ic + ' ' + v), el('span', null, t)); tiles.append(x); });
   c.append(tiles);
   // As emoções escolhidas no período.
