@@ -581,9 +581,11 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.12.11';
+const APP_VERSAO = '2026.11.12.12';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
+// Onde se vai buscar a app de Mac compilada (só é preciso quando o programa à volta da página muda).
+const URL_APP_MAC = 'https://github.com/timenet-cell/Mindmap/releases/latest';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
 // As gavetas de cada assunto: tirar da cabeça a parte objectiva, peça a peça.
 const GAVETAS = [
@@ -2525,6 +2527,7 @@ function desenharStats(dias) {
 /* ---------- Versão nova no GitHub ---------- */
 // A app pergunta ao GitHub qual é a versão mais recente. Se houver uma nova,
 // avisa com carinho e deixa descarregá-la; as ideias ficam no browser.
+// A pessoa é que decide: «Depois» adia um dia, e em Ficheiro › Procurar versão nova pode ver quando quiser.
 async function verAtualizacao(manual) {
   try {
     const r = await fetch(URL_VERSAO + '?t=' + Date.now(), { cache: 'no-store' });
@@ -2532,17 +2535,40 @@ async function verAtualizacao(manual) {
     const v = await r.json();
     if (!v.versao || v.versao <= APP_VERSAO) { if (manual) toast('Já tens a versão mais recente ✨'); return; }
     if (!manual && (+lsGet(KEY_ADIAR) || 0) > Date.now()) return;
-    perguntar('✨ Há uma versão nova do Mindmap',
-      (v.notas ? v.notas + ' ' : '') + 'Depois de descarregar, põe o ficheiro novo no lugar do antigo e abre-o outra vez. As tuas ideias ficam como estão.',
-      [['⬇️ Descarregar', descarregarVersao, 'bt bt-ideia'], ['Depois', () => lsSet(KEY_ADIAR, String(Date.now() + 864e5)), 'bt']]);
+    const depois = ['Depois', () => lsSet(KEY_ADIAR, String(Date.now() + 864e5)), 'bt'], notas = v.notas ? v.notas + ' ' : '';
+    // Na app compilada, a página atualiza-se lá dentro. Só se o programa à volta dela tiver mudado é que é preciso a app nova.
+    if (nativo && nativo.atualizar && (v.casca || 0) > (nativo.casca || 0))
+      perguntar('✨ Há uma app nova do Mindmap', notas + 'Desta vez é preciso descarregar a app nova e pô-la no lugar da antiga. As tuas ideias ficam como estão.',
+        [['⬇️ Ir buscar a app nova', () => nativo.abrirLink(URL_APP_MAC), 'bt bt-ideia'], depois]);
+    else if (nativo && nativo.atualizar)
+      perguntar('✨ Há uma versão nova do Mindmap', notas + 'A app atualiza-se aqui mesmo e volta a abrir (pede-te a password outra vez). As tuas ideias ficam como estão.',
+        [['⬇️ Atualizar agora', atualizarNaApp, 'bt bt-ideia'], depois]);
+    else
+      perguntar('✨ Há uma versão nova do Mindmap', notas + 'Depois de descarregar, põe o ficheiro novo no lugar do antigo e abre-o outra vez. As tuas ideias ficam como estão.',
+        [['⬇️ Descarregar', descarregarVersao, 'bt bt-ideia'], depois]);
   } catch (e) { if (manual) toast('Não consegui ver se há versão nova. Há internet?'); }
+}
+async function buscarPaginaNova() {
+  const r = await fetch(URL_APP + '?t=' + Date.now(), { cache: 'no-store' });
+  if (!r.ok) throw new Error(r.status);
+  const html = await r.text();
+  if (!/const APP_VERSAO = '[\d.]+'/.test(html) || !html.includes('</html>')) throw new Error('incompleta');
+  return html;
+}
+// Na app compilada: grava-se o que falta, entrega-se a página nova à app e ela volta a abrir.
+async function atualizarNaApp() {
+  try {
+    toast('A ir buscar a versão nova…');
+    const html = await buscarPaginaNova();
+    await gravarTudo();
+    await nativo.atualizar(html);
+  } catch (e) { toast('Não consegui atualizar agora. Tenta mais tarde; fica tudo como estava.'); }
 }
 async function descarregarVersao() {
   try {
-    const r = await fetch(URL_APP + '?t=' + Date.now(), { cache: 'no-store' });
-    if (!r.ok) throw new Error(r.status);
+    const html = await buscarPaginaNova();
     const a = el('a');
-    a.href = URL.createObjectURL(new Blob([await r.text()], { type: 'text/html' }));
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
     a.download = 'Mindmap.html'; document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     toast('Descarregado ✨ Está nas Transferências, com o nome Mindmap.html.');
