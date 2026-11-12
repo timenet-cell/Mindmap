@@ -11,16 +11,16 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
 ## O que se faz com cada ideia
 
 - **Ao criar uma ideia**, a app pergunta logo **o que é**: 👤 Pessoa, 🐾 Animal, 🔑 Objecto ou 💭 Ideia (escolhe-se com o rato ou com `↑` `↓`, enquanto se escreve o nome).
-- **A barra de baixo** tem tudo o que se pode fazer com a ideia aberta, sempre no mesmo sítio e com nome:
-  - **＋ Nova ideia** e **✏️ Escrever**;
+- **A barra de baixo** tem tudo o que se pode fazer com a ideia escolhida (a que acabaste de criar, ou a das setas) ou, sem escolha, com a ideia aberta. Está sempre no mesmo sítio e com nome:
+  - **＋ Nova ideia** (sempre dentro da ideia aberta);
+  - **✏️ Escrever**: as notas, as perguntas (gavetas) do que a ideia é, como separadores, e o **📦 Arrumar por hoje**. Clicar no boneco da ideia aberta faz o mesmo;
   - **💗 Sentir**: bater, festinhas, boneco e emoção, respirar;
-  - **📦 Arrumar**: as gavetas e arrumar por hoje;
   - **⋯ Mais**: o que é, a cor, mudar o nome e apagar.
 - **As gavetas dependem do que a ideia é**: um assunto tem as 13 perguntas; uma pessoa tem 8 (o que gosto, o que me custa, o que queria dizer…); um animal e um objecto têm 4.
-- **🧠 O meu Cérebro** (na barra de cima) junta Despejar, Entradas antigas, Como tens andado e Assuntos arrumados.
+- **🧠 O meu Cérebro** (na barra de cima) junta Despejar, As minhas entradas, Como tens andado e Assuntos arrumados.
 - O botão **?** (em baixo, à direita) mostra como se anda pelo mapa.
 - **Nos campos de texto**, o `Enter` muda de linha e o botão **✓ Guardar** (ou `⌘Enter`) confirma. Cada ideia sugere o que escrever conforme o que é.
-- **O texto do Cérebro é um diário sobre ti**: uma entrada por dia. No dia seguinte começa uma nova e a anterior fica em **📖 Entradas antigas**.
+- **O texto do Cérebro é um diário sobre ti**: escreves, carregas em **✓ Guardar** e fica uma entrada com a data e a hora em **📖 As minhas entradas**; o campo fica livre para a próxima.
 - **As pessoas** têm boneco de 👦 rapaz ou 👧 rapariga (escolhe-se logo a seguir a dizer que é uma pessoa).
 
 ## Como usar
@@ -36,7 +36,7 @@ Faz duplo clique em `index.html`, de preferência no Chrome.
 | Roda do rato (ou beliscar no trackpad) | Zoom no sítio do rato |
 | Duplo clique no fundo / `0` | Ver tudo |
 | `Tab` | Nova ideia (e `Tab` outra vez para a seguinte) |
-| `Esc` | Subir para a ideia de cima |
+| `Esc` | Fecha a janela da ideia aberta (ela fica só escolhida); outra vez, tira a escolha |
 | `B` / `F` / `E` | Bater / Festinhas / Mudar emoção |
 | `⌘K` | Procurar |
 | `⌘Z` | Desfazer |

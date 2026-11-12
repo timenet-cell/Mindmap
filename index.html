@@ -152,6 +152,11 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .centro .bolha:focus-within .visto { display: inline-flex; }
 .centro .bolha:focus-within textarea { padding-bottom: 40px; }
 .sobre { width: 100%; font-size: 13px; font-weight: 600; color: var(--text2); text-align: left; padding-left: 62px; margin-bottom: -4px; }
+.cx-abas { display: flex; flex-wrap: wrap; gap: 5px; }
+.cx-aba { border: 2px solid var(--text3); background: var(--surface); border-radius: 999px; padding: 2px 10px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2); }
+.cx-aba:hover { background: var(--sel-bg); }
+.cx-aba.cheia { border-color: var(--linha); color: var(--text); font-weight: 600; }
+.cx-aba.on { background: var(--sel-bg); border-color: var(--linha); color: var(--text); font-weight: 700; box-shadow: 0 2px 0 var(--linha); }
 .cx-fim { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--text3); }
 .cores { display: flex; gap: 6px; justify-content: center; }
 .cor { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--linha); cursor: pointer; padding: 0; }
@@ -226,6 +231,7 @@ kbd { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(
   max-width: calc(100% - 28px); background: var(--surface); border: 3px solid var(--linha); border-top: 6px solid var(--cor); border-radius: 26px; box-shadow: 0 5px 0 var(--linha);
   padding: 6px 10px 7px; cursor: default; }
 #barra[hidden], #mapa.com-caixa #barra { display: none; }
+.b-div { align-self: stretch; border-left: 2px dashed var(--text3); margin: 2px 4px; }
 .b-nome { font-weight: 700; font-size: 15px; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px 0 4px; }
 #barra .bt { padding: 4px 12px; font-size: 14.5px; }
 #barra .bt.on { background: var(--sel-bg); }
@@ -390,7 +396,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
     <summary class="bt" title="Tudo o que tem a ver com o teu Cérebro">🧠 O meu Cérebro</summary>
     <div class="menu-itens">
       <button data-cer="despejo">🌪️ Despejar a cabeça<small>Escreve tudo como vier e arruma depois</small></button>
-      <button data-cer="entradas">📖 Entradas antigas<small>O que escreveste sobre ti nos outros dias</small></button>
+      <button data-cer="entradas">📖 As minhas entradas<small>Tudo o que já escreveste sobre ti</small></button>
       <button data-cer="stats">📊 Como tens andado<small>As emoções, as ideias e os dias em que vieste</small></button>
       <button data-cer="arrumados">📦 Assuntos arrumados<small>Tudo o que fechaste está guardado aqui</small></button>
     </div>
@@ -449,7 +455,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
   <div class="dica" id="ajuda" hidden>
     <b>Como se anda pelo mapa</b>
     <span>Clicar numa ideia</span><span>abre-a</span>
-    <span><kbd>Esc</kbd></span><span>volta à ideia de cima</span>
+    <span><kbd>Esc</kbd></span><span>fecha a janela da ideia</span>
     <span><kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd></span><span>escolhe a ideia ao lado</span>
     <span><kbd>Enter</kbd></span><span>abre a ideia escolhida</span>
     <span><kbd>Tab</kbd></span><span>nova ideia</span>
@@ -505,8 +511,8 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 </div>
 <div id="entradas" class="janela" hidden>
   <div class="j-caixa" role="dialog" aria-label="Entradas antigas">
-    <div class="j-topo"><b>📖 Entradas antigas</b><button class="bt redondo" data-fechar title="Fechar">×</button></div>
-    <div class="j-sub">O que escreveste sobre ti nos outros dias.</div>
+    <div class="j-topo"><b>📖 As minhas entradas</b><button class="bt redondo" data-fechar title="Fechar">×</button></div>
+    <div class="j-sub">Tudo o que já escreveste sobre ti, da mais recente para a mais antiga.</div>
     <div class="ent-lista"></div>
   </div>
 </div>
@@ -554,7 +560,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.11.06';
+const APP_VERSAO = '2026.11.12.02';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -734,6 +740,9 @@ function arrumar(d) {
 // Os dados só entram em memória depois da password (ver «Password» e «Arranque»).
 let dados = inicial();
 let atual = dados.raiz;
+// fechadoId: a ideia em foco quando a janela dela está fechada (Esc). Abrir outra ideia volta a abrir janelas.
+let fechadoId = null;
+const fechado = () => fechadoId !== null && fechadoId === atual;
 let sel = null, ocupado = false, caixa = null, arrastado = null, arrastoFrase = null;
 let pilha = [], pendente = null;
 
@@ -1159,7 +1168,7 @@ function sugestao(no) {
 }
 // O botão de visto de um campo de texto: tira o cursor do campo e diz que ficou guardado.
 function visto(campoTxt, depois) {
-  const b = btn('✓ Guardar', 'Confirmar o que escreveste (⌘Enter). O Enter muda de linha.', () => { campoTxt.blur(); if (depois) depois(); toast('Guardado 💗'); }, 'bt visto');
+  const b = btn('✓ Guardar', 'Confirmar o que escreveste (⌘Enter). O Enter muda de linha.', () => { campoTxt.blur(); if (depois && depois() === false) return; toast('Guardado 💗'); }, 'bt visto');
   b.addEventListener('mousedown', e => e.preventDefault());
   campoTxt.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); e.stopPropagation(); b.click(); } });
   return b;
@@ -1168,8 +1177,8 @@ function visto(campoTxt, depois) {
 function nomeMudou(no) { document.querySelectorAll('#rasto .aqui, .b-nome').forEach(e => { e.textContent = titulo(no); }); }
 function construirAberto(no) {
   const c = el('div', 'centro aberto'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
-  const f = fig(figura(no), no.c, 'c-fig', no.id); f.title = 'Mudar o boneco ou a emoção';
-  f.onclick = () => escolherBoneco(no.id); alvo(f, no.id);
+  const f = fig(figura(no), no.c, 'c-fig', no.id); f.title = 'Escrever sobre isto';
+  f.onclick = () => abrirCaixa(no.id); alvo(f, no.id);
   const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
   if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; nomeMudou(no); });
   t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
@@ -1183,8 +1192,8 @@ function construirAberto(no) {
 function construirCentro(no) {
   if (no.p) return construirAberto(no);
   const c = el('div', 'centro' + (no.p ? ' aberto' : '')); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
-  const f = fig(figura(no), no.c, 'c-fig', no.id); f.title = 'Mudar o boneco ou a emoção';
-  f.onclick = () => escolherBoneco(no.id);
+  const f = fig(figura(no), no.c, 'c-fig', no.id); f.title = 'Escrever sobre ti';
+  f.onclick = () => c.querySelector('textarea').focus();
   alvo(f, no.id);
   const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = no.p ? 'Dá um nome a esta ideia' : 'Nome do Cérebro'; t.spellcheck = false;
   if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; nomeMudou(no); });
@@ -1200,10 +1209,15 @@ function construirCentro(no) {
   n.placeholder = sugestao(no);
   campo(n, v => { no.n = v; no.nDia = new Date().toDateString(); no.nT = Date.now(); });
   n.addEventListener('keydown', e => { if (e.key === 'Escape') n.blur(); });
-  bolha.append(n, visto(n));
+  // ✓ Guardar junta logo o que se escreveu às entradas e deixa o campo livre para a próxima.
+  bolha.append(n, visto(n, () => {
+    const txt = (no.n || '').trim(); if (!txt) return false;
+    mudar(() => { (no.entradas ||= []).push({ t: Date.now(), txt }); no.n = ''; });
+    render({ semCamara: true });
+  }));
   c.append(f, t, f._cont, el('div', 'sobre', '💭 Sobre mim · hoje, ' + new Date().toLocaleDateString('pt-PT', { day: 'numeric', month: 'long' })), bolha);
   const nEnt = (no.entradas || []).length;
-  if (nEnt) c.append(btn(`📖 Entradas antigas (${nEnt})`, 'Ver o que escreveste nos outros dias', abrirEntradas, 'link ent-link'));
+  if (nEnt) c.append(btn(`📖 As minhas entradas (${nEnt})`, 'Ver tudo o que já escreveste sobre ti', abrirEntradas, 'link ent-link'));
   c.append(btn('🌪️ Tenho a cabeça cheia', 'Despejar: escreve tudo como vier e arruma depois', abrirDespejo, 'bt bt-despejo c-despejo'));
   return c;
 }
@@ -1211,10 +1225,10 @@ function construirCentro(no) {
 function abrirEntradas() {
   const j = $('#entradas'), l = j.querySelector('.ent-lista'), raiz = dados.nos[dados.raiz]; l.innerHTML = '';
   const lista = (raiz.entradas || []).slice().sort((a, b) => b.t - a.t);
-  if (!lista.length) l.append(el('div', 'j-sub', 'Ainda não há entradas antigas. O que escreveres hoje fica aqui a partir de amanhã.'));
+  if (!lista.length) l.append(el('div', 'j-sub', 'Ainda não há entradas. Escreve em «Sobre mim», no Cérebro, e carrega em ✓ Guardar.'));
   lista.forEach(en => {
     const x = el('div', 'ent'), topo = el('div', 'ent-topo'); x.style.setProperty('--cor', raiz.c);
-    topo.append(el('b', null, new Date(en.t).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })),
+    topo.append(el('b', null, new Date(en.t).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + hora(en.t)),
       btn('Apagar', 'Apagar esta entrada', () => { mudar(() => { raiz.entradas = raiz.entradas.filter(y => y !== en); }); abrirEntradas(); render({ semCamara: true }); toast('Entrada apagada', true); }, 'link perigo'));
     x.append(topo, el('p', null, en.txt)); l.append(x);
   });
@@ -1295,19 +1309,20 @@ function render(opts = {}) {
   palco.querySelectorAll('.no, .centro, .raiz, .fantasma').forEach(e => e.remove());
   palco.classList.remove('a-focar');
   const raiz = dados.nos[dados.raiz], no = dados.nos[atual], W = mapa.clientWidth, H = mapa.clientHeight;
-  const novo = (e, id) => { if (!antes.has(id) || (id === atual && render.aberto !== atual)) e.classList.add('novo'); };
-  const r = atual === raiz.id ? construirCentro(raiz) : construirRaiz(raiz);
+  const semJanela = fechado();
+  const novo = (e, id) => { if (!antes.has(id) || (id === atual && !semJanela && render.aberto !== atual)) e.classList.add('novo'); };
+  const r = atual === raiz.id && !semJanela ? construirCentro(raiz) : construirRaiz(raiz);
   palco.append(r); poe(r, W / 2, H / 2);
   if (r.className !== render.raizCls) r.classList.add('novo');   // o Cérebro só se anima quando muda de forma
   render.raizCls = r.className.replace(' novo', '');
   let aberto = null;
   // Com o Cérebro aberto (que é grande), os anéis alargam-se para nenhuma ideia ficar por baixo dele.
-  const cAb = atual === raiz.id;
+  const cAb = atual === raiz.id && !semJanela;
   arvore(raiz, W, H, cAb ? r.offsetWidth : 230, cAb ? r.offsetHeight + 210 : 240).forEach(it => {
     const n = dados.nos[it.id], dv = desvio(it.id), x = it.x + dv.dx, y = it.y + dv.dy;
     let e = construirCartao(n, it.d);
     e.dataset.pai = it.pai; palco.append(e); poe(e, x, y);
-    if (it.id === atual) {
+    if (it.id === atual && !semJanela) {
       // A nuvem aberta nasce com o boneco no mesmo sítio do da ideia fechada: as linhas não saltam.
       const c = meioFig(e); e.remove();
       e = aberto = construirAberto(n); e.dataset.pai = it.pai; e._esc = tamanho(it.d); e.style.setProperty('--s', e._esc);
@@ -1319,8 +1334,8 @@ function render(opts = {}) {
   });
   if (!elDe(atual)) { atual = dados.raiz; render(opts); return; }
   if (aberto) darEspaco(aberto);
-  render.aberto = atual;
-  if (sel && !cartaoDe(sel) && !(sel === raiz.id && atual !== raiz.id)) sel = null;
+  render.aberto = semJanela ? null : atual;
+  if (sel && !cartaoDe(sel) && !(sel === raiz.id && palco.querySelector('.raiz'))) sel = null;
   notarHist(); desenharRasto(); desenharBarra();
   marcarSel(); linhas(); if (!opts.semCamara) enquadrar(opts.suave);
   if (!opts.semCamara) deslizar(antes, raiz.id);
@@ -1370,11 +1385,20 @@ function deslizar(antes, raizId) {
 /* ---------- A barra da ideia aberta: o que se pode fazer com ela ---------- */
 let menuBarra = null;
 function fecharMenuBarra() { if (menuBarra) { menuBarra = null; desenharBarra(); } }
+// A barra é da ideia escolhida (a que se acabou de criar, ou a das setas); sem escolha, é da ideia aberta.
+function alvoBarra() { return sel && sel !== atual && dados.nos[sel] && (cartaoDe(sel) || sel === dados.raiz) ? sel : atual; }
+function figDe(id) { const e = id === atual && !fechado() ? palco.querySelector('.centro') : (cartaoDe(id) || palco.querySelector('.raiz')); return e && e.querySelector('.fig'); }
+let barraId = null;
 function desenharBarra() {
-  const br = $('#barra'), no = dados.nos[atual]; br.innerHTML = ''; br.hidden = !no || !chave;
+  const br = $('#barra'), id = alvoBarra(), no = dados.nos[id], aberta = id === atual && !fechado(); br.innerHTML = ''; br.hidden = !no || !chave;
   if (br.hidden) return;
-  const raiz = !no.p, gav = !!no.g, figC = () => palco.querySelector('.centro .fig');
+  if (barraId !== id) { barraId = id; menuBarra = null; }
+  const raiz = !no.p, gav = !!no.g, figC = () => figDe(id);
+  // Abrir a ideia escolhida, para o que só se faz com ela aberta.
+  const abrir = () => { if (!aberta) { atual = id; fechadoId = null; sel = null; render({ suave: true }); } };
   br.style.setProperty('--cor', no.c);
+  // «Nova ideia» cria sempre dentro da ideia aberta, para se poderem criar várias de seguida.
+  br.append(btn('＋ Nova ideia', 'Nova ideia dentro de «' + titulo(dados.nos[atual]) + '» (Tab)', () => { menuBarra = null; novoRamo(atual); }, 'bt bt-ideia'), el('span', 'b-div'));
   const nome = el('div', 'b-nome', titulo(no)); nome.title = titulo(no); br.append(nome);
   const item = (ic, txt, sub, tecla, fn, fica, cls) => {
     const b = el('button', 'b-item' + (cls ? ' ' + cls : '')), tx = el('span', 'tx', txt);
@@ -1389,9 +1413,8 @@ function desenharBarra() {
     if (menuBarra === k) { const pop = el('div', 'b-pop' + (largo ? ' largo' : '')); encher(pop); w.append(pop); }
     br.append(w);
   };
-  br.append(btn('＋ Nova ideia', 'Nova ideia aqui dentro (Tab)', () => { menuBarra = null; novoRamo(no.id); }, 'bt bt-ideia'),
-            btn('✏️ Escrever', raiz ? 'Escrever o que te anda na cabeça' : 'Escrever sobre esta ideia e ver tudo o que tem', () => {
-              menuBarra = null; if (raiz) { desenharBarra(); palco.querySelector('.centro textarea').focus(); } else abrirCaixa(no.id); }, 'bt bt-emo'));
+  br.append(btn('✏️ Escrever', raiz ? 'Escrever sobre ti' : 'Escrever sobre isto, responder às perguntas e arrumar', () => {
+              menuBarra = null; if (raiz) { abrir(); desenharBarra(); palco.querySelector('.centro textarea').focus(); } else abrirCaixa(no.id); }, 'bt bt-emo'));
   menu('sentir', '💗 Sentir', 'Bater, festinhas, emoção e respirar', pop => {
     pop.append(item('🤜', 'Bater', 'Pôr a força cá para fora', 'B', () => bater(no, figC()), true),
                item('🤚', 'Festinhas', 'Dar carinho', 'F', () => festinhas(no, figC()), true),
@@ -1399,20 +1422,6 @@ function desenharBarra() {
                item('🫁', 'Respirar', 'Um minuto de calma, comigo', 'R', respirar));
     const c = el('div', 'b-sec', txtContador(no)); c.id = 'b-cont'; pop.append(c);
   });
-  if (!raiz && !gav) menu('arrumar', '📦 Arrumar', 'Gavetas e arrumar por hoje', pop => {
-    const gavs = no.f.map(x => dados.nos[x]).filter(x => x && x.g);
-    const vazias = gavs.filter(x => !x.arq && !temConteudo(x));
-    const q = gavetasDoTipo(no.tipo).length;
-    if (!gavs.length) pop.append(item('🗂️', 'Abrir as gavetas', `${q} pergunta${q === 1 ? '' : 's'} para arrumar este assunto, peça a peça`, '', () => porGavetas(no.id)));
-    else if (vazias.length) {
-      pop.append(el('div', 'b-sec', 'Gavetas por abrir (carrega numa para escrever lá)'));
-      const l = el('div', 'b-linha');
-      vazias.forEach(g => { const x = btn(GAV[g.g].ic + ' ' + GAV[g.g].nome, GAV[g.g].perg, () => { menuBarra = null; abrirCaixa(g.id); }, 'b-chip'); alvo(x, g.id); l.append(x); });
-      pop.append(l, el('hr'));
-    }
-    pop.append(no.arq ? item('📦', 'Reabrir', 'Este assunto está arrumado', '', () => reabrir(no.id))
-                      : item('📦', 'Arrumar por hoje', 'Fechar este assunto e descansar dele', '', () => abrirArrumar(no.id)));
-  }, true);
   // No Cérebro este menu só tem a cor e o nome: o botão diz logo o que é.
   menu('mais', raiz ? '🎨 Cor e nome' : '⋯ Mais', raiz ? 'Mudar a cor e o nome do Cérebro' : 'O que é, cor, nome e apagar', pop => {
     if (!raiz && !gav) {
@@ -1421,7 +1430,8 @@ function desenharBarra() {
     }
     pop.append(el('div', 'b-sec', 'Cor'));
     const lc = el('div', 'b-linha'); lc.append(linhaCores(no, () => render({ semCamara: true }))); pop.append(lc);
-    if (!gav) pop.append(el('hr'), item('✎', 'Mudar o nome', '', 'F2', () => { const i = palco.querySelector('.centro .c-nome'); i.focus(); i.select(); }));
+    if (!gav) pop.append(el('hr'), item('✎', 'Mudar o nome', '', 'F2', () => {
+      if (aberta) { const i = palco.querySelector('.centro .c-nome'); i.focus(); i.select(); } else if (raiz) boasVindas('nome'); else renomear(no.id); }));
     if (!raiz) pop.append(item('🗑️', 'Apagar', gav ? 'Apaga esta gaveta e o que tem dentro' : 'Apaga esta ideia e as que tem dentro', '', () => apagar(no.id), false, 'perigo'));
   });
 }
@@ -1475,6 +1485,7 @@ function linhas() {
   while (tracos.length > i) tracos[tracos.length - 1].remove();
 }
 function marcarSel() {
+  if (alvoBarra() !== barraId) desenharBarra();
   palco.querySelectorAll('.no, .raiz').forEach(n => n.classList.toggle('sel', !!sel && n.dataset.id === sel));
 }
 // As setas escolhem a ideia mais próxima nessa direcção, a partir da escolhida (ou da aberta).
@@ -1508,7 +1519,8 @@ function porEm(g, r) { g.style.left = r.l + 'px'; g.style.top = r.t + 'px'; g.st
 // lá. O mapa não muda de sítio; as linhas continuam a ir até ao Cérebro.
 function foco(id) {
   if (!dados.nos[id]) return;
-  if (id === atual) { enquadrar(true); return; }
+  if (id === atual && !fechado()) { enquadrar(true); return; }
+  if (id === atual) { fechadoId = null; sel = null; render({ suave: true }); return; }   // estava com a janela fechada: abre-a
   const anterior = atual; atual = id;
   sel = id === dados.nos[anterior]?.p ? anterior : null;   // ao subir, fica escolhida a ideia de onde se veio
   render({ suave: true });
@@ -1519,7 +1531,7 @@ function subir(id) { foco(id); }
 // Zoom dinâmico: as ideias mais fundas são mais pequenas, por isso a câmara aproxima-se
 // mais delas. A nuvem aberta fica sempre com o mesmo tamanho no ecrã, em qualquer nível.
 function enquadrar(suave) {
-  if (atual === dados.raiz) { ajustar(suave, FOCO_MS); return; }
+  if (atual === dados.raiz || fechado()) { ajustar(suave, FOCO_MS); return; }
   const f = elDe(atual); if (!f) { ajustar(suave, FOCO_MS); return; }
   const z = Math.min(2.5, 1 / (f._esc || 1));
   ajustar(suave, FOCO_MS, [f, ...palco.querySelectorAll(`[data-pai="${atual}"]`)], z * .62, z);
@@ -1656,19 +1668,41 @@ function abrirCaixa(id) {
   const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
   if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; });
   t.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); notas.focus(); } });
-  f._cont = el('div', 'contador'); contador(f, no);
-  meio.append(t, acoesSentir(no, f), f._cont);
+  meio.append(t, btn('😶 Como me sinto com isto', 'Escolher a emoção e o boneco', () => escolherBoneco(id), 'bt bt-emo'));
   const bts = el('div', 'cx-bts');
   bts.append(btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'bt redondo'), btn('⤢', 'Pôr no centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt redondo'));
   topo.append(f, meio, bts);
   const bolha = el('div', 'bolha'), notas = el('textarea');
+  // As perguntas (gavetas) do que a ideia é ficam aqui, como separadores: escreve-se em cada uma sem sair da janela.
+  // Uma gaveta só passa a existir no mapa quando se escreve nela.
+  const comAbas = !!no.p && !no.g, abas = el('div', 'cx-abas');
+  let aba = null;
+  const textoDe = k => { if (!k) return no.n || ''; const g = gavetaDe(no, k); return g ? g.n || '' : ''; };
+  const desenharAbas = () => {
+    abas.innerHTML = '';
+    const chaves = [null, ...gavetasDoTipo(no.tipo)];
+    no.f.forEach(x => { const g = dados.nos[x]; if (g && g.g && !g.arq && !chaves.includes(g.g) && temConteudo(g)) chaves.push(g.g); });   // gavetas de outro tipo que já têm texto
+    chaves.forEach(k => {
+      const b = el('button', 'cx-aba' + (k === aba ? ' on' : '') + (textoDe(k).trim() ? ' cheia' : ''), k ? GAV[k].ic + ' ' + GAV[k].nome : '📝 Notas');
+      b.title = k ? GAV[k].perg : 'O que quiseres escrever sobre isto';
+      b.addEventListener('mousedown', e => e.preventDefault());
+      b.onclick = () => { aba = k; notas.value = textoDe(k); notas.placeholder = k ? GAV[k].perg : sugestao(no); desenharAbas(); notas.focus(); };
+      abas.append(b);
+    });
+  };
   notas.value = no.n || ''; notas.placeholder = sugestao(no);
-  campo(notas, v => { no.n = v; }); bolha.append(notas);
-  const cores = linhaCores(no, () => { cx.style.setProperty('--cor', no.c); cores.querySelectorAll('.cor').forEach((b, i) => b.classList.toggle('on', CORES[i] === no.c)); });
-  cores.style.justifyContent = 'flex-start';
+  campo(notas, v => {
+    if (!aba) { no.n = v; return; }
+    let g = gavetaDe(no, aba);
+    if (!g) { const gid = novaGaveta(id, aba); no.f.push(gid); g = dados.nos[gid]; }
+    g.n = v;
+  });
+  notas.addEventListener('input', () => { const b = abas.querySelector('.on'); if (b) b.classList.toggle('cheia', !!notas.value.trim()); });
+  bolha.append(notas);
+  if (comAbas) desenharAbas();
   const ramos = el('div', 'cx-ramos');
   const desenharRamos = () => {
-    // As gavetas ainda vazias não aparecem aqui: estão em 📦 Arrumar, na barra.
+    // As gavetas vazias não aparecem aqui: são os separadores de cima.
     const dentro = no.f.filter(fid => { const x = dados.nos[fid]; return x && !(x.g && !temConteudo(x)); });
     ramos.innerHTML = ''; ramos.append(el('span', null, dentro.length ? 'Ideias aqui dentro:' : 'Ainda sem ideias aqui dentro.'));
     dentro.forEach(fid => {
@@ -1686,13 +1720,16 @@ function abrirCaixa(id) {
     ramos.append(inp);
   };
   desenharRamos();
-  const fim = el('div', 'cx-fim'); fim.append(el('span', null, 'Fica guardado enquanto escreves. O Enter muda de linha.'), visto(notas, () => fecharCaixa()));
-  cx.append(topo, bolha, cores, ramos, fim);
+  const fim = el('div', 'cx-fim');
+  if (comAbas) fim.append(no.arq ? btn('📦 Reabrir', 'Este assunto está arrumado', () => { fecharCaixa(true); reabrir(id); }, 'bt bt-arrumar')
+                                 : btn('📦 Arrumar por hoje', 'Fechar este assunto por hoje e descansar dele', () => { fecharCaixa(true); abrirArrumar(id); }, 'bt bt-arrumar'));
+  fim.append(el('span', null, 'Fica guardado enquanto escreves. O Enter muda de linha.'), visto(notas, () => fecharCaixa()));
+  cx.append(topo); if (comAbas) cx.append(abas); cx.append(bolha, ramos, fim);
   const m = mapa.getBoundingClientRect(), r0 = card ? card.getBoundingClientRect() : null;
   porEm(cx, r0 ? { l: r0.left - m.left, t: r0.top - m.top, w: r0.width, h: r0.height } : { l: W / 2 - 90, t: H / 2 - 60, w: 180, h: 120 });
   mapa.append(cx); mapa.classList.add('com-caixa');
   caixa = { el: cx, id };
-  const w = Math.min(720, Math.max(330, W * .62)), h = Math.min(580, Math.max(380, H * .8));
+  const w = Math.min(720, Math.max(330, W * .62)), h = Math.min(640, Math.max(380, H * .86));
   const alvoR = { l: (W - w) / 2, t: Math.max(10, (H - h) / 2), w, h };
   cx.offsetWidth;
   if (reduz) porEm(cx, alvoR); else requestAnimationFrame(() => porEm(cx, alvoR));
@@ -1890,9 +1927,6 @@ function desenharFrases() {
     const c = el('div', 'frase', fr); c.draggable = true;
     c.ondragstart = e => {
       arrastoFrase = i; e.dataTransfer.setData('text/plain', fr); e.dataTransfer.effectAllowed = 'copy';
-      // As gavetas por abrir da ideia aberta ficam à vista, para a frase poder ir para lá.
-      const no = dados.nos[atual];
-      if (no.p && !no.g && menuBarra !== 'arrumar' && no.f.some(x => dados.nos[x] && dados.nos[x].g && !temConteudo(dados.nos[x]))) setTimeout(() => { menuBarra = 'arrumar'; desenharBarra(); }, 0);
     };
     c.ondragend = () => { arrastoFrase = null; document.querySelectorAll('.alvo').forEach(x => x.classList.remove('alvo')); };
     c.append(btn('×', 'Tirar esta frase', () => { dados.despejo.frases.splice(i, 1); guardar(); desenharFrases(); }, 'frase-x'));
@@ -2180,7 +2214,11 @@ document.addEventListener('keydown', e => {
   const no = dados.nos[atual], figC = palco.querySelector('.centro .fig');
   switch (e.key.length === 1 ? e.key.toLowerCase() : e.key) {
     case 'Tab': e.preventDefault(); novoRamo(atual); break;
-    case 'Escape': if (sel) { sel = null; marcarSel(); } else if (no.p) subir(no.p); break;
+    // Esc fecha a janela da ideia aberta (ela fica só escolhida); outra vez, tira a escolha.
+    case 'Escape':
+      if (!fechado()) { fechadoId = atual; sel = atual; render({ suave: true }); }
+      else if (sel) { sel = null; atual = fechadoId = dados.raiz; render({ suave: true }); }
+      break;
     case 'ArrowRight': e.preventDefault(); escolherAoLado(1, 0); break;
     case 'ArrowLeft': e.preventDefault(); escolherAoLado(-1, 0); break;
     case 'ArrowDown': e.preventDefault(); escolherAoLado(0, 1); break;
@@ -2189,9 +2227,9 @@ document.addEventListener('keydown', e => {
     case ' ': if (sel) { e.preventDefault(); abrirCaixa(sel); } break;
     case 'F2': e.preventDefault(); if (sel && sel !== dados.raiz) renomear(sel); else palco.querySelector('.c-nome').focus(); break;
     case 'Backspace': case 'Delete': if (sel) { e.preventDefault(); apagar(sel); } break;
-    case 'b': if (figC) bater(no, figC); break;
-    case 'f': if (figC) festinhas(no, figC); break;
-    case 'e': escolherBoneco(atual); break;
+    case 'b': { const a = alvoBarra(), f = figDe(a); if (f) bater(dados.nos[a], f); break; }
+    case 'f': { const a = alvoBarra(), f = figDe(a); if (f) festinhas(dados.nos[a], f); break; }
+    case 'e': escolherBoneco(alvoBarra()); break;
     case 'r': respirar(); break;
     case '0': ajustar(true); break;
   }
