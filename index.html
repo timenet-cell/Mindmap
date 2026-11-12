@@ -101,6 +101,10 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 .centro.aberto .c-fig { width: 92px; height: 92px; }
 .centro.aberto .c-nome { font-size: 17px; padding: 3px 10px; border-radius: 16px; border-width: 2.5px; box-shadow: 0 3px 0 var(--linha); }
 .ab-nota { width: 100%; font-size: 13px; color: var(--text2); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.bt-outro { background: #d9f3ff; color: #2a2230; }
+.ab-outro { width: 100%; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; background: #d9f3ff; color: #2a2230; border: 2px solid var(--linha); border-radius: 999px; padding: 2px 8px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ab-outro:hover { background: var(--sel-bg); }
 .ab-nota.vazia { color: var(--text3); font-style: italic; }
 .ab-nota:hover { color: var(--accent); }
 .ab-arq { font-size: 12.5px; color: var(--text2); font-weight: 600; }
@@ -112,6 +116,10 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 /* Bonecos e animação */
 .bnc { display: block; width: 100%; height: 100%; overflow: visible; }
 .fig { position: relative; cursor: pointer; }
+/* O selo: como EU me sinto com a ideia (a cara do boneco é outra coisa) */
+.sinto { position: absolute; left: -6%; top: -6%; z-index: 1; width: calc(30px * var(--s, 1)); height: calc(30px * var(--s, 1)); font-size: calc(18px * var(--s, 1)); line-height: 1;
+  display: flex; align-items: center; justify-content: center; background: var(--surface); border: calc(2px * var(--s, 1)) solid var(--linha); border-radius: 50%; box-shadow: 0 calc(2px * var(--s, 1)) 0 var(--linha); }
+.centro.aberto .sinto { width: 30px; height: 30px; font-size: 18px; border-width: 2px; box-shadow: 0 2px 0 var(--linha); }
 .fig-in { width: 100%; height: 100%; animation: bob 3.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
 .fig-in img { width: 100%; height: 100%; object-fit: contain; display: block; filter: drop-shadow(0 3px 0 rgba(0,0,0,.18)); }
 @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(-1.5deg); } }
@@ -227,7 +235,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 9px 16px; posit
 kbd { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(--text3); border-radius: 5px; padding: 0 5px; background: var(--surface); color: var(--text2); }
 
 /* A barra da ideia aberta: todas as funções num só sítio, com nome, em grupos */
-#barra { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 8; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
+#barra { position: absolute; left: 14px; right: 14px; margin: 0 auto; width: fit-content; bottom: 12px; z-index: 8; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
   max-width: calc(100% - 28px); background: var(--surface); border: 3px solid var(--linha); border-top: 6px solid var(--cor); border-radius: 26px; box-shadow: 0 5px 0 var(--linha);
   padding: 6px 10px 7px; cursor: default; }
 #barra[hidden], #mapa.com-caixa #barra { display: none; }
@@ -571,7 +579,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.12.04';
+const APP_VERSAO = '2026.11.12.06';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -591,6 +599,7 @@ const GAVETAS = [
   ['bom', '🌱', 'Coisas boas', 'O que já fizeste bem? Quem te ajuda? O que te faz sorrir, mesmo pouquinho?', '#5cc95c'],
   ['fecho', '🔒', 'Fecho', 'O que decides por hoje? Uma frase gentil para ti chega.', '#6b7cff'],
   // Estas são para as pessoas, os animais e os objectos (ver GAVETAS_TIPO).
+  ['sente', '🫶', 'Como se sente', 'Como achas que está? O que estará a viver, a precisar, a sentir? Não precisas de ter a certeza.', '#6cc5e8'],
   ['gosto', '💛', 'O que gosto', 'O que gostas aqui? O que te faz bem?', '#ffc94a'],
   ['custa', '🌧️', 'O que me custa', 'O que te magoa ou te cansa nisto? Podes dizer, é só teu.', '#8fa3c7'],
   ['dizer', '💬', 'O que queria dizer', 'Se pudesses dizer tudo, com calma, o que dizias?', '#5cb8e6'],
@@ -601,8 +610,8 @@ const GAVETAS = [
 // Que gavetas tem cada tipo de ideia, por ordem. Os tipos que não estão aqui (ideia e os antigos) têm as 13 primeiras.
 const GAVETAS_ASSUNTO = GAVETAS.slice(0, 13).map(g => g[0]);
 const GAVETAS_TIPO = {
-  pessoa: ['gosto', 'custa', 'dizer', 'preciso', 'meu', 'largar', 'bom', 'fecho'],
-  animal: ['gosto', 'memorias', 'cuidar', 'bom'], cao: ['gosto', 'memorias', 'cuidar', 'bom'], gato: ['gosto', 'memorias', 'cuidar', 'bom'],
+  pessoa: ['sente', 'gosto', 'custa', 'dizer', 'preciso', 'meu', 'largar', 'bom', 'fecho'],
+  animal: ['sente', 'gosto', 'memorias', 'cuidar', 'bom'], cao: ['sente', 'gosto', 'memorias', 'cuidar', 'bom'], gato: ['sente', 'gosto', 'memorias', 'cuidar', 'bom'],
   objeto: ['significa', 'memorias', 'largar', 'fecho'],
 };
 const gavetasDoTipo = tipo => GAVETAS_TIPO[tipo] || GAVETAS_ASSUNTO;
@@ -1190,6 +1199,7 @@ function construirAberto(no) {
   const c = el('div', 'centro aberto'); c.dataset.id = no.id; c.style.setProperty('--cor', no.c);
   const f = fig(figura(no), no.c, 'c-fig', no.id); f.title = 'Escrever sobre isto';
   f.onclick = () => abrirCaixa(no.id); alvo(f, no.id);
+  if (no.sinto) f.append(selo(no));
   const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
   if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; nomeMudou(no); });
   t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); t.blur(); } });
@@ -1197,6 +1207,7 @@ function construirAberto(no) {
   const l1 = (no.n || '').split('\n').find(s => s.trim());
   const nt = el('div', 'ab-nota' + (l1 ? '' : ' vazia'), l1 ? '💭 ' + l1 : (no.g ? GAV[no.g].perg : 'Carrega aqui para escrever…'));
   nt.title = 'Escrever'; nt.onclick = () => abrirCaixa(no.id); c.append(nt);
+  if (eSer(no)) { const o = el('div', 'ab-outro', txtOutro(no)); o.title = 'Dizer como achas que se sente'; o.onclick = () => escolherOutro(no.id); c.append(o); }
   if (no.arq) { const a = el('div', 'ab-arq', '📦 Arrumado · '); a.append(btn('Reabrir', '', () => reabrir(no.id), 'link')); c.append(a); }
   return c;
 }
@@ -1254,7 +1265,8 @@ function construirCartao(no, prof = 1) {
   bts.append(btn('↗', 'Abrir aqui', () => abrirCaixa(no.id)),
              btn('×', 'Apagar (⌫)', () => apagar(no.id), 'x'));
   const nome = el('div', 'no-nome' + (no.t ? '' : ' sem'), titulo(no));
-  d.append(bts, fig(figura(no), no.c, '', no.id), nome);
+  const fg = fig(figura(no), no.c, '', no.id); if (no.sinto) fg.append(selo(no));
+  d.append(bts, fg, nome);
   if (no.f.length && prof >= MAXP) d.append(el('div', 'no-extra', `💭 ${no.f.length} ideia${no.f.length === 1 ? '' : 's'}`));
   d.onclick = e => { if (acabouDeMover || e.target.closest('button,input')) return; irPara(no.id, d); };
   alvo(d, no.id);
@@ -1426,10 +1438,12 @@ function desenharBarra() {
   };
   br.append(btn('✏️ Escrever', raiz ? 'Escrever sobre ti' : 'Escrever sobre isto, responder às perguntas e arrumar', () => {
               menuBarra = null; if (raiz) { abrir(); desenharBarra(); palco.querySelector('.centro textarea').focus(); } else abrirCaixa(no.id); }, 'bt bt-emo'));
+  if (eSer(no)) br.append(btn(no.b && no.b.dito ? txtOutro(no) : '🫶 Como se sente?', 'Dizer como achas que ' + nomeDe(no) + ' se sente', () => { menuBarra = null; escolherOutro(no.id); }, 'bt bt-outro'));
   menu('sentir', '💗 Sentir', 'Bater, festinhas, emoção e respirar', pop => {
     pop.append(item('🤜', 'Bater', 'Pôr a força cá para fora', 'B', () => bater(no, figC()), true),
                item('🤚', 'Festinhas', 'Dar carinho', 'F', () => festinhas(no, figC()), true),
-               item('😶', 'Boneco e emoção', 'Como te sentes com isto?', 'E', () => escolherBoneco(no.id)),
+               item('😶', raiz ? 'Como me sinto' : 'Como me sinto com isto', no.sinto && !raiz ? EMO_IC[no.sinto] + ' ' + nomeEmo(no.sinto) : 'A tua emoção', 'E', () => escolherSinto(no.id)),
+               ...(raiz ? [] : [item('🎭', 'O boneco e a cara dele', 'Mudar o boneco ou a cara que ele tem', '', () => escolherBoneco(no.id))]),
                item('🫁', 'Respirar', 'Um minuto de calma, comigo', 'R', respirar));
     const c = el('div', 'b-sec', txtContador(no)); c.id = 'b-cont'; pop.append(c);
   });
@@ -1572,7 +1586,7 @@ function porTipo(n, tipo) {
   const k = n.b ? n.b.k : 'nuvem';
   if (!B_AUTO.includes(k)) return;                                   // um boneco escolhido à mão não se troca
   if ((animal && (k === 'cao' || k === 'gato')) || (pessoa && (k === 'rapaz' || k === 'rapariga'))) return;
-  n.b = { k: quer, e: n.b ? n.b.e : (quer === 'nuvem' ? 'calmo' : 'feliz') };
+  n.b = Object.assign({}, n.b, { k: quer, e: n.b ? n.b.e : (quer === 'nuvem' ? 'calmo' : 'feliz') });
 }
 function porPessoa(n, k) { n.b = { k, e: n.b ? n.b.e : 'feliz' }; lsSet(KEY_PESSOA, k); }
 // Os botões de «O que é?»; nas pessoas, também rapaz ou rapariga. depois(tipo, bonecoDaPessoa)
@@ -1691,12 +1705,15 @@ function abrirCaixa(id) {
   const W = mapa.clientWidth, H = mapa.clientHeight;
   const cx = el('div', 'caixa'); cx.style.setProperty('--cor', no.c);
   const topo = el('div', 'cx-topo');
-  const f = fig(figura(no), no.c); f.title = 'Mudar o boneco ou a emoção'; f.onclick = () => escolherBoneco(id);
+  const f = fig(figura(no), no.c); f.title = 'Mudar o boneco ou a cara dele'; f.onclick = () => escolherBoneco(id);
   const meio = el('div', 'cx-meio');
   const t = el('input', 'c-nome'); t.value = no.g ? titulo(no) : no.t; t.placeholder = 'Dá um nome a esta ideia'; t.spellcheck = false;
   if (no.g) t.readOnly = true; else campo(t, v => { no.t = v; });
   t.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); notas.focus(); } });
-  meio.append(t, btn('😶 Como me sinto com isto', 'Escolher a emoção e o boneco', () => escolherBoneco(id), 'bt bt-emo'));
+  const sentires = el('div', 'acoes'); sentires.style.justifyContent = 'flex-start';
+  sentires.append(btn(no.sinto ? `Como me sinto com isto: ${EMO_IC[no.sinto] || ''} ${nomeEmo(no.sinto)}` : '😶 Como me sinto com isto', 'Dizer como TU te sentes com isto (não muda a cara do boneco)', () => escolherSinto(id), 'bt bt-emo'));
+  if (eSer(no)) sentires.append(btn(txtOutro(no), 'Dizer como achas que se sente (muda a cara do boneco)', () => escolherOutro(id), 'bt bt-outro'));
+  meio.append(t, sentires);
   const bts = el('div', 'cx-bts');
   bts.append(btn('×', 'Fechar (Esc)', () => fecharCaixa(), 'bt redondo'), btn('⤢', 'Pôr no centro', () => { fecharCaixa(true); irPara(id, cartaoDe(id)); }, 'bt redondo'));
   topo.append(f, meio, bts);
@@ -1845,9 +1862,40 @@ function festinhas(no, f) {
 
 /* ---------- Escolher o boneco e a emoção, e os teus bonecos ---------- */
 const esc = $('#escolher');
-let escId = null, escK = null, carregarPara = null;
+let escId = null, escK = null, carregarPara = null, escModo = 'boneco';
+const EMO_IC = { feliz: '😊', calmo: '😌', carinho: '🥰', triste: '😢', zangado: '😠', furioso: '😡', ansioso: '😰', assustado: '😨', cansado: '😴', confuso: '😕' };
+const nomeEmo = e => (EMOCOES.find(x => x[0] === e) || [e, e])[1];
+// Como EU me sinto com a ideia (no.sinto) é diferente da cara do boneco dela (no.b.e).
+// No Cérebro é a mesma coisa: o Cérebro sou eu.
+function escolherSinto(id) {
+  if (id === dados.raiz) { escolherBoneco(id); return; }
+  escModo = 'sinto'; escId = id; desenharEscolha(); esc.hidden = false;
+}
+function definirSinto(e) {
+  const id = escId, reabrir = caixa && caixa.id === id;
+  if (e) registar('emo', { e });
+  mudar(() => { if (e) dados.nos[id].sinto = e; else delete dados.nos[id].sinto; });
+  esc.hidden = true; render({ semCamara: true }); if (reabrir) abrirCaixa(id);
+}
+// Olhar para fora: como acho que a pessoa (ou o animal) se sente. É a cara do boneco dela.
+// b.dito marca que foi a pessoa a dizê-lo (a cara com que o boneco nasce não conta).
+const eSer = no => ['pessoa', 'animal', 'cao', 'gato'].includes(no.tipo);
+const nomeDe = no => no.t || (no.tipo === 'pessoa' ? 'esta pessoa' : 'este animal');
+function escolherOutro(id) { escModo = 'outro'; escId = id; desenharEscolha(); esc.hidden = false; }
+function definirOutro(e) {
+  const id = escId, no = dados.nos[id], reabrir = caixa && caixa.id === id;
+  registar('outro', { e });
+  mudar(() => { no.b = { k: figura(no).k, e, dito: true }; });
+  esc.hidden = true; render({ semCamara: true }); if (reabrir) abrirCaixa(id);
+  toast(`Olhaste para ${nomeDe(no)} 🫶`);
+}
+function txtOutro(no) { return no.b && no.b.dito ? `${EMO_IC[no.b.e] || ''} ${nomeDe(no)}: ${nomeEmo(no.b.e).toLowerCase()}` : `🫶 Como achas que ${nomeDe(no)} se sente?`; }
+function selo(no) {
+  const b = el('div', 'sinto', EMO_IC[no.sinto] || '💭'); b.title = 'Como me sinto com isto: ' + nomeEmo(no.sinto);
+  return b;
+}
 function escolherBoneco(id) {
-  escId = id; escK = figura(dados.nos[id]).k;
+  escModo = 'boneco'; escId = id; escK = figura(dados.nos[id]).k;
   if (escK.startsWith('u:') && !dados.colecoes[escK.slice(2)]) escK = 'nuvem';
   desenharEscolha(); esc.hidden = false;
 }
@@ -1856,6 +1904,28 @@ function desenharEscolha() {
   const no = dados.nos[escId], atualB = figura(no);
   const bs = esc.querySelector('.esc-bonecos'), meu = esc.querySelector('.esc-meu'), es = esc.querySelector('.esc-emocoes');
   bs.innerHTML = ''; meu.innerHTML = ''; es.innerHTML = '';
+  const raiz = escId === dados.raiz;
+  esc.querySelector('.j-topo b').textContent = escModo === 'sinto' ? `Como me sinto com «${titulo(no)}»?` : raiz ? 'Como me sinto' : 'O boneco e a cara dele';
+  esc.querySelector('.j-sub').textContent = escModo === 'sinto' ? 'Isto é sobre ti, não sobre a cara do boneco.' : raiz ? 'Como te sentes?' : 'Que boneco é, e que cara tem?';
+  if (escModo === 'outro') {
+    esc.querySelector('.j-topo b').textContent = `Como achas que ${nomeDe(no)} se sente?`;
+    esc.querySelector('.j-sub').textContent = 'Olha um bocadinho para fora. Não precisas de ter a certeza: é o que te parece.';
+    EMOCOES.forEach(([e, nome]) => {
+      const x = el('button', 'esc-e' + (atualB.dito && atualB.e === e ? ' on' : ''));
+      x.append(miniatura({ k: atualB.k, e }, no.c), el('span', null, EMO_IC[e] + ' ' + nome)); x.onclick = () => definirOutro(e);
+      es.append(x);
+    });
+    return;
+  }
+  if (escModo === 'sinto') {
+    EMOCOES.forEach(([e, nome]) => {
+      const x = el('button', 'esc-e' + (no.sinto === e ? ' on' : ''));
+      x.append(miniatura({ k: 'cerebro', e }), el('span', null, EMO_IC[e] + ' ' + nome)); x.onclick = () => definirSinto(e);
+      es.append(x);
+    });
+    if (no.sinto) meu.append(btn('Tirar o que escolhi', '', () => definirSinto(null), 'link'));
+    return;
+  }
   const opcao = (k, nome, b, cls) => {
     const x = el('button', 'esc-b' + (cls ? ' ' + cls : '') + (k === escK ? ' on' : ''));
     x.append(b ? miniatura(b, no.c) : el('div', 'esc-mais', '＋'), el('span', null, nome));
@@ -1904,7 +1974,8 @@ function desenharEscolha() {
 }
 function definirBoneco(b) {
   const id = escId, reabrir = caixa && caixa.id === id;
-  if (b && b.e) registar('emo', { e: b.e });
+  if (b && b.e && id === dados.raiz) registar('emo', { e: b.e });   // só o Cérebro sou eu
+  if (b && id !== dados.raiz) b.dito = true;
   mudar(() => { dados.nos[id].b = b; });
   esc.hidden = true; render(); if (reabrir) abrirCaixa(id);
 }
@@ -2275,7 +2346,7 @@ document.addEventListener('keydown', e => {
     case 'Backspace': case 'Delete': if (sel) { e.preventDefault(); apagar(sel); } break;
     case 'b': { const a = alvoBarra(), f = figDe(a); if (f) bater(dados.nos[a], f); break; }
     case 'f': { const a = alvoBarra(), f = figDe(a); if (f) festinhas(dados.nos[a], f); break; }
-    case 'e': escolherBoneco(alvoBarra()); break;
+    case 'e': escolherSinto(alvoBarra()); break;
     case 'r': respirar(); break;
     case '0': ajustar(true); break;
   }
@@ -2324,13 +2395,13 @@ function desenharStats(dias) {
   // Os números.
   const tiles = el('div', 'st-tiles');
   [['💭', conta('ideia'), 'ideias tiradas da cabeça'], ['📦', conta('arrumar'), 'assuntos arrumados'], ['🫁', conta('respirar'), 'respirações'],
-   ['🌱', bons, 'coisas boas guardadas'], ['🤚', conta('festa'), 'festinhas'], ['🤜', conta('soco'), 'socos']]
+   ['🌱', bons, 'coisas boas guardadas'], ['🫶', conta('outro'), 'vezes a olhar para os outros'], ['🤚', conta('festa'), 'festinhas'], ['🤜', conta('soco'), 'socos']]
     .forEach(([ic, v, t]) => { const x = el('div', 'st-tile'); x.append(el('b', null, ic + ' ' + v), el('span', null, t)); tiles.append(x); });
   c.append(tiles);
   // As emoções escolhidas no período.
   c.append(el('div', 'st-sec', 'As emoções que escolheste'));
   const emos = ev.filter(x => x.a === 'emo');
-  if (!emos.length) c.append(el('div', 'st-sub', 'Ainda não há emoções neste período. Quando mudares a emoção de um boneco com o 😶, ela aparece aqui.'));
+  if (!emos.length) c.append(el('div', 'st-sub', 'Ainda não há emoções neste período. Quando disseres como te sentes com uma ideia (😶 Como me sinto), aparece aqui.'));
   else c.append(barras(EMOCOES.map(([e, nome]) => { const v = emos.filter(x => x.e === e).length; return [{ k: 'cerebro', e }, nome, v, `${nome}: ${pl(v, 'vez', 'vezes')}`]; })));
   // O mapa agora.
   const duas = el('div', 'st-duas'), a = el('div'), b = el('div');
