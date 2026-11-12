@@ -14,7 +14,7 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
 - **A barra de baixo** tem tudo o que se pode fazer com a ideia escolhida (a que acabaste de criar, ou a das setas) ou, sem escolha, com a ideia aberta. Está sempre no mesmo sítio e com nome:
   - **＋ Nova ideia** (sempre dentro da ideia aberta);
   - **✏️ Escrever**: as notas, as perguntas (gavetas) do que a ideia é, como separadores, e o **📦 Arrumar por hoje**. Clicar no boneco da ideia aberta faz o mesmo;
-  - **💗 Sentir**: pôr cá para fora (bater, festinhas, abraçar, agradecer, gritar, chorar), dizer como me sinto com a ideia, e respirar;
+  - **💗 Sentir**, em duas partes: *o que faço* à pessoa, ao animal ou à ideia (bater, festinhas, abraçar, agradecer, gritar com — o boneco reage) e *o que eu sinto* (chorar, dizer como me sinto, respirar);
   - **⋯ Mais**: o que é, a cor, mudar o boneco, mudar o nome e apagar.
 - **Olhar para fora:** em cada pessoa e animal há um botão **💙 Como se sente?** (na barra, no cartão aberto e na janela de Escrever) para dizeres como achas que ele se sente. É isso que muda a cara do boneco. Há também a pergunta escrita «Como se sente».
 - **Como me sinto com uma ideia** é outra coisa: o que tu sentes aparece num selo pequeno ao lado do boneco e conta nas estatísticas.
