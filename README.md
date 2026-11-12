@@ -16,6 +16,7 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
   - **✏️ Escrever**: as notas, as perguntas (gavetas) do que a ideia é, como separadores, e o **📦 Arrumar por hoje**. Clicar no boneco da ideia aberta faz o mesmo;
   - **💗 Sentir**: bater, festinhas, boneco e emoção, respirar;
   - **⋯ Mais**: o que é, a cor, mudar o nome e apagar.
+- **Apagar uma ideia** pede sempre confirmação e a password.
 - **As gavetas dependem do que a ideia é**: um assunto tem as 13 perguntas; uma pessoa tem 8 (o que gosto, o que me custa, o que queria dizer…); um animal e um objecto têm 4.
 - **🧠 O meu Cérebro** (na barra de cima) junta Despejar, As minhas entradas, Como tens andado e Assuntos arrumados.
 - O botão **?** (em baixo, à direita) mostra como se anda pelo mapa.

@@ -368,8 +368,9 @@ kbd { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(
 .bv-pw { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .bv-pw[hidden] { display: none; }
 .bv-pw p { font-size: 14px; margin-top: 4px; }
-.bv .bv-pw input, #cadeado input, #mudarpw input { font-size: 17px; font-weight: 600; padding: 6px 14px; box-shadow: 0 3px 0 var(--linha); }
+.bv .bv-pw input, #cadeado input, #mudarpw input, #apagar input { font-size: 17px; font-weight: 600; padding: 6px 14px; box-shadow: 0 3px 0 var(--linha); }
 #mudarpw .j-caixa { gap: 9px; }
+#apagar #ap-ok { background: #ffd9d2; } #apagar [data-fechar] { background: var(--surface); }
 .bv-aviso { font-size: 12.5px; color: var(--text2); background: var(--surface2); border-radius: 12px; padding: 7px 11px; text-align: left; }
 .bv-erro { color: var(--red); font-weight: 600; font-size: 14px; }
 .bv-erro[hidden] { display: none; }
@@ -542,6 +543,15 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
     <button class="link" id="cd-dica">Não me lembro… mostrar a dica</button>
   </div>
 </div>
+<div id="apagar" class="janela" hidden>
+  <div class="j-caixa bv" role="dialog" aria-label="Apagar">
+    <h2 class="ap-tit"></h2>
+    <p class="ap-sub"></p>
+    <input id="ap-pw" type="password" autocomplete="current-password" placeholder="Password">
+    <div class="bv-erro" hidden></div>
+    <div class="acoes"><button class="bt bt-soco" id="ap-ok">🗑️ Sim, apagar</button><button class="bt" data-fechar>Não, deixar ficar</button></div>
+  </div>
+</div>
 <div id="mudarpw" class="janela" hidden>
   <div class="j-caixa bv" role="dialog" aria-label="Mudar a password">
     <h2>🔑 Mudar a password</h2>
@@ -561,7 +571,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.12.03';
+const APP_VERSAO = '2026.11.12.04';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -1647,9 +1657,26 @@ function renomear(id, novo, perguntarTipo) {
   inp.addEventListener('click', e => e.stopPropagation());
   inp.addEventListener('mousedown', e => e.stopPropagation());
 }
+// Quantas ideias há dentro de uma (as gavetas vazias não contam: a pessoa nunca as viu).
+function contarDentro(id) { return dados.nos[id].f.reduce((t, x) => { const c = dados.nos[x]; return !c || (c.g && !temConteudo(c)) ? t : t + 1 + contarDentro(x); }, 0); }
+// Apagar pede sempre confirmação e a password, para nada se apagar sem querer.
+let apagarId = null;
 function apagar(id) {
   const n = dados.nos[id]; if (!n || !n.p) return;
-  const dentro = contar(id) - 1, t = titulo(n);
+  const j = $('#apagar'), dentro = contarDentro(id);
+  apagarId = id;
+  j.querySelector('.ap-tit').textContent = `Apagar «${titulo(n)}»?`;
+  j.querySelector('.ap-sub').textContent = (dentro ? `Apaga-se também o que tem dentro (${dentro} ideia${dentro === 1 ? '' : 's'}). ` : '') + 'Tens a certeza? Para confirmar, escreve a tua password.';
+  $('#ap-pw').value = ''; erro(j, ''); j.hidden = false; setTimeout(() => $('#ap-pw').focus(), 60);
+}
+function confirmarApagar() {
+  const j = $('#apagar');
+  if ($('#ap-pw').value !== pwMem) { erro(j, 'A password não está certa.'); $('#ap-pw').select(); return; }
+  j.hidden = true; $('#ap-pw').value = ''; apagarJa(apagarId);
+}
+function apagarJa(id) {
+  const n = dados.nos[id]; if (!n || !n.p) return;
+  const dentro = contarDentro(id), t = titulo(n);
   const irmaos = visiveis(dados.nos[n.p]), i = irmaos.indexOf(id);
   if (atual === id || dentroDe(atual, id)) atual = n.p;
   mudar(() => removerNo(id));
@@ -2056,7 +2083,7 @@ function perguntar(tit, sub, opcoes) {
   j.hidden = false;
 }
 document.querySelectorAll('[data-fechar]').forEach(b => b.onclick = () => { b.closest('.janela').hidden = true; });
-['arrumar', 'arrumados', 'pergunta', 'stats', 'entradas'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
+['arrumar', 'arrumados', 'pergunta', 'stats', 'entradas', 'apagar'].forEach(id => $('#' + id).addEventListener('mousedown', e => { if (e.target.id === id) e.target.hidden = true; }));
 
 /* ---------- Dar nome ao Cérebro ---------- */
 const bv = $('#boasvindas');
@@ -2168,6 +2195,8 @@ async function mudarPw() {
   await gravarTudo(); mp.hidden = true; toast('Password mudada 🔑 A partir de agora entra-se com a nova.');
 }
 $('#mp-ok').onclick = mudarPw;
+$('#ap-ok').onclick = confirmarApagar;
+$('#apagar').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); confirmarApagar(); } });
 mp.addEventListener('keydown', e => { if (e.key === 'Enter') mudarPw(); });
 
 /* ---------- Procurar ---------- */
