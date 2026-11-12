@@ -263,6 +263,7 @@ kbd { font: inherit; font-size: 12px; font-weight: 600; border: 1.5px solid var(
 .ent-link { align-self: flex-start; margin-left: 6px; }
 .ent-lista { display: flex; flex-direction: column; gap: 10px; }
 .ent { border: 2.5px solid var(--linha); border-left: 7px solid var(--cor, var(--accent)); border-radius: 18px; padding: 8px 12px; }
+.ent.achada { box-shadow: 0 0 0 5px var(--sel-bg); }
 .ent-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .ent-topo b { font-size: 14.5px; }
 .ent p { margin: 4px 0 0; white-space: pre-wrap; word-break: break-word; font-size: 14.5px; line-height: 1.45; }
@@ -388,7 +389,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
   <div class="marca"><div class="logo" id="logo"></div><span>Mindmap</span></div>
   <div class="busca-wrap">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg>
-    <input id="busca" placeholder="Procurar ideia…  (⌘K)" autocomplete="off" spellcheck="false">
+    <input id="busca" placeholder="Procurar ideias e entradas…  (⌘K)" autocomplete="off" spellcheck="false">
     <div id="resultados" hidden></div>
   </div>
   <div class="esp"></div>
@@ -560,7 +561,7 @@ body.trancado > header, body.trancado > main { visibility: hidden; }
 'use strict';
 const KEY = 'ideias-mapa-v1', KEY_EXP = 'ideias-ultimo-export', KEY_ADIAR = 'mindmap-adiar-update';
 // A versão desta cópia. Cada versão nova no GitHub muda isto e o versao.json.
-const APP_VERSAO = '2026.11.12.02';
+const APP_VERSAO = '2026.11.12.03';
 const URL_VERSAO = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/versao.json';
 const URL_APP = 'https://raw.githubusercontent.com/timenet-cell/Mindmap/main/index.html';
 const CORES = ['#4aa8ff', '#4cd07a', '#ffb03a', '#ff5c8a', '#b07cff', '#3fd0d0', '#ff8a4c'];
@@ -1227,7 +1228,7 @@ function abrirEntradas() {
   const lista = (raiz.entradas || []).slice().sort((a, b) => b.t - a.t);
   if (!lista.length) l.append(el('div', 'j-sub', 'Ainda não há entradas. Escreve em «Sobre mim», no Cérebro, e carrega em ✓ Guardar.'));
   lista.forEach(en => {
-    const x = el('div', 'ent'), topo = el('div', 'ent-topo'); x.style.setProperty('--cor', raiz.c);
+    const x = el('div', 'ent'), topo = el('div', 'ent-topo'); x.style.setProperty('--cor', raiz.c); x.dataset.t = en.t;
     topo.append(el('b', null, new Date(en.t).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ', ' + hora(en.t)),
       btn('Apagar', 'Apagar esta entrada', () => { mudar(() => { raiz.entradas = raiz.entradas.filter(y => y !== en); }); abrirEntradas(); render({ semCamara: true }); toast('Entrada apagada', true); }, 'link perigo'));
     x.append(topo, el('p', null, en.txt)); l.append(x);
@@ -2173,15 +2174,31 @@ mp.addEventListener('keydown', e => { if (e.key === 'Enter') mudarPw(); });
 const busca = $('#busca'), res = $('#resultados');
 let resIdx = 0;
 function irDireto(id) { atual = id; sel = null; busca.value = ''; res.hidden = true; busca.blur(); render({ suave: true }); }
+// Abre as entradas e mostra a que se procurou.
+function irEntrada(t) {
+  busca.value = ''; res.hidden = true; busca.blur(); abrirEntradas();
+  const e = document.querySelector(`#entradas .ent[data-t="${t}"]`);
+  if (e) { e.scrollIntoView({ block: 'center' }); e.classList.add('achada'); }
+}
 busca.addEventListener('input', () => {
   const q = norm(busca.value.trim()); res.innerHTML = ''; resIdx = 0;
   if (!q) { res.hidden = true; return; }
   const lista = Object.values(dados.nos).filter(n => norm(n.t).includes(q) || norm(n.n).includes(q)).slice(0, 14);
-  if (!lista.length) res.append(el('div', 'nada', 'Nada encontrado'));
+  // Também se procura no que está escrito nas entradas de «Sobre mim».
+  const ents = (dados.nos[dados.raiz].entradas || []).filter(en => norm(en.txt).includes(q)).sort((a, b) => b.t - a.t).slice(0, 8);
+  if (!lista.length && !ents.length) res.append(el('div', 'nada', 'Nada encontrado'));
   lista.forEach((n, i) => {
     const b = el('button', i === 0 ? 'on' : null); b.dataset.id = n.id;
     b.append(el('b', null, (n.arq ? '📦 ' : '') + titulo(n)), el('small', null, caminho(n.id).slice(0, -1).map(x => titulo(dados.nos[x])).join(' › ') || 'o Cérebro'));
     b.addEventListener('mousedown', e => { e.preventDefault(); irDireto(n.id); });
+    res.append(b);
+  });
+  ents.forEach(en => {
+    const b = el('button', !lista.length && en === ents[0] ? 'on' : null); b.dataset.ent = en.t;
+    const i = norm(en.txt).indexOf(q), de = Math.max(0, i - 20);
+    b.append(el('b', null, '📖 ' + (de ? '…' : '') + en.txt.slice(de, de + 70).replace(/\n/g, ' ') + (en.txt.length > de + 70 ? '…' : '')),
+             el('small', null, 'Sobre mim · ' + dataHora(en.t)));
+    b.addEventListener('mousedown', e => { e.preventDefault(); irEntrada(en.t); });
     res.append(b);
   });
   res.hidden = false;
@@ -2192,7 +2209,7 @@ busca.addEventListener('keydown', e => {
   else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && bs.length) {
     e.preventDefault(); resIdx = (resIdx + (e.key === 'ArrowDown' ? 1 : -1) + bs.length) % bs.length;
     bs.forEach((b, i) => b.classList.toggle('on', i === resIdx)); bs[resIdx].scrollIntoView({ block: 'nearest' });
-  } else if (e.key === 'Enter' && bs[resIdx]) { e.preventDefault(); irDireto(bs[resIdx].dataset.id); }
+  } else if (e.key === 'Enter' && bs[resIdx]) { e.preventDefault(); if (bs[resIdx].dataset.ent) irEntrada(+bs[resIdx].dataset.ent); else irDireto(bs[resIdx].dataset.id); }
 });
 busca.addEventListener('blur', () => setTimeout(() => { res.hidden = true; }, 100));
 
