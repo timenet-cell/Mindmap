@@ -14,12 +14,12 @@ Um mapa de ideias com cara de desenho animado, num único ficheiro HTML. Serve p
 - **A barra de baixo** tem tudo o que se pode fazer com a ideia escolhida (a que acabaste de criar, ou a das setas) ou, sem escolha, com a ideia aberta. Está sempre no mesmo sítio e com nome:
   - **＋ Nova ideia** (sempre dentro da ideia aberta);
   - **✏️ Escrever**: as notas, as perguntas (gavetas) do que a ideia é, como separadores, e o **📦 Arrumar por hoje**. Clicar no boneco da ideia aberta faz o mesmo;
-  - **💗 Sentir**: bater, festinhas, como me sinto com isto, o boneco e a cara dele, respirar;
-  - **⋯ Mais**: o que é, a cor, mudar o nome e apagar.
+  - **💗 Sentir**: pôr cá para fora (bater, festinhas, abraçar, agradecer, gritar, chorar), dizer como me sinto com a ideia, e respirar;
+  - **⋯ Mais**: o que é, a cor, mudar o boneco, mudar o nome e apagar.
 - **Olhar para fora:** em cada pessoa e animal há um botão **💙 Como se sente?** (na barra, no cartão aberto e na janela de Escrever) para dizeres como achas que ele se sente. É isso que muda a cara do boneco. Há também a pergunta escrita «Como se sente».
 - **Como me sinto com uma ideia** é outra coisa: o que tu sentes aparece num selo pequeno ao lado do boneco e conta nas estatísticas.
 - **Apagar uma ideia** pede sempre confirmação e a password.
-- **As gavetas dependem do que a ideia é**: um assunto tem as 13 perguntas; uma pessoa tem 8 (o que gosto, o que me custa, o que queria dizer…); um animal e um objecto têm 4.
+- **As gavetas dependem do que a ideia é**: um assunto tem as 13 perguntas; uma pessoa tem 7, todas sobre ela (como esta pessoa se sente, o que gosto e o que não gosto nesta pessoa, o que me custa, o que lhe queria dizer…); um animal tem 5 e um objecto 4.
 - **🧠 O meu Cérebro** (na barra de cima) junta Despejar, As minhas entradas, Como tens andado e Assuntos arrumados.
 - O botão **?** (em baixo, à direita) mostra como se anda pelo mapa.
 - **Nos campos de texto**, o `Enter` muda de linha e o botão **✓ Guardar** (ou `⌘Enter`) confirma. Cada ideia sugere o que escrever conforme o que é.
