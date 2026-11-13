@@ -66,7 +66,10 @@ mac/compilar.sh
 
 Fica em `dist/Mindmap.app` (e `dist/Mindmap-Mac-Universal.zip`). Precisa do macOS 11.3 ou mais recente.
 
-O GitHub também a compila sozinho em cada pull request e em cada alteração ao `main` (workflow *App para o Mac*): o zip fica nos *Artifacts* dessa execução, com o nome `Mindmap-Mac-Universal`. Como a app tem só assinatura ad-hoc, na primeira vez abre-se com o botão direito › *Abrir* (ou, no Terminal, `xattr -dr com.apple.quarantine Mindmap.app`).
+O GitHub também a compila sozinho (workflow *App para o Mac*):
+
+- **Em cada alteração ao `main`**, publica o zip num **Release** com o número da versão. O link de descarga é sempre o mesmo: <https://github.com/timenet-cell/Mindmap/releases/latest/download/Mindmap-Mac-Universal.zip>
+- **Em cada pull request**, só compila, para confirmar que está tudo bem; o zip fica nos *Artifacts* dessa execução. Como a app tem só assinatura ad-hoc, na primeira vez abre-se com o botão direito › *Abrir* (ou, no Terminal, `xattr -dr com.apple.quarantine Mindmap.app`).
 
 ### Atualizar a partir da própria app
 
@@ -78,7 +81,7 @@ Quem tem a app compilada não precisa de a descarregar outra vez a cada versão.
 - Instalar uma app mais recente passa à frente de uma página atualizada mais antiga.
 - Só quando o programa em Swift muda é que é preciso uma app nova: sobe-se o `casca` no `versao.json` e no `mac/main.swift`, e a app antiga manda a pessoa a `releases/latest` em vez de se atualizar.
 
-Para isto funcionar, o repositório tem de ser **público** (a app lê os ficheiros sem login) e a app compilada deve estar num **Release** do GitHub.
+Para isto funcionar, o repositório tem de ser **público** (a app lê os ficheiros sem login). A app compilada fica nos **Releases**, publicada pelo workflow.
 
 ### Como a app fala com a página
 
