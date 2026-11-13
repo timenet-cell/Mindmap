@@ -23,6 +23,13 @@ jobs:
           lipo -archs dist/Mindmap.app/Contents/MacOS/Mindmap | grep -q x86_64
           lipo -archs dist/Mindmap.app/Contents/MacOS/Mindmap | grep -q arm64
           codesign --verify --deep --strict dist/Mindmap.app
+      - name: Abrir a app e confirmar que mostra a janela
+        run: mac/experimentar.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: experiencia
+          path: build-teste/
       - uses: actions/upload-artifact@v4
         with:
           name: Mindmap-Mac-Universal

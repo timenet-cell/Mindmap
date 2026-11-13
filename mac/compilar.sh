@@ -18,6 +18,15 @@ done
 lipo -create build-mac/Mindmap-x86_64 build-mac/Mindmap-arm64 -output "$APP/Contents/MacOS/Mindmap"
 
 cp index.html "$APP/Contents/Resources/index.html"
+
+# O ícone (o Cérebro): do mac/icone.png fazem-se todos os tamanhos que o Mac pede.
+ICONES=build-mac/Mindmap.iconset
+mkdir -p "$ICONES"
+for T in 16 32 128 256 512; do
+  sips -z $T $T mac/icone.png --out "$ICONES/icon_${T}x${T}.png" > /dev/null
+  sips -z $((T * 2)) $((T * 2)) mac/icone.png --out "$ICONES/icon_${T}x${T}@2x.png" > /dev/null
+done
+iconutil -c icns "$ICONES" -o "$APP/Contents/Resources/Mindmap.icns"
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -27,6 +36,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleDisplayName</key><string>Mindmap</string>
   <key>CFBundleIdentifier</key><string>app.mindmap.mac</string>
   <key>CFBundleExecutable</key><string>Mindmap</string>
+  <key>CFBundleIconFile</key><string>Mindmap</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>${VERSAO:-1.0}</string>
   <key>CFBundleVersion</key><string>${VERSAO:-1.0}</string>
