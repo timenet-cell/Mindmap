@@ -69,12 +69,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     private var web: WKWebView!
     private var aSair = false
 
+    // As consultas às pastas das ideias (iCloud Drive, Documentos) correm nesta fila, fora da linha principal:
+    // o macOS pode ficar à espera de uma autorização para essas pastas, e a app não pode ficar presa por isso.
+    private let fila = DispatchQueue(label: "mindmap.ficheiros")
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         fazerMenus()
 
+        // Primeiro a janela, para a app abrir logo. A página entra a seguir.
+        janela = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1280, height: 820),
+                          styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        janela.title = "Mindmap"
+        janela.isReleasedWhenClosed = false
+        janela.minSize = NSSize(width: 720, height: 520)
+        janela.center()
+        janela.setFrameAutosaveName("MindmapJanela")
+        janela.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        let g = guarda
+        fila.async {
+            let estado = g.estado()
+            DispatchQueue.main.async { self.montarPagina(estado) }
+        }
+    }
+
+    private func montarPagina(_ estadoInicial: [String: Any]) {
         let cfg = WKWebViewConfiguration()   // o WKWebsiteDataStore normal (persistente): a reserva no localStorage não se perde
         cfg.userContentController.addScriptMessageHandler(self, contentWorld: .page, name: "mindmap")
-        let dados = (try? JSONSerialization.data(withJSONObject: guarda.estado())) ?? Data("{}".utf8)
+        let dados = (try? JSONSerialization.data(withJSONObject: estadoInicial)) ?? Data("{}".utf8)
         let estado = String(data: dados, encoding: .utf8) ?? "{}"
         let ponte = """
         (function () {
@@ -95,19 +118,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         """
         cfg.userContentController.addUserScript(WKUserScript(source: ponte, injectionTime: .atDocumentStart, forMainFrameOnly: true))
 
-        web = WKWebView(frame: .zero, configuration: cfg)
+        web = WKWebView(frame: janela.contentView?.bounds ?? .zero, configuration: cfg)
         web.uiDelegate = self
         web.navigationDelegate = self
-
-        janela = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1280, height: 820),
-                          styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
-        janela.title = "Mindmap"
-        janela.minSize = NSSize(width: 720, height: 520)
-        janela.center()
-        janela.setFrameAutosaveName("MindmapJanela")
         janela.contentView = web
-        janela.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        janela.makeFirstResponder(web)
 
         carregarPagina()
     }
@@ -139,6 +154,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         try Data(html.utf8).write(to: paginaEmUso, options: .atomic)
     }
     private func carregarPagina() {
+        guard web != nil else { return }
         guard let daApp = paginaDaApp, let htmlDaApp = try? String(contentsOf: daApp, encoding: .utf8) else {
             let a = NSAlert(); a.messageText = "Falta o index.html dentro da app."; a.runModal(); NSApp.terminate(nil); return
         }
@@ -178,18 +194,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage,
                                replyHandler: @escaping (Any?, String?) -> Void) {
         guard let m = message.body as? [String: Any], let op = m["op"] as? String else { replyHandler(nil, "Pedido inválido"); return }
+        let g = guarda
         do {
             switch op {
+            // Ler, gravar e mudar de sítio mexem nas pastas das ideias: correm na fila, e a resposta volta à linha principal.
             case "ler":
-                if let texto = guarda.ler() { replyHandler(texto, nil) } else { replyHandler(NSNull(), nil) }
+                fila.async {
+                    let texto = g.ler()
+                    DispatchQueue.main.async { if let texto = texto { replyHandler(texto, nil) } else { replyHandler(NSNull(), nil) } }
+                }
             case "gravar":
                 guard let texto = m["texto"] as? String, !texto.isEmpty else { replyHandler(nil, "Nada para gravar"); return }
-                try guarda.gravar(texto)
-                replyHandler(true, nil)
+                fila.async {
+                    var erro: String? = nil
+                    do { try g.gravar(texto) } catch { erro = error.localizedDescription }
+                    DispatchQueue.main.async { if let erro = erro { replyHandler(nil, erro) } else { replyHandler(true, nil) } }
+                }
             case "mudarPara":
                 guard let k = m["k"] as? String, let s = Sitio(rawValue: k) else { replyHandler(nil, "Sítio desconhecido"); return }
-                try guarda.mudarPara(s)
-                replyHandler(guarda.estado(), nil)
+                fila.async {
+                    var erro: String? = nil
+                    do { try g.mudarPara(s) } catch { erro = error.localizedDescription }
+                    let estado = g.estado()
+                    DispatchQueue.main.async { if let erro = erro { replyHandler(nil, erro) } else { replyHandler(estado, nil) } }
+                }
             case "atualizar":
                 // Só se aceita uma página inteira do Mindmap, e mais recente do que a que está em uso.
                 guard let html = m["html"] as? String, html.count > 20000, html.contains("</html>"), let nova = versao(de: html) else {
