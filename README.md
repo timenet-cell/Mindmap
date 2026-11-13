@@ -68,6 +68,18 @@ Fica em `dist/Mindmap.app` (e `dist/Mindmap-Mac-Universal.zip`). Precisa do macO
 
 O GitHub também a compila sozinho em cada pull request e em cada alteração ao `main` (workflow *App para o Mac*): o zip fica nos *Artifacts* dessa execução, com o nome `Mindmap-Mac-Universal`. Como a app tem só assinatura ad-hoc, na primeira vez abre-se com o botão direito › *Abrir* (ou, no Terminal, `xattr -dr com.apple.quarantine Mindmap.app`).
 
+### Atualizar a partir da própria app
+
+Quem tem a app compilada não precisa de a descarregar outra vez a cada versão. A app só é uma janela à volta do `index.html`, por isso:
+
+- A app vê no `versao.json` do `main` se há versão nova (ao abrir, de 6 em 6 horas, ou em *Ficheiro › Procurar versão nova*) e **pergunta**. A pessoa escolhe *Atualizar agora* ou *Depois*; nada se atualiza sozinho.
+- *Atualizar agora* vai buscar o `index.html` do `main`, guarda-o fora da app (`~/Library/Application Support/Mindmap/index.html`) e a app volta a abrir já com ele. O `.app` não é alterado.
+- No menu **Mindmap › Voltar à versão que veio com a app…** desfaz-se uma atualização que tenha corrido mal.
+- Instalar uma app mais recente passa à frente de uma página atualizada mais antiga.
+- Só quando o programa em Swift muda é que é preciso uma app nova: sobe-se o `casca` no `versao.json` e no `mac/main.swift`, e a app antiga manda a pessoa a `releases/latest` em vez de se atualizar.
+
+Para isto funcionar, o repositório tem de ser **público** (a app lê os ficheiros sem login) e a app compilada deve estar num **Release** do GitHub.
+
 ### Como a app fala com a página
 
 Faz-se uma app de Mac que mostra o `index.html` num **WKWebView** (Swift, ou Tauri 2, que no Mac também usa o WKWebView). A página não muda; o programa à volta dela só tem de lhe dar o objecto abaixo, **antes** de os scripts da página correrem (por exemplo com um `WKUserScript` em `atDocumentStart`, ou o `initialization_script` do Tauri):
@@ -78,7 +90,10 @@ window.MindmapNativo = {
   gravar(texto: string): Promise<void>, // escrever de forma atómica (ficheiro temporário + mudar o nome)
   onde(): string,                     // o caminho, para mostrar à pessoa
   sitios(): Array<{ k: 'icloud' | 'documentos', nome: string, caminho: string, disponivel: boolean }>,
-  mudarPara(k: 'icloud' | 'documentos'): Promise<void> // mover o ficheiro para lá e usar esse sítio daí em diante
+  mudarPara(k: 'icloud' | 'documentos'): Promise<void>, // mover o ficheiro para lá e usar esse sítio daí em diante
+  atualizar(html: string): Promise<void>, // guardar a página nova fora do .app e voltar a abrir com ela
+  abrirLink(url: string): Promise<void>,  // abrir um link https no browser
+  casca: number                           // versão do programa à volta da página
 };
 ```
 

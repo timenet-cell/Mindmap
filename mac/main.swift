@@ -86,6 +86,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             onde: () => e.onde,
             sitios: () => e.sitios,
             mudarPara: k => h.postMessage({ op: 'mudarPara', k }).then(novo => { e = novo; }),
+            // Atualizar a página dentro da app, sem descarregar uma app nova. A app volta a abrir sozinha.
+            atualizar: html => h.postMessage({ op: 'atualizar', html }).then(() => {}),
+            abrirLink: url => h.postMessage({ op: 'abrir', url }).then(() => {}),
+            casca: \(AppDelegate.casca),
           };
         })();
         """
@@ -105,10 +109,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         janela.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
-        guard let pagina = Bundle.main.url(forResource: "index", withExtension: "html") else {
+        carregarPagina()
+    }
+
+    // ---- A página e as atualizações ----
+    // A página que se mostra é uma cópia fora da app (Application Support/Mindmap/index.html), para se
+    // poder atualizar sem mexer no .app. Ao abrir, se a que vem dentro da app for igual ou mais recente,
+    // é ela que passa a valer (por exemplo depois de instalar uma app nova).
+    static let casca = 1   // sobe quando o programa à volta da página muda e é preciso uma app nova
+    private var paginaDaApp: URL? { Bundle.main.url(forResource: "index", withExtension: "html") }
+    private var pastaDaPagina: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Mindmap")
+    }
+    private var paginaEmUso: URL { pastaDaPagina.appendingPathComponent("index.html") }
+
+    // A versão está escrita na página: const APP_VERSAO = '2026.11.12.11';
+    private func versao(de html: String) -> String? {
+        guard let a = html.range(of: "const APP_VERSAO = '") else { return nil }
+        guard let b = html[a.upperBound...].firstIndex(of: "'") else { return nil }
+        let v = String(html[a.upperBound..<b])
+        return v.isEmpty ? nil : v
+    }
+    private func versao(em url: URL) -> String? {
+        guard let t = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        return versao(de: t)
+    }
+    private func guardarPagina(_ html: String) throws {
+        try FileManager.default.createDirectory(at: pastaDaPagina, withIntermediateDirectories: true)
+        try Data(html.utf8).write(to: paginaEmUso, options: .atomic)
+    }
+    private func carregarPagina() {
+        guard let daApp = paginaDaApp, let htmlDaApp = try? String(contentsOf: daApp, encoding: .utf8) else {
             let a = NSAlert(); a.messageText = "Falta o index.html dentro da app."; a.runModal(); NSApp.terminate(nil); return
         }
-        web.loadFileURL(pagina, allowingReadAccessTo: pagina.deletingLastPathComponent())
+        let vApp = versao(de: htmlDaApp) ?? "", vUso = versao(em: paginaEmUso)
+        if vUso == nil || vApp >= vUso! { try? guardarPagina(htmlDaApp) }
+        if FileManager.default.fileExists(atPath: paginaEmUso.path) {
+            web.loadFileURL(paginaEmUso, allowingReadAccessTo: pastaDaPagina)
+        } else {   // não deu para copiar: usa-se a que vem dentro da app
+            web.loadFileURL(daApp, allowingReadAccessTo: daApp.deletingLastPathComponent())
+        }
+    }
+    // Se uma atualização correr mal, volta-se à página que veio com a app.
+    @objc func voltarAOriginal(_ sender: Any?) {
+        let a = NSAlert()
+        a.messageText = "Voltar à versão que veio com a app?"
+        a.informativeText = "As tuas ideias ficam como estão. Só a app volta à versão com que foi instalada."
+        a.addButton(withTitle: "Voltar"); a.addButton(withTitle: "Cancelar")
+        guard a.runModal() == .alertFirstButtonReturn else { return }
+        try? FileManager.default.removeItem(at: paginaEmUso)
+        carregarPagina()
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
@@ -140,6 +190,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
                 guard let k = m["k"] as? String, let s = Sitio(rawValue: k) else { replyHandler(nil, "Sítio desconhecido"); return }
                 try guarda.mudarPara(s)
                 replyHandler(guarda.estado(), nil)
+            case "atualizar":
+                // Só se aceita uma página inteira do Mindmap, e mais recente do que a que está em uso.
+                guard let html = m["html"] as? String, html.count > 20000, html.contains("</html>"), let nova = versao(de: html) else {
+                    replyHandler(nil, "A página nova não está completa"); return
+                }
+                if let atual = versao(em: paginaEmUso), nova <= atual { replyHandler(nil, "Já tens esta versão"); return }
+                try guardarPagina(html)
+                replyHandler(true, nil)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self.carregarPagina() }
+            case "abrir":
+                guard let t = m["url"] as? String, let u = URL(string: t), u.scheme == "https" else { replyHandler(nil, "Link inválido"); return }
+                NSWorkspace.shared.open(u)
+                replyHandler(true, nil)
             default:
                 replyHandler(nil, "Pedido desconhecido")
             }
@@ -206,6 +269,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         let itemApp = NSMenuItem(); barra.addItem(itemApp)
         let menuApp = NSMenu(); itemApp.submenu = menuApp
         menuApp.addItem(withTitle: "Esconder o Mindmap", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        menuApp.addItem(NSMenuItem.separator())
+        let original = NSMenuItem(title: "Voltar à versão que veio com a app…", action: #selector(voltarAOriginal(_:)), keyEquivalent: "")
+        original.target = self
+        menuApp.addItem(original)
         menuApp.addItem(NSMenuItem.separator())
         menuApp.addItem(withTitle: "Sair do Mindmap", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
